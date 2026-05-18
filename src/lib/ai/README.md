@@ -1,21 +1,55 @@
-# AI Tutor — RAG Pipeline (skeleton)
+# AI Tutor — RAG Pipeline
 
 Reference implementation of the curriculum's own best practices: RAG-grounded,
 cost-disciplined, safety-first. Spec: `docs/system-design.md` §3 (pipeline) and
 §5 (security); `docs/architecture.md` §2 / §4.2 (stack + flow).
 
-> **Status: skeleton.** Correct structure, types, and safety properties; it
-> typechecks and runs end-to-end with **no database, no embeddings, no keys**.
-> DB / embeddings / Clerk / AI Gateway are later waves. No real model call
-> happens until the Gateway wave provisions keys.
+> **Status: retrieval + ingestion are REAL.** The DB wave is done: the local
+> Postgres+pgvector DB is migrated/seeded (157 lessons), the rate limiter is a
+> real atomic token bucket, and `PgVectorRetrievalService` does real scoped
+> pgvector ANN + semantic-cache read/write. The ONE remaining live
+> prerequisite is an **OpenAI embedding key** (`text-embedding-3-small`):
+> without it the pipeline degrades cleanly (typed "unavailable", exit 0 — no
+> crash, no fake vectors), exactly like the Anthropic tutor provider.
+>
+> **Remaining key-blocked work:** ingestion + retrieval produce real results
+> only once `OPENAI_API_KEY` (or `AI_GATEWAY_API_KEY`) is set; the Anthropic
+> generation step still needs `ANTHROPIC_API_KEY`/`AI_GATEWAY_API_KEY`. Clerk
+> is still stubbed (the auth stub now idempotently syncs its fixed dev `User`
+> row so the FK-constrained rate-bucket upsert succeeds locally).
+
+## Running ingestion (the one live prerequisite)
+
+```bash
+# 1. Local DB up + migrated + seeded (see prisma/README.md):
+#    docker compose up -d ai-course-db
+#    npx prisma migrate dev          # applies prisma/migrations + HNSW SQL
+#    npx tsx --env-file=.env prisma/seed.ts
+#
+# 2. Set the embedding key in .env (NEVER commit):
+#    OPENAI_API_KEY="sk-..."
+#
+# 3. Embed every lesson's MDX body into LessonChunkEmbedding:
+npx tsx --env-file=.env scripts/ingest-embeddings.ts
+#    --force        full reindex (e.g. embedding-model swap)
+#    --lesson <id>  targeted single-lesson reindex
+```
+
+Ingestion is **idempotent + incremental**: a lesson is re-embedded only when
+its chunk-set hash changed. With no key the script logs a clear typed message
+and **exits 0** — it never crashes and never writes placeholder embeddings.
 
 ## Files
 
 | File | Role |
 |---|---|
 | `src/lib/rag/types.ts` | Zod schemas + types: request, chunk, citation, scope, semantic-cache entry, rate bucket, typed errors. The boundary contract. |
-| `src/lib/rag/retrieval.ts` | `RetrievalService` interface + `StubRetrievalService` (deterministic, DB-free). §3.2 read path. |
-| `src/lib/rag/rate-limit.ts` | `RateLimiter` interface + `AllowAllRateLimiter` stub. §5.4 token bucket. |
+| `src/lib/rag/chunker.ts` | Pure heading-aware MDX chunker (~700–900 tok, ~15% overlap, never splits a code fence). §3.1. |
+| `src/lib/rag/embedder.ts` | Sole place the OpenAI embedding key is read (env-only, typed available/unavailable — mirrors `provider.ts`). `text-embedding-3-small`, 1536-dim. §5.1. |
+| `src/lib/rag/ingest.ts` | Ingestion pipeline (read MDX → chunk → embed → DELETE-then-INSERT `LessonChunkEmbedding`, incremental). Injected db+embedder (no `server-only`). §3.1. |
+| `scripts/ingest-embeddings.ts` | Runnable ingestion entrypoint (`npx tsx --env-file=.env`). No-key ⇒ exit 0. §3.1. |
+| `src/lib/rag/retrieval.ts` | `RetrievalService` interface + **real `PgVectorRetrievalService`** (scoped pgvector ANN, semantic cache, bound `$queryRaw`) + `StubRetrievalService` (tests / no-DB) + env factory. §3.2. |
+| `src/lib/rag/rate-limit.ts` | `RateLimiter` interface + **real `TokenBucketRateLimiter`** (atomic upsert) + `AllowAllRateLimiter` (test-only, prod-hard-fails). §5.4. |
 | `src/lib/ai/provider.ts` | Sole place an API key is read (env-only). Returns typed available/unavailable. §5.1. |
 | `src/lib/ai/tutor-agent.ts` | Grounded generation: system prompt, escalation heuristic, prompt-cache breakpoints, message assembly (injection containment). §3.3 / §3.4. |
 | `src/lib/ai/auth-stub.ts` | Fixed fake principal. Single call site for the Clerk wave. §4.1. |
@@ -27,41 +61,52 @@ cost-disciplined, safety-first. Spec: `docs/system-design.md` §3 (pipeline) and
 POST /api/tutor  { messages, lessonId }
   1. Zod validate body                         types.ts            (§5.2)
   2. authenticate           → STUB principal   auth-stub.ts        (§4.1)
-  3. rate-limit consume     → STUB allows      rate-limit.ts       (§5.4)
-  4. resolveScope(lessonId) → STUB fake scope  retrieval.ts        (§3.2)
-     retrieve(scope, q)     → STUB fake chunks retrieval.ts        (§3.2)
+                              (syncs fixed dev User row — FK valid)
+  3. rate-limit consume     → REAL token bucket rate-limit.ts      (§5.4)
+  4. resolveScope(lessonId) → REAL Prisma read  retrieval.ts       (§3.2)
+     entitlement check       → canAccessLesson  gating.ts          (§4.3)
+     retrieve(scope, q)     → REAL pgvector ANN retrieval.ts       (§3.2)
        └ semantic-cache hit → return cached, SKIP generation       (§3.2/§3.4)
   5. decideRouting (cheap, deterministic) → Sonnet | Opus          (§3.3)
      streamText: system(persona) + user(context) + user(convo)
        → toUIMessageStreamResponse()                               (§3.3)
 ```
 
-## Where the stubs are & what each wave must implement
+When no OpenAI key is set, step 4's `retrieve` falls back to the
+deterministic stub (dev/test only — the stub still hard-fails in production);
+step 5's Anthropic provider then resolves "unavailable" → typed 503.
 
-### DB wave (Neon + pgvector + Prisma)
-- **`retrieval.ts` → `PgVectorRetrievalService implements RetrievalService`:**
-  - `resolveScope`: Prisma `Lesson → Module → Track` read.
-  - `retrieve`: (1) semantic-cache cosine lookup in `SemanticCacheEntry`
-    `WHERE scopeKey = moduleScopeKey(...)`, return `cacheHit` if
-    `sim ≥ SEMANTIC_CACHE_SIMILARITY_THRESHOLD`; (2) embed question
-    (OpenAI `text-embedding-3-small`, Gateway); (3) **parameterized
-    `$queryRaw`** pgvector ANN on `LessonChunkEmbedding`
-    `WHERE moduleId = $1 ORDER BY embedding <=> $2 LIMIT k`, widen to
-    `trackId` when `meanScore < SCOPE_WIDEN_CONFIDENCE_FLOOR`.
-    **Never string-interpolate the vector or filters (§5.6).**
-- **`rate-limit.ts` → `TokenBucketRateLimiter`:** atomic single-statement
-  upsert on `TutorRateBucket(userId)` (refill on `refillAt`, deny + set
-  `retryAfterSeconds` when exhausted). No read-then-write race.
-- **`route.ts` post-stream:** persist `TutorMessage` (tokens, model), upsert
-  `SemanticCacheEntry`.
+## What is real vs still key-blocked
 
-### Clerk wave (auth)
-- **`auth-stub.ts` → real `getTutorPrincipal`:** read the middleware-injected
-  Clerk session, sync the app-local `User`; `null` on no/invalid session
-  (route already maps that to 401).
-- **`route.ts`:** wire `canAccessLesson(principal, lesson)` (§4.3) at the
-  marked TODO → 403 *before* retrieval, so the tutor can never ground in a
-  lesson the learner is not entitled to.
+### DONE (DB wave)
+- **`retrieval.ts` → `PgVectorRetrievalService`** (real): `resolveScope`
+  Prisma `Lesson→Module→Track`; `retrieve` = semantic-cache cosine lookup on
+  `SemanticCacheEntry` (hit if `sim ≥ SEMANTIC_CACHE_SIMILARITY_THRESHOLD`) →
+  embed question → **bound-param `$queryRaw`** pgvector ANN on
+  `LessonChunkEmbedding` scoped by `moduleId`, widening to `trackId` when
+  `meanScore < SCOPE_WIDEN_CONFIDENCE_FLOOR`; `cacheAnswer` writes the cache.
+  The query vector + scope filters are BOUND params — never interpolated
+  (§5.6, asserted by a unit test).
+- **`rate-limit.ts` → `TokenBucketRateLimiter`** (real): atomic
+  single-statement upsert on `TutorRateBucket(userId)`. Verified against the
+  real local DB.
+- **`ingest.ts` + `scripts/ingest-embeddings.ts`** (real): MDX → chunk →
+  `embedMany` → DELETE-then-INSERT, incremental by chunk-set hash.
+
+### Still key-blocked (env only — no code change)
+- Ingestion + real retrieval results need `OPENAI_API_KEY` (or
+  `AI_GATEWAY_API_KEY`). Absent ⇒ clean typed degrade (no crash).
+- Generation needs `ANTHROPIC_API_KEY`/`AI_GATEWAY_API_KEY` (`provider.ts`).
+- `route.ts` post-stream `TutorMessage` persistence + `SemanticCacheEntry`
+  write-back is still a marked TODO (the service exposes `cacheAnswer`;
+  wiring it post-stream is the next route change).
+
+### Clerk wave (auth — still stubbed)
+- **`auth-stub.ts`**: now idempotently syncs its fixed dev `User` row so the
+  FK-constrained `TutorRateBucket` upsert succeeds locally (this is exactly
+  the "sync the app-local User" step the real Clerk read will do). The prod
+  hard-guard still fails fast. `canAccessLesson` (§4.3) is already wired in
+  `route.ts` before retrieval.
 
 ### Gateway wave (AI provider)
 - Provision `ANTHROPIC_API_KEY` (local dev) and/or `AI_GATEWAY_API_KEY` +

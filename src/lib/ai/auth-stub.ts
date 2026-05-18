@@ -11,14 +11,29 @@
  * obvious and centralised so the Clerk wave has exactly one call site to
  * replace.
  *
- * SECURITY: this is NOT auth. It must never reach an environment with real
- * keys/data. The README lists it as a hard blocker before any live wave.
+ * DB-WAVE NOTE (referential integrity): downstream of this stub the *real*
+ * `TokenBucketRateLimiter` upserts `TutorRateBucket(userId)`, whose `userId`
+ * is a FK → `User(id) ON DELETE CASCADE`. With no Clerk, no `User` row exists
+ * for `STUB_USER_ID`, so that insert fails the FK (Postgres 23503) and the
+ * route's bare catch returns a 500 — the "/api/tutor 500 locally" symptom.
+ * The Clerk wave's own TODO is to "resolve/sync the app-local User row"; this
+ * stub does exactly that, idempotently, for the fixed dev identity only. The
+ * sync is dev-only (the prod guard above still hard-fails first), so this
+ * adds no production behaviour — it just makes the fixed dev principal
+ * referentially valid, same as a real Clerk-synced user would be.
  */
+
+import { db } from "@/lib/db";
 
 export interface TutorPrincipal {
   readonly userId: string;
   readonly role: "learner" | "instructor" | "admin";
 }
+
+/** The single fixed dev identity. One constant — no scattered literals. */
+const STUB_USER_ID = "stub-user-00000000";
+const STUB_CLERK_ID = "stub-clerk-00000000";
+const STUB_EMAIL = "stub@local.dev";
 
 /**
  * TODO(clerk-wave): replace with the real session read.
@@ -46,5 +61,20 @@ export async function getTutorPrincipal(
     );
   }
   void _req;
-  return { userId: "stub-user-00000000", role: "learner" };
+
+  // Mirror the Clerk wave's "sync the app-local User row" step for the fixed
+  // dev identity so the FK-constrained TutorRateBucket upsert downstream is
+  // referentially valid. Idempotent; dev-only (prod is hard-blocked above).
+  await db.user.upsert({
+    where: { id: STUB_USER_ID },
+    update: {},
+    create: {
+      id: STUB_USER_ID,
+      clerkUserId: STUB_CLERK_ID,
+      email: STUB_EMAIL,
+      role: "learner",
+    },
+  });
+
+  return { userId: STUB_USER_ID, role: "learner" };
 }
