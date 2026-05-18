@@ -1,0 +1,27 @@
+---
+code: 4.4.4
+title: 'Assistants API: Threads, Messages, Runs, and Retrieval'
+summary: >-
+  Critical deadline: The OpenAI Assistants API (/v1/assistants, /v1/threads)
+  will be completely removed on August 26, 2026.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Assistants API: Threads, Messages, Runs, and Retrieval
+
+> Critical deadline: The OpenAI Assistants API (/v1/assistants, /v1/threads) will be completely removed on August 26, 2026.
+
+## Lesson
+
+Critical deadline: The OpenAI Assistants API (/v1/assistants, /v1/threads) will be completely removed on August 26, 2026. Migration to the Responses API + Conversations API typically requires 2-6 weeks of engineering work.
+
+Key migration changes: No programmatic assistant creation in the new system (prompts are dashboard-only); no automated thread-to-conversation migration (manual backfill required); and different async model (Responses are synchronous by default).
+
+The new model: Conversations API provides server-managed conversation state. Three state management patterns exist: server-managed durable state (Conversations API), client-managed via previous_response_id chaining, and fully client-managed history for total control.
+
+## Practice
+
+### Build a simple chat assistant using the Conversations API with file search and retrieval. Implement server-managed conve
+
+Build a simple chat assistant using the Conversations API with file search and retrieval. Implement server-managed conversation state.

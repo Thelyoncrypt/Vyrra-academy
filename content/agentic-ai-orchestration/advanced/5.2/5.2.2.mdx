@@ -1,0 +1,52 @@
+---
+code: 5.2.2
+title: 'OpenAI Agents SDK: Agents, Tools, Handoffs, and Guardrails'
+summary: >-
+  The OpenAI Agents SDK is built around five primitives: Primitive Definition
+  Agent An LLM with name, instructions, tools, and optional structured output
+  type Tool A Python function or MCP tool the agent calls; schema auto
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# OpenAI Agents SDK: Agents, Tools, Handoffs, and Guardrails
+
+> The OpenAI Agents SDK is built around five primitives: Primitive Definition Agent An LLM with name, instructions, tools, and optional structured output type Tool A Python function or MCP tool the agent calls; schema auto
+
+## Lesson
+
+The OpenAI Agents SDK is built around five primitives:
+
+Primitive
+
+Definition
+
+Agent
+
+An LLM with name, instructions, tools, and optional structured output type
+
+Tool
+
+A Python function or MCP tool the agent calls; schema auto-generated
+
+Handoff
+
+Typed transfer of control from one agent to another, full message history attached
+
+Guardrail
+
+Input/output validator that runs in parallel; trips a tripwire on failure
+
+Session
+
+Persistent memory backed by SQLite, Redis, MongoDB, or Dapr
+
+The Handoff Pattern is the core abstraction for multi-agent systems. Agents transfer control explicitly, carrying conversation context through the transition:
+
+# Triage agent receives user input, determines intent, transfers to specialisttriage_agent -> billing_agent | technical_agent | account_agent
+
+Guardrails run in parallel with the agent and trigger on validation failures. Input guardrails validate queries before processing; output guardrails validate responses before returning. The tripwire halts execution immediately on critical failures.
+
+Production Readiness: Ships on steady release cadence (0.14.x line current); used by teams including Coinbase and Box; supports MCP servers and HITL (Human-in-the-Loop) via tool approval items and run-state interruption.
+
+Limitation: The handoff pattern becomes unwieldy with more than 8-10 agent types. For larger agent ecosystems, use A2A protocol (Section 5.3.4) instead.

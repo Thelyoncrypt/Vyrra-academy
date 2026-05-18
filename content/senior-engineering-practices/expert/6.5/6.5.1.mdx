@@ -1,0 +1,23 @@
+---
+code: 6.5.1
+title: 'Enterprise Architecture: Event-Driven, CQRS, and Event Sourcing'
+summary: >-
+  Event-driven architecture enables exceptional scalability and resilience for
+  agent systems.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Enterprise Architecture: Event-Driven, CQRS, and Event Sourcing
+
+> Event-driven architecture enables exceptional scalability and resilience for agent systems.
+
+## Lesson
+
+Event-driven architecture enables exceptional scalability and resilience for agent systems. In this model, agents communicate through asynchronous events rather than direct API calls, decoupling producers from consumers and enabling independent scaling. Key patterns include stream processing (stateless transformation of individual events), stream analytics (stateful analysis across event windows), complex event processing (detection of patterns across multiple events), backpressure (flow control for overload protection), and dynamic scaling via Kubernetes HPA.
+
+CQRS (Command Query Responsibility Segregation) separates read and write operations into distinct models. For agent systems, this means: the write model handles agent actions, tool invocations, and state mutations; the read model serves agent observations, human dashboards, and audit queries. Separate optimization of each model improves performance - write paths can prioritize consistency while read paths optimize for latency and throughput.
+
+Event Sourcing captures all state changes as immutable events in an append-only log. Rather than storing the current state, the system stores every change that led to that state. For agent systems, this means every tool call, every reasoning step, every decision is permanently recorded. Benefits include complete audit trails, the ability to reconstruct any past state, and natural support for temporal queries ("what did the agent know at time T?"). The Saga pattern manages distributed transactions across agent services by sequencing local transactions, each with compensating transactions for rollback.
+
+The Saga Pattern has two implementation approaches: Choreography (services publish events, other services react - simpler but hard to trace) and Orchestration (a central coordinator manages the flow - better for complex workflows but introduces a coordination point). In an e-commerce agent saga: the Order Service creates an order and publishes OrderCreated; the Payment Service listens, processes payment, and publishes PaymentProcessed; the Inventory Service listens and reserves stock. On failure, compensating transactions refund payment and release inventory.

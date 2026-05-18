@@ -1,0 +1,35 @@
+---
+code: 7.2.3
+title: 'OpenAI API: Responses API, Agents SDK, Voice API Patterns'
+summary: >-
+  Responses API (released March 2025) replaces Chat Completions as the primary
+  API for agentic workflows.
+outcomes: []
+keyConcepts: []
+estMinutes: 48
+---
+# OpenAI API: Responses API, Agents SDK, Voice API Patterns
+
+> Responses API (released March 2025) replaces Chat Completions as the primary API for agentic workflows.
+
+## Lesson
+
+Responses API (released March 2025) replaces Chat Completions as the primary API for agentic workflows. Built-in tools (web search, file search, Code Interpreter, computer use) are first-class citizens. It is synchronous by default with optional background: true for long-running tasks.
+
+Built-in Tools: Web search ($10/1K calls plus search content tokens); File search/vector stores ($0.10/GB/day storage after 1GB free); Code Interpreter (sandboxed Python); Computer use (click/type/scroll automation); and Tool search (GPT-5.4 looks up tool definitions on demand, reducing token usage 47%).
+
+Assistants API Deprecation (Critical Deadline): August 26, 2026 - the Assistants API will be completely removed. Migration typically requires 2-6 weeks of engineering work for production integrations. Key challenges: no programmatic Assistant creation (prompts are dashboard-only); no automated Thread-to-Conversation migration; different async model and event shapes.
+
+Agents SDK is a code-first framework for multi-step agent workflows in Python and TypeScript. Core primitives include: agent loop with built-in tool invocation; handoffs for native delegation between specialist agents; guardrails for input/output validation running in parallel; function tools with automatic schema generation; MCP server integration; sessions for persistent memory; human-in-the-loop mechanisms; and built-in tracing. Installation: npm install @openai/agents zod.
+
+Voice API Patterns (May 2026): Three realtime voice models: GPT-Realtime-2 (voice agents with reasoning), GPT-Realtime-Translate (70+ input languages, 13 output), and GPT-Realtime-Whisper (streaming transcription). Connection methods: WebRTC (~100ms latency), WebSocket (~200ms), and SIP (telephony). Use reasoning.effort set to low for most production voice agents.
+
+## Practice
+
+### Assistants API Migration
+
+Assistants API Migration: Given a mock application using the deprecated Assistants API with Threads and Runs, migrate it to the Responses API + Conversations API. Implement tracing with the Agents SDK, add guardrails for input validation, and document the migration time estimate.
+
+### Voice Agent Prototype
+
+Voice Agent Prototype: Build a WebRTC voice agent using the Agents SDK that can answer questions about a product catalog via tool calling. Implement interruption detection and measure end-to-end latency.

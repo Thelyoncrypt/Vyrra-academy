@@ -1,0 +1,31 @@
+---
+code: 7.4.3
+title: 'Agent Swarm: PARL, 300 Parallel Agents, Use Cases'
+summary: >-
+  Agent Swarm represents a paradigm shift from vertical scaling (bigger models)
+  to horizontal scaling (more parallel agents).
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Agent Swarm: PARL, 300 Parallel Agents, Use Cases
+
+> Agent Swarm represents a paradigm shift from vertical scaling (bigger models) to horizontal scaling (more parallel agents).
+
+## Lesson
+
+Agent Swarm represents a paradigm shift from vertical scaling (bigger models) to horizontal scaling (more parallel agents). PARL (Parallel-Agent Reinforcement Learning) is a novel training method where the model learns to coordinate parallel agents through reinforcement signals.
+
+Decoupled Architecture: An orchestrator (trainable) decides when to create sub-agents, what tasks to assign, and how to aggregate results, equipped with create_subagent and assign_task tools. Sub-agents (frozen) execute assigned subtasks independently - their trajectories are excluded from optimization, solving the credit assignment problem.
+
+Reward Function: Reward = r_perf + lambda_1 * r_parallel + lambda_2 * r_finish, where r_perf measures task performance, r_parallel encourages sub-agent instantiation (avoiding serial collapse), and r_finish rewards successful subtask completion. Both auxiliary weights are annealed to zero over training.
+
+Performance Impact: Agent Swarm delivers 4.5x faster execution than single-agent sequential, 80% reduction in end-to-end runtime for complex multi-step tasks, and 3-4.5x reduction in critical steps for large-scale search scenarios.
+
+K2.6 Access: Up to 300 sub-agents, 4,000+ coordinated tool calls, available to Allegretto ($39/mo), Allegro ($99/mo), and Vivace ($199/mo) members. Claw Groups (research preview) extends Agent Swarm to heterogeneous ecosystems - multiple agents from any device, running any model, with Kimi K2.6 as adaptive coordinator.
+
+## Practice
+
+### Parallel Research Agent
+
+Parallel Research Agent: Use Kimi K2.6 Agent Swarm to research and write a competitive analysis of 5 SaaS tools. Decompose into parallel sub-agents (one per tool) plus a synthesis agent. Measure wall-clock time versus sequential execution and document the speedup achieved.

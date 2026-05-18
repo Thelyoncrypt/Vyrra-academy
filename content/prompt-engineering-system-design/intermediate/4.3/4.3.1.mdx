@@ -1,0 +1,26 @@
+---
+code: 4.3.1
+title: 'ReAct Pattern: Reasoning and Acting for Complex Tasks'
+summary: >-
+  ReAct (Reasoning + Acting) interleaves Thought, Action, and Observation steps,
+  enabling agents to reason about problems while taking actions to gather
+  information.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# ReAct Pattern: Reasoning and Acting for Complex Tasks
+
+> ReAct (Reasoning + Acting) interleaves Thought, Action, and Observation steps, enabling agents to reason about problems while taking actions to gather information.
+
+## Lesson
+
+ReAct (Reasoning + Acting) interleaves Thought, Action, and Observation steps, enabling agents to reason about problems while taking actions to gather information. Research shows this pattern dramatically improves reliability over pure reasoning by grounding each step in real observations.
+
+Question: What is the weather in Tokyo and should I pack an umbrella?Thought 1: I need to find current weather for Tokyo.Action 1: search_web(query="Tokyo weather today")Observation 1: Tokyo: 22°C, partly cloudy, 30% chance of rain.Thought 2: 30% rain chance is low. I should check if rain is expected later.Action 2: search_web(query="Tokyo weather forecast next 8 hours")Observation 2: No precipitation expected until after 8 PM.Thought 3: The user likely won't need an umbrella during daytime hours.Final Answer: No umbrella needed - only 30% rain chance and no precipitation expected until evening.
+
+## Practice
+
+### Implement a ReAct agent using Python that solves 10 "knowledge + calculation" questions
+
+Implement a ReAct agent using Python that solves 10 "knowledge + calculation" questions (e.g., "What is the GDP of Japan divided by its population?"). Measure accuracy with and without the ReAct pattern.

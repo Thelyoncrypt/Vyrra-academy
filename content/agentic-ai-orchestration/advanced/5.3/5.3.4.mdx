@@ -1,0 +1,27 @@
+---
+code: 5.3.4
+title: 'A2A Protocol: Agent-to-Agent Communication'
+summary: >-
+  A2A (Agent-to-Agent Protocol) defines how agents discover and collaborate
+  across organizational boundaries.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# A2A Protocol: Agent-to-Agent Communication
+
+> A2A (Agent-to-Agent Protocol) defines how agents discover and collaborate across organizational boundaries.
+
+## Lesson
+
+A2A (Agent-to-Agent Protocol) defines how agents discover and collaborate across organizational boundaries. It now has 150+ supporting organizations, seven task states, and official SDKs in Python, JS, Java, Go, and.NET.
+
+Core Concepts: - Agent Cards: JSON manifest at /.well-known/agent-card.json advertising capabilities - Tasks: Work units with seven lifecycle states (submitted, working, input-required, completed, failed, canceled, rejected) - Transport: HTTP/SSE with JSON-RPC 2.0
+
+The Layered Adoption Strategy: 1. Phase 1: MCP for foundational tool access. Phase 2: A2A for agent-to-agent collaboration. Phase 3: ANP (Agent Network Protocol) for decentralized marketplaces (future)
+
+## Practice
+
+### Create an A2A Agent Card for a billing agent. Implement a task delegation flow where a triage agent
+
+Create an A2A Agent Card for a billing agent. Implement a task delegation flow where a triage agent (MCP client) discovers the billing agent (A2A server) via its Agent Card, submits a refund task, and handles the multi-turn interaction when the billing agent requests additional input.

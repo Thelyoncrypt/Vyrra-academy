@@ -1,0 +1,21 @@
+---
+code: 4.2.1
+title: 'OpenAI API: Authentication, Completions, Chat, and Streaming'
+summary: The OpenAI API uses bearer token authentication.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# OpenAI API: Authentication, Completions, Chat, and Streaming
+
+> The OpenAI API uses bearer token authentication.
+
+## Lesson
+
+The OpenAI API uses bearer token authentication. The Responses API (released March 2025) replaces Chat Completions as the primary API for agentic workflows. Built-in tools - web search, file search, Code Interpreter, and computer use - are first-class citizens in the Responses API.
+
+Basic streaming call:
+
+from openai import OpenAIclient = OpenAI()response = client.responses.create( model="gpt-5.5", input="Explain REST APIs in 3 sentences.", stream=True)for event in response: if event.type == "response.output_text.delta": print(event.delta, end="")
+
+Key pricing for GPT-5.5: $5.00/1M input tokens, $30.00/1M output tokens; cached input at $0.50/1M (90% savings). Batch processing offers a 50% discount with 24-hour turnaround.

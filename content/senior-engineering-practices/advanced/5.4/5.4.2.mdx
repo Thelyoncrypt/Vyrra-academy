@@ -1,0 +1,51 @@
+---
+code: 5.4.2
+title: 'System Design: Scalability, Reliability, and Microservices'
+summary: >-
+  CAP Theorem Reminder: In distributed systems, you can have only two of
+  Consistency, Availability, and Partition Tolerance.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# System Design: Scalability, Reliability, and Microservices
+
+> CAP Theorem Reminder: In distributed systems, you can have only two of Consistency, Availability, and Partition Tolerance.
+
+## Lesson
+
+CAP Theorem Reminder: In distributed systems, you can have only two of Consistency, Availability, and Partition Tolerance. Since partition tolerance is required, the real choice is CP versus AP.
+
+Seven Essential Microservices Patterns:
+
+Pattern
+
+API Gateway
+
+Centralize routing, authentication, rate limiting
+
+Service Mesh
+
+Decouple service-to-service communication (Istio, Linkerd)
+
+Circuit Breaker
+
+Prevent cascading failures by isolating malfunctioning services
+
+Event Sourcing
+
+Capture all state changes as immutable events
+
+CQRS
+
+Separate read and write operations for optimized performance
+
+Saga Pattern
+
+Manage distributed transactions without two-phase commit
+
+Strangler Fig
+
+Incrementally migrate legacy systems
+
+AI System Scalability Considerations: - LLM calls are the bottleneck; use caching, routing, and batching to minimize them - Agent state must be persisted externally (PostgreSQL, Redis) for horizontal scaling - Use message queues (Kafka, RabbitMQ) for asynchronous agent task processing - Implement circuit breakers around LLM API calls to handle rate limiting gracefully

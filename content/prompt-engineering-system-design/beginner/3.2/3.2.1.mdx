@@ -1,0 +1,58 @@
+---
+code: 3.2.1
+title: Prompt Engineering Fundamentals
+summary: >-
+  Prompt engineering is the skill of crafting inputs that reliably produce
+  desired outputs from LLMs.
+outcomes: []
+keyConcepts:
+  - Zero-Shot Prompting
+  - Few-Shot Prompting
+  - Role Prompting / Persona Design
+  - Chain-of-Thought (CoT)
+  - Structured Output
+  - Prompt Templates
+estMinutes: 108
+---
+# Prompt Engineering Fundamentals
+
+> Prompt engineering is the skill of crafting inputs that reliably produce desired outputs from LLMs.
+
+## Key Concepts
+
+- Zero-Shot Prompting
+- Few-Shot Prompting
+- Role Prompting / Persona Design
+- Chain-of-Thought (CoT)
+- Structured Output
+- Prompt Templates
+
+## Lesson
+
+Prompt engineering is the skill of crafting inputs that reliably produce desired outputs from LLMs. This module covers foundational techniques backed by research: zero-shot and few-shot prompting, role prompting, chain-of-thought reasoning, structured output formatting, and reusable prompt templates. According to OpenAI's developer guidance, well-structured prompts with specific desired context, outcome, length, format, and style dramatically improve output quality.
+
+XML Meta-Prompting Architecture Anthropic's Claude responds exceptionally well to XML-structured prompts with explicit tags providing clear, parseable boundaries:
+
+<role>You are a professional technical writer. Respond concisely.</role><context>We are migrating a legacy application to serverless.</context><instructions>1. Identify stateful middleware. 2. Rewrite to be stateless.</instructions><constraints>Do NOT use deprecated SDK v2 methods.</constraints>
+
+## Practice
+
+### Zero-Shot vs. Few-Shot Comparison
+
+Zero-Shot vs. Few-Shot Comparison (30 min): Ask an LLM to classify customer feedback as positive, neutral, or negative. First without examples (zero-shot), then provide 3 labeled examples (few-shot). Compare accuracy on 10 test cases.
+
+### Role Prompt Design
+
+Role Prompt Design (45 min): Create three distinct personas (friendly customer support agent, terse technical lead, enthusiastic marketer) for the same task: explaining REST APIs. Evaluate outputs for tone consistency and information completeness.
+
+### Chain-of-Thuth Math
+
+Chain-of-Thuth Math (30 min): Present 10 arithmetic word problems to an LLM. First without CoT instructions, then with "explain your reasoning step by step." Measure accuracy improvement.
+
+### JSON Output Challenge
+
+JSON Output Challenge (45 min): Prompt an LLM to extract structured data from unstructured recipe text: {"name": "...", "ingredients": [...], "steps": [...], "prep_time": "..."}. Iterate until the output passes JSON validation 10/10 times.
+
+### Template Library
+
+Template Library (60 min): Create 5 reusable prompt templates in a shared document: email rewriter, meeting summariser, bug report formatter, social media post generator, and code explainer. Include variable placeholders like {{topic}}, {{tone}}, {{audience}}.

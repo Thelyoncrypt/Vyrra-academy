@@ -1,0 +1,34 @@
+---
+code: 7.5.3
+title: 'Multi-Platform Gateway: 20 Platforms, Cross-Platform Continuity'
+summary: >-
+  Hermes Agent's messaging gateway is a single long-running process connecting
+  to multiple messaging platforms simultaneously, enabling cross-platform
+  conversation continuity.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Multi-Platform Gateway: 20 Platforms, Cross-Platform Continuity
+
+> Hermes Agent's messaging gateway is a single long-running process connecting to multiple messaging platforms simultaneously, enabling cross-platform conversation continuity.
+
+## Lesson
+
+Hermes Agent's messaging gateway is a single long-running process connecting to multiple messaging platforms simultaneously, enabling cross-platform conversation continuity.
+
+Supported Platforms: Telegram (lowest setup complexity, full voice support, group support); Discord (medium complexity, full voice, team servers); Slack (medium complexity, limited voice, workplace integration); WhatsApp (medium, full voice, DM only); Signal (low complexity, full voice, privacy-focused); and 15+ additional platforms.
+
+Setup (Telegram Example): Open Telegram, search for @BotFather, send /newbot, copy the bot token, then:
+
+hermes gateway add telegram --token "YOUR_BOT_TOKEN"hermes gateway start telegram
+
+24/7 Service Setup: Install gateway as systemd service: hermes gateway install creates the systemd unit; systemctl status hermes-gateway verifies; hermes update keeps current.
+
+Cross-Platform Continuity: A key differentiator - start a conversation on Telegram, continue on CLI, finish on Discord - the agent maintains the same session context and memory across all platforms.
+
+## Practice
+
+### Multi-Platform Assistant
+
+Multi-Platform Assistant: Set up Hermes on Telegram and CLI simultaneously. Start a task on Telegram, continue it on CLI with full context preservation, and verify memory continuity. Configure a cron job for daily briefings delivered to your preferred platform.

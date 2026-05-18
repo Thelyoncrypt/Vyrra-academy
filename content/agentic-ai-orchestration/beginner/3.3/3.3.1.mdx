@@ -1,0 +1,61 @@
+---
+code: 3.3.1
+title: Basic Coding with AI
+summary: >-
+  This module introduces Python fundamentals specifically for AI interaction,
+  then teaches learners to use AI as a coding partner-writing, debugging,
+  explaining, and reviewing code.
+outcomes: []
+keyConcepts:
+  - Python Syntax Basics
+  - AI-Assisted Code Generation
+  - Code Explanation
+  - Debugging with AI
+  - API (Application Programming Interface)
+  - API Key Authentication
+estMinutes: 108
+---
+# Basic Coding with AI
+
+> This module introduces Python fundamentals specifically for AI interaction, then teaches learners to use AI as a coding partner-writing, debugging, explaining, and reviewing code.
+
+## Key Concepts
+
+- Python Syntax Basics
+- AI-Assisted Code Generation
+- Code Explanation
+- Debugging with AI
+- API (Application Programming Interface)
+- API Key Authentication
+
+## Lesson
+
+This module introduces Python fundamentals specifically for AI interaction, then teaches learners to use AI as a coding partner-writing, debugging, explaining, and reviewing code. No prior programming experience is assumed. Research shows 90% of developers now use at least one AI tool at work, with 46% of senior developers naming Claude Code "most loved".
+
+Reading AI-Generated Code Checklist | Check | Why It Matters | |---|-----| | Verify imports | Unused or malicious imports are common | | Check for hardcoded values | API keys, file paths, magic numbers | | Test edge cases | AI rarely handles null inputs or empty lists | | Review error handling | Generated code often lacks try/catch blocks | | Validate data types | Dynamic languages allow type mismatches | | Check for off-by-one errors | Common in loop boundaries |
+
+API Concepts for Beginners All major AI platforms expose APIs. Understanding the basic pattern-send a request with authentication, receive a structured response-is foundational:
+
+# Claude API basic call patternimport anthropicclient = anthropic.Anthropic() # API key from env varmessage = client.messages.create( model="claude-sonnet-4-20250514", max_tokens=1024, messages=[{"role": "user", "content": "Explain what an API is"}])print(message.content[0].text)
+
+## Practice
+
+### Python Fundamentals
+
+Python Fundamentals (90 min): Complete a guided Python exercise set: variables, lists, dictionaries, for loops, and functions. Use AI to explain concepts that are unclear.
+
+### Code Generation Challenge
+
+Code Generation Challenge (60 min): Describe a task to AI ("Create a script that reads a CSV file and prints summary statistics"). Generate the code, run it, identify one bug, and ask AI to fix it.
+
+### API Call Exercise
+
+API Call Exercise (60 min): Make your first API call to a weather service. Parse the JSON response and extract the temperature. Handle the error case for an invalid city name.
+
+### Code Review Simulation
+
+Code Review Simulation (45 min): Paste a deliberately flawed Python script into an AI assistant. Ask it to identify bugs, security issues, and improvements. Compare its findings with a provided answer key.
+
+### Explain Foreign Code
+
+Explain Foreign Code (30 min): Paste a 50-line Python script (downloaded from GitHub) into an AI assistant. Ask it to explain what each section does. Verify the explanation by running the code.

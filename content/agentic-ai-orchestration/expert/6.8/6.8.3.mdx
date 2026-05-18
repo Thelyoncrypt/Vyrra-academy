@@ -1,0 +1,80 @@
+---
+code: 6.8.3
+title: 'Multi-Platform Gateway: Telegram, Discord, Slack, and WhatsApp'
+summary: >-
+  Hermes Agent's messaging gateway is a single long-running process connecting
+  to multiple platforms simultaneously, enabling cross-platform conversation
+  continuity.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Multi-Platform Gateway: Telegram, Discord, Slack, and WhatsApp
+
+> Hermes Agent's messaging gateway is a single long-running process connecting to multiple platforms simultaneously, enabling cross-platform conversation continuity.
+
+## Lesson
+
+Hermes Agent's messaging gateway is a single long-running process connecting to multiple platforms simultaneously, enabling cross-platform conversation continuity. Start a conversation on Telegram, continue on CLI, finish on Discord - the agent maintains the same session context and memory across all platforms.
+
+Platform
+
+Setup Complexity
+
+Voice Support
+
+Group Support
+
+Best For
+
+Telegram
+
+Low
+
+Full
+
+Yes
+
+Fastest first connection, mobile access
+
+Discord
+
+Medium
+
+Full
+
+Yes
+
+Team servers, developer communities
+
+Slack
+
+Medium
+
+Limited
+
+Yes
+
+Workplace integration
+
+WhatsApp
+
+Medium
+
+Full
+
+DM only
+
+Personal assistant, global reach
+
+Signal
+
+Low
+
+Full
+
+DM only
+
+Privacy-conscious users
+
+Setup follows a consistent pattern: hermes gateway add <platform> --token "..." followed by hermes gateway start <platform>. For 24/7 operation, install as a systemd service with hermes gateway install.

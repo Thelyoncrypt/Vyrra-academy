@@ -1,0 +1,22 @@
+---
+code: 6.5.4
+title: 'Performance Optimization: Latency, Throughput, and Cost'
+summary: >-
+  Seven strategies for latency optimization: (1) generate fewer tokens - cutting
+  50% of output tokens yields approximately 50% latency reduction; (2) parallel
+  execution with Promise.all() for independent steps; (3) streami
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Performance Optimization: Latency, Throughput, and Cost
+
+> Seven strategies for latency optimization: (1) generate fewer tokens - cutting 50% of output tokens yields approximately 50% latency reduction; (2) parallel execution with Promise.all() for independent steps; (3) streami
+
+## Lesson
+
+Seven strategies for latency optimization: (1) generate fewer tokens - cutting 50% of output tokens yields approximately 50% latency reduction; (2) parallel execution with Promise.all() for independent steps; (3) streaming outputs for perceived speed improvement; (4) smart model selection using small models for simple tasks; (5) combine sequential operations into single prompts; (6) context filtering and conversation summarization; (7) semantic caching with exact match and similarity-based retrieval.
+
+Token caching places static content early and dynamic content late in prompts, achieving approximately 90% cost reduction on cached portions. Semantic caching uses vector embeddings to match queries with similar meaning despite different wording, achieving cache hit rates of 60-85% in FAQ and support workloads, 96.9% latency reduction for cached queries (1.67s to 0.052s), and up to 73% cost reduction in conversational workloads.
+
+The RouteLLM approach (UC Berkeley, ICLR 2025) demonstrates 85% cost reduction on MT-Bench while maintaining 95% of GPT-5.2 quality - only 14% of queries need the expensive model, with router overhead of just 11 microseconds. Production teams achieve 47-85% cost reduction by combining caching (45-80%), semantic caching (47-68% call reduction), tiered model routing (70-85%), complexity classification (routing 60% of requests to cheaper models), and context compression (44-89% token savings).

@@ -1,0 +1,591 @@
+// AI Course App — Prisma schema (v1)
+//
+// Authoritative data model: docs/system-design.md §1.3 (table spec), §1.2 (ER),
+// §4 (auth/authz). Stack rationale: docs/architecture.md §2 (Next.js + Vercel
+// Postgres/Neon + pgvector + Prisma). Locked decisions: docs/tech-decisions.md.
+//
+// v1 OMISSIONS (locked — ADR-002, CLAUDE.md "Locked v1 Decisions"):
+//   - No `Enrollment.cohortId`         (the `cohortId?` in §1.3 is dropped for v1)
+//   - No Cohort entity, no payment/billing entities (none in §1.3; reaffirmed here)
+//   The relational model stays cohort-ready: adding a Cohort table + nullable
+//   Enrollment.cohortId later is additive and non-breaking.
+//
+// Content/structure (queryable, gating-relevant) lives in relational tables.
+// Lesson PROSE is MDX in Git: rows store `bodyPath` + `contentHash`, never the body
+// (system-design §1.1). Embeddings live in their own table so reindex never locks
+// the content tables.
+
+generator client {
+  // Prisma 7 default generator (ESM-first). `output` is required in Prisma 7.
+  // Generated into src/ so app code can import the typed client; this dir is
+  // generated/ignored, not hand-edited (see prisma/README.md).
+  //
+  // `postgresqlExtensions` preview feature enables the declarative `extensions`
+  // block on the datasource so the migration can manage the pgvector extension.
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  // Prisma 7: the connection `url` is NOT set here — it lives in
+  // `prisma.config.ts` (`datasource.url = process.env.DATABASE_URL`). Prisma 7
+  // moved datasource URLs out of the schema (see prisma/README.md).
+  provider   = "postgresql"
+  // pgvector lives in the same Postgres instance (architecture.md §2 — one
+  // datastore for relational + vector data). The extension must also exist in
+  // the Neon DB (`CREATE EXTENSION IF NOT EXISTS vector;` — prisma/README.md).
+  extensions = [vector]
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+/// Coarse RBAC role mirrored from Clerk (system-design §4.2).
+enum Role {
+  learner
+  instructor
+  admin
+}
+
+/// Activity inside a lesson (system-design §1.3 Activity.type).
+enum ActivityType {
+  exercise
+  quiz
+  lab
+}
+
+/// Per-user per-lesson state (system-design §1.3 Progress.status).
+enum ProgressStatus {
+  not_started
+  in_progress
+  completed
+}
+
+/// User ↔ (Track, Level) enrollment lifecycle (system-design §1.3 Enrollment).
+enum EnrollmentStatus {
+  active
+  completed
+  withdrawn
+}
+
+/// Capstone submission lifecycle (system-design §1.3 Submission.status).
+enum SubmissionStatus {
+  submitted
+  graded
+  returned
+}
+
+/// How a submission was graded (system-design §1.3 Assessment.mode).
+/// `ai_draft_human_confirmed`: AI drafts, instructor confirms (ADR-003).
+/// AI never auto-passes a gate (system-design §5.3).
+enum AssessmentMode {
+  human
+  ai_draft_human_confirmed
+}
+
+/// Assessment result band (system-design §1.3 Assessment.outcome).
+enum AssessmentOutcome {
+  pass
+  merit
+  distinction
+  fail
+}
+
+/// Tutor message author (system-design §1.3 TutorMessage.role).
+enum TutorRole {
+  user
+  assistant
+  system
+}
+
+/// Resource Library content type (contract.ts ResourceType; CLAUDE.md §10).
+enum ResourceType {
+  doc_link
+  cheat_sheet
+  prompt_template
+  tool_guide
+  architecture_example
+  code_example
+  checklist
+  design_reference
+  model_notes
+  workflow_template
+  reading
+}
+
+/// Resource skill-level tag (contract.ts Difficulty; CLAUDE.md §3).
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+  expert
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
+/// Account. Authentication is owned by Clerk; this row is the app-local mirror
+/// keyed by Clerk user id (system-design §1.3 User, §4.1).
+model User {
+  id          String   @id @default(cuid())
+  clerkUserId String   @unique
+  email       String   @unique
+  role        Role     @default(learner)
+  createdAt   DateTime @default(now())
+
+  enrollments       Enrollment[]
+  submissions       Submission[]
+  progress          Progress[]
+  attempts          Attempt[]
+  certificates      Certificate[]
+  conversations     TutorConversation[]
+  /// Assessments this user authored as the human grader (graderId may also be
+  /// the literal "system" sentinel for AI drafts — see Assessment.graderId).
+  gradedAssessments Assessment[]        @relation("AssessmentGrader")
+  rateBucket        TutorRateBucket?
+}
+
+// ---------------------------------------------------------------------------
+// Content hierarchy: Program → Level → Track → Module → Lesson → Activity
+// (system-design §1.1, §1.2)
+// ---------------------------------------------------------------------------
+
+/// Top-level container — the whole programme (system-design §1.3 Program).
+model Program {
+  id      String @id @default(cuid())
+  slug    String @unique
+  title   String
+  version String
+
+  levels Level[]
+}
+
+/// One of the 4 skill levels (system-design §1.3 Level). `order` 1–4.
+model Level {
+  id                String @id @default(cuid())
+  programId         String
+  order             Int
+  slug              String @unique
+  title             String
+  estimatedHoursMin Int
+  estimatedHoursMax Int
+
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  modules       Module[]
+  capstones     Capstone[]
+  enrollments   Enrollment[]
+  certificates  Certificate[]
+  /// Prerequisites this level imposes (this level requires others).
+  prerequisites Prerequisite[] @relation("LevelPrerequisites")
+  /// Edges where another level depends on this one.
+  requiredBy    Prerequisite[] @relation("LevelRequiredBy")
+
+  @@unique([programId, order])
+}
+
+/// One of the 12 tracks. A track spans levels; the (track, level) pairing is
+/// what a learner enrolls/progresses against (system-design §1.3 Track).
+model Track {
+  id             String @id @default(cuid())
+  slug           String @unique
+  title          String
+  focusEcosystem String
+
+  modules     Module[]
+  enrollments Enrollment[]
+  resources   Resource[]
+}
+
+/// A numbered module, e.g. "4.1" (system-design §1.3 Module).
+model Module {
+  id      String @id @default(cuid())
+  levelId String
+  trackId String
+  code    String
+  order   Int
+  title   String
+
+  level Level @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  track Track @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  lessons Lesson[]
+
+  /// Module code is unique within a track (e.g. "4.1" once per track).
+  @@unique([trackId, code])
+  @@index([levelId])
+  @@index([trackId])
+}
+
+/// A teachable unit, e.g. "4.1.1". Body is MDX in Git — only `bodyPath` +
+/// `contentHash` are stored (system-design §1.1, §1.3 Lesson).
+model Lesson {
+  id          String @id @default(cuid())
+  moduleId    String
+  code        String
+  order       Int
+  title       String
+  /// Repo-relative path to the lesson MDX body. The body is NEVER stored here.
+  bodyPath    String
+  /// sha256 of the source MDX body — drives reindex/staleness.
+  contentHash String
+  estMinutes  Int
+
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  activities    Activity[]
+  progress      Progress[]
+  embeddings    LessonChunkEmbedding[]
+  conversations TutorConversation[]
+
+  @@unique([moduleId, code])
+  @@index([moduleId])
+}
+
+/// An exercise / lab / quiz inside a lesson (system-design §1.3 Activity).
+/// `spec` holds the activity-runner JSON (instructions, starter code, checks,
+/// or the staged-quiz question set from the content contract).
+model Activity {
+  id       String       @id @default(cuid())
+  lessonId String
+  type     ActivityType
+  order    Int
+  title    String
+  spec     Json         @default("{}")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  attempts Attempt[]
+
+  @@unique([lessonId, order])
+  @@index([lessonId])
+}
+
+/// Resource Library entry — searchable/filterable learning material
+/// (CLAUDE.md §10 "Resource Library"; contract.ts ResourceSchema;
+/// system-design §1.3 amended — see docs/tech-decisions.md ADR-007).
+/// `id` is the content contract's stable kebab-case slug (the manifest's
+/// natural key), so re-seeding upserts rather than duplicates. Either `url`
+/// (external) or `assetPath` (repo-relative, self-hosted) may be set.
+/// `trackSlug`/`levelOrder`/`topic`/`difficulty` are the library facets;
+/// `trackId` is a nullable FK so a global resource needs no track.
+model Resource {
+  id         String       @id
+  title      String
+  type       ResourceType
+  url        String?
+  assetPath  String?
+  trackId    String?
+  levelOrder Int?
+  topic      String?
+  difficulty Difficulty?
+
+  track Track? @relation(fields: [trackId], references: [id], onDelete: SetNull)
+
+  @@index([trackId])
+  @@index([type])
+  @@index([difficulty])
+}
+
+// ---------------------------------------------------------------------------
+// Capstones, rubrics, submissions, assessment (system-design §1.3, §4.3)
+// ---------------------------------------------------------------------------
+
+/// Per-level project with a brief + rubric (system-design §1.3 Capstone).
+model Capstone {
+  id        String @id @default(cuid())
+  levelId   String
+  title     String
+  briefPath String
+  rubricId  String @unique
+
+  level  Level  @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  rubric Rubric @relation(fields: [rubricId], references: [id])
+
+  submissions Submission[]
+
+  @@index([levelId])
+}
+
+/// Structured scoring grid container (system-design §1.3 Rubric).
+model Rubric {
+  id    String @id @default(cuid())
+  title String
+
+  criteria RubricCriterion[]
+  capstone Capstone?
+}
+
+/// One row of a rubric: a weighted criterion with 4-point descriptors
+/// (Emerging → Advanced) (system-design §1.3 RubricCriterion).
+model RubricCriterion {
+  id         String @id @default(cuid())
+  rubricId   String
+  /// Stable natural key within a rubric (mirrors the content contract id).
+  key        String
+  name       String
+  weight     Float
+  level1Desc String
+  level2Desc String
+  level3Desc String
+  level4Desc String
+
+  rubric Rubric @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+
+  scores RubricScore[]
+
+  @@unique([rubricId, key])
+  @@index([rubricId])
+}
+
+/// A learner's capstone submission (system-design §1.3 Submission).
+/// May contain learner PII/work product — access scoped to owner +
+/// instructor/admin; never embedded into the RAG index (system-design §5.6).
+model Submission {
+  id          String           @id @default(cuid())
+  userId      String
+  capstoneId  String
+  artifactUrl String?
+  payload     Json?
+  status      SubmissionStatus @default(submitted)
+  submittedAt DateTime         @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  capstone Capstone @relation(fields: [capstoneId], references: [id], onDelete: Cascade)
+
+  assessment Assessment?
+
+  @@index([userId, capstoneId])
+  @@index([capstoneId])
+}
+
+/// The grading record for a submission (system-design §1.3 Assessment).
+/// `graderId` is a User id, OR the literal "system" sentinel for an AI draft
+/// (kept nullable + a string sentinel rather than a hard FK so a "system"
+/// grader needs no fake User row; the human confirmer is set on confirm).
+/// Only a confirmed Assessment can satisfy a gate (system-design §4.3, §5.3).
+model Assessment {
+  id           String             @id @default(cuid())
+  submissionId String             @unique
+  graderId     String?
+  mode         AssessmentMode
+  totalScore   Float?
+  outcome      AssessmentOutcome?
+  /// Null until an instructor confirms an ai_draft_human_confirmed assessment.
+  confirmedAt  DateTime?
+  gradedAt     DateTime?
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  grader     User?      @relation("AssessmentGrader", fields: [graderId], references: [id], onDelete: SetNull)
+
+  rubricScores RubricScore[]
+  attempts     Attempt[]
+}
+
+/// Per-criterion score within an assessment (system-design §1.3 RubricScore).
+model RubricScore {
+  id           String  @id @default(cuid())
+  assessmentId String
+  criterionId  String
+  score        Int
+  comment      String?
+
+  assessment Assessment      @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  criterion  RubricCriterion @relation(fields: [criterionId], references: [id], onDelete: Cascade)
+
+  @@unique([assessmentId, criterionId])
+  @@index([assessmentId])
+}
+
+/// An attempt at a graded activity (quiz/exercise) or assessment, incl. retries
+/// (system-design §1.3 Attempt). Exactly one of activityId/assessmentId is set.
+model Attempt {
+  id           String   @id @default(cuid())
+  userId       String
+  activityId   String?
+  assessmentId String?
+  score        Float?
+  passed       Boolean  @default(false)
+  attemptedAt  DateTime @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity   Activity?   @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  assessment Assessment? @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([activityId])
+  @@index([assessmentId])
+}
+
+// ---------------------------------------------------------------------------
+// Progression, enrollment, gating, certificates (system-design §1.3, §4.3)
+// ---------------------------------------------------------------------------
+
+/// Per-user per-lesson state. Idempotent upsert keyed by (userId, lessonId)
+/// so repeated client events don't corrupt state (system-design §1.1, §1.3).
+model Progress {
+  id          String         @id @default(cuid())
+  userId      String
+  lessonId    String
+  status      ProgressStatus @default(not_started)
+  completedAt DateTime?
+  lastSeenAt  DateTime       @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  // "Indexes that matter": Progress(userId, lessonId) unique (system-design §1.3).
+  @@unique([userId, lessonId])
+  @@index([lessonId])
+}
+
+/// User ↔ (Track, Level) enrollment (system-design §1.3 Enrollment).
+/// v1: NO cohortId (ADR-002 — the `cohortId?` in §1.3 is dropped for v1).
+model Enrollment {
+  id         String           @id @default(cuid())
+  userId     String
+  trackId    String
+  levelId    String
+  status     EnrollmentStatus @default(active)
+  enrolledAt DateTime         @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track Track @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  level Level @relation(fields: [levelId], references: [id], onDelete: Cascade)
+
+  // "Indexes that matter": Enrollment(userId, trackId, levelId) (system-design §1.3).
+  @@unique([userId, trackId, levelId])
+  @@index([trackId])
+  @@index([levelId])
+}
+
+/// Directed gating edge: a Level requires another Level (and optionally a
+/// capstone pass on that level) (system-design §1.3 Prerequisite, §4.3).
+model Prerequisite {
+  id                   String  @id @default(cuid())
+  levelId              String
+  requiresLevelId      String
+  requiresCapstonePass Boolean @default(false)
+
+  level         Level @relation("LevelPrerequisites", fields: [levelId], references: [id], onDelete: Cascade)
+  requiresLevel Level @relation("LevelRequiredBy", fields: [requiresLevelId], references: [id], onDelete: Cascade)
+
+  @@unique([levelId, requiresLevelId])
+  @@index([requiresLevelId])
+}
+
+/// Issued on level completion (system-design §1.3 Certificate). `serial` is a
+/// unique verification code; revocation supported (system-design §5.6).
+model Certificate {
+  id        String    @id @default(cuid())
+  userId    String
+  levelId   String
+  serial    String    @unique
+  issuedAt  DateTime  @default(now())
+  revokedAt DateTime?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  level Level @relation(fields: [levelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, levelId])
+  @@index([levelId])
+}
+
+// ---------------------------------------------------------------------------
+// AI tutor: RAG index, conversations, semantic cache, rate limiting
+// (system-design §1.3, §3, §5.4)
+// ---------------------------------------------------------------------------
+
+/// RAG index. Separate table so reindexing never touches lesson rows or locks
+/// the content tables (system-design §1.1, §1.3 LessonChunkEmbedding, §3.1).
+///
+/// `embedding` is pgvector `vector(1536)` (OpenAI text-embedding-3-small,
+/// architecture.md §2). Prisma cannot model the vector type or an HNSW
+/// operator-class index natively, so:
+///   - the column is `Unsupported("vector(1536)")`
+///   - the ANN query uses `$queryRaw` with bound params (system-design §5.6)
+///   - the HNSW index is created in a hand-edited migration step:
+///       CREATE INDEX lesson_chunk_embedding_hnsw
+///         ON "LessonChunkEmbedding" USING hnsw (embedding vector_cosine_ops);
+///     (see prisma/README.md "pgvector & HNSW index").
+/// btree indexes on moduleId/trackId support scoped retrieval (§3.2).
+model LessonChunkEmbedding {
+  id          String                       @id @default(cuid())
+  lessonId    String
+  moduleId    String
+  trackId     String
+  chunkIndex  Int
+  text        String
+  embedding   Unsupported("vector(1536)")?
+  contentHash String
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, chunkIndex])
+  @@index([moduleId])
+  @@index([trackId])
+  @@index([lessonId])
+}
+
+/// Persisted tutor chat for continuity + audit (system-design §1.3, §3.3).
+model TutorConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String?
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+
+  messages TutorMessage[]
+
+  @@index([userId])
+  @@index([lessonId])
+}
+
+/// One tutor turn. `parts` holds the AI SDK message-part JSON; token counts +
+/// model recorded for cost observability (system-design §1.3, §3.3, §3.4).
+model TutorMessage {
+  id             String    @id @default(cuid())
+  conversationId String
+  role           TutorRole
+  parts          Json
+  tokensIn       Int       @default(0)
+  tokensOut      Int       @default(0)
+  model          String?
+  createdAt      DateTime  @default(now())
+
+  conversation TutorConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+/// Embedding-keyed Q&A cache for cost control (system-design §1.3, §3.2, §3.4).
+/// `queryEmbedding` is pgvector `vector(1536)` (same caveats as
+/// LessonChunkEmbedding.embedding — raw-SQL cosine search, bound params).
+model SemanticCacheEntry {
+  id             String                       @id @default(cuid())
+  /// Retrieval scope, e.g. "module:4.1" — cosine search is constrained to this.
+  scopeKey       String
+  queryEmbedding Unsupported("vector(1536)")?
+  question       String
+  answer         String
+  citations      Json
+  hitCount       Int                          @default(0)
+  createdAt      DateTime                     @default(now())
+
+  @@index([scopeKey])
+}
+
+/// Per-user token-bucket counter for /api/tutor rate limiting
+/// (system-design §1.3 TutorRateBucket, §5.4). Atomic upsert keyed by userId.
+model TutorRateBucket {
+  userId   String   @id
+  tokens   Int
+  refillAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

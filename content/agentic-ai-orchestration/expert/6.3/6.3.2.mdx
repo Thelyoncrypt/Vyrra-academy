@@ -1,0 +1,21 @@
+---
+code: 6.3.2
+title: 'Reflection Loops: Self-Evaluation and Error Correction'
+summary: >-
+  Reflection loops enable agents to evaluate their own outputs before marking
+  tasks complete.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Reflection Loops: Self-Evaluation and Error Correction
+
+> Reflection loops enable agents to evaluate their own outputs before marking tasks complete.
+
+## Lesson
+
+Reflection loops enable agents to evaluate their own outputs before marking tasks complete. The Reflexion pattern extends standard agent loops with a self-evaluation step: after generating output, the agent scores its own work against predefined criteria, identifies weaknesses, and iterates until quality thresholds are met.
+
+Three-Layer Reflection Architecture: (1) Surface reflection - checks format compliance, token limits, and basic constraints (fast, runs on every output); (2) Semantic reflection - evaluates content quality, accuracy, and relevance using an LLM-as-judge pattern (medium cost, runs on key outputs); (3) Meta-reflection - analyzes the agent's own reasoning process for systematic biases or failure patterns (expensive, runs periodically).
+
+OpenAI's agent improvement loop demonstrates a production flywheel: run agents on synthetic data and capture traces; add human and LLM-generated feedback from traces; turn feedback into evals using Promptfoo; apply HALO optimization to rank harness changes; implement recommended changes with Codex; repeat the loop preserving learnings across iterations.

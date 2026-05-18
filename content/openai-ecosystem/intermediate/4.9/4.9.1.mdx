@@ -1,0 +1,25 @@
+---
+code: 4.9.1
+title: 'n8n: Self-Hosted Automation, AI Nodes, and Workflows'
+summary: >-
+  n8n is an open-source (Apache 2.0) workflow automation platform with 400+
+  integrations and 70+ AI nodes.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# n8n: Self-Hosted Automation, AI Nodes, and Workflows
+
+> n8n is an open-source (Apache 2.0) workflow automation platform with 400+ integrations and 70+ AI nodes.
+
+## Lesson
+
+n8n is an open-source (Apache 2.0) workflow automation platform with 400+ integrations and 70+ AI nodes. It supports self-hosting for data privacy and offers deep LangChain integration.
+
+Building an AI agent workflow in n8n:
+
+Step 1: Chat Trigger (receives user message)Step 2: AI Agent Node (processes with LLM) ├── Chat Model (GPT-4o-mini, Claude Haiku, Gemini Flash) ├── Memory (Simple Memory, 5 interactions default) └── Tools (database queries, API calls)Step 3: Output (response to user)
+
+fromAI() expressions enable dynamic data extraction within workflows, allowing the LLM to determine routing and parameter values at runtime.
+
+Key advantage over Zapier: n8n's self-hosted option keeps data on-premise - critical for HIPAA, GDPR, and enterprise compliance scenarios.

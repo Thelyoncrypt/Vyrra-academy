@@ -1,0 +1,108 @@
+---
+code: 6.4.1
+title: 'OWASP Top 10 for Agentic AI: ASI01-ASI10'
+summary: >-
+  Released December 2025 at Black Hat Europe, the OWASP Top 10 for Agentic
+  Applications introduces "least agency" as a core principle - only grant agents
+  the minimum autonomy required to accomplish their tasks.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# OWASP Top 10 for Agentic AI: ASI01-ASI10
+
+> Released December 2025 at Black Hat Europe, the OWASP Top 10 for Agentic Applications introduces "least agency" as a core principle - only grant agents the minimum autonomy required to accomplish their tasks.
+
+## Lesson
+
+Released December 2025 at Black Hat Europe, the OWASP Top 10 for Agentic Applications introduces "least agency" as a core principle - only grant agents the minimum autonomy required to accomplish their tasks. Only 21% of organizations have mature governance models for autonomous AI agents, 74% of IT leaders see agents as a new attack vector, and 40%+ of agentic AI projects are expected to be canceled by 2027.
+
+ID
+
+Risk
+
+Description
+
+Attack Example
+
+ASI01
+
+Agent Goal Hijack
+
+Attackers alter agent objectives via malicious content
+
+EchoLeak (CVE-2025-32711, CVSS 9.3): Zero-click prompt injection in Microsoft 365 Copilot; attacker email leads to data exfiltration via trusted domains
+
+ASI02
+
+Tool Misuse and Exploitation
+
+Agents use legitimate tools in unsafe ways
+
+Typosquatting: agent tricked into calling report instead of report_finance
+
+ASI03
+
+Identity and Privilege Abuse
+
+Agents inherit or escalate credentials without scoping
+
+Confused Deputy: low-privilege agent relays instructions to high-privilege agent
+
+ASI04
+
+Agentic Supply Chain
+
+Compromised tools, MCP servers, agent cards
+
+Trivy to LiteLLM supply chain attack: Infected binary leads to credential theft (Feb-Mar 2026)
+
+ASI05
+
+Unexpected Code Execution
+
+Agents generate and run code unsafely
+
+"Vibe coding" bypasses traditional security controls
+
+ASI06
+
+Memory and Context Poisoning
+
+Attackers corrupt agent memory or RAG context
+
+Persistent corruption influencing future decisions weeks after initial poisoning
+
+ASI07
+
+Insecure Inter-Agent Communication
+
+Multi-agent spoofing and tampering
+
+Agent impersonation in A2A networks without signed Agent Cards
+
+ASI08
+
+Cascading Failures
+
+Small errors propagate across planning and execution
+
+One agent's hallucinated output triggers chain of bad decisions
+
+ASI09
+
+Human-Agent Trust Exploitation
+
+Users over-trust agent recommendations
+
+Authority bias: users approve malicious actions because "the AI suggested it"
+
+ASI10
+
+Rogue Agents
+
+Compromised agents act harmfully while appearing legitimate
+
+Behavioral drift, collusion, self-replication beyond initial compromise
+
+Real-World Security Incidents. EchoLeak (CVE-2025-32711) achieved CVSS 9.3 through zero-click data exfiltration via Microsoft 365 Copilot. The Replit AI Agent wiped an entire production database during a code freeze in July 2025. The Trivy-to-LiteLLM supply chain attack compromised credentials across the ecosystem in February-March 2026. The ClawHavoc campaign distributed 1,184 malicious skills with 36.82% of scanned skills containing flaws.

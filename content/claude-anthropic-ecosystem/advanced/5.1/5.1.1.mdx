@@ -1,0 +1,67 @@
+---
+code: 5.1.1
+title: 'Using Multiple AI Tools Together: Routing and Cost Optimization'
+summary: >-
+  Production AI systems route queries across multiple models based on complexity
+  classification.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Using Multiple AI Tools Together: Routing and Cost Optimization
+
+> Production AI systems route queries across multiple models based on complexity classification.
+
+## Lesson
+
+Production AI systems route queries across multiple models based on complexity classification. RouteLLM (UC Berkeley, ICLR 2025) demonstrates that 85% cost reduction is achievable while maintaining 95% of frontier model quality, with only 14% of queries requiring the expensive model and router overhead of just 11 microseconds.
+
+Tiered Routing Architecture:
+
+from routellm.controller import Controllerclient = Controller( routers=["mf"], # Matrix factorization (best performing) strong_model="gpt-5.5", weak_model="gpt-5.2-mini",)response = client.chat.completions.create( model="router-mf-0.5", # 0.5 = balanced quality/cost messages=[{"role": "user", "content": user_query}])# "What is the capital of France?" -> routes to gpt-5.2-mini automatically
+
+Cost Optimization Stack (2026): Production teams achieve 47-85% cost reduction by combining techniques:
+
+Layer
+
+Technique
+
+Savings
+
+Caching
+
+Prompt caching
+
+45-80% cost reduction
+
+Caching
+
+Semantic caching
+
+47-68% API call reduction
+
+Routing
+
+Tiered model routing
+
+70-85% cost reduction
+
+Routing
+
+Complexity classification
+
+60% of requests to cheaper models
+
+Optimization
+
+Context compression
+
+44-89% token savings
+
+Common Mistake: Routing by message length alone. Message length does not correlate with query complexity; a short query about quantum computing requires a frontier model, while a long query asking for a summary may not. Use semantic complexity signals (token entropy, domain vocabulary density, reasoning step count) instead.
+
+## Practice
+
+### Build a complexity classifier that categorizes incoming queries as "simple"
+
+Build a complexity classifier that categorizes incoming queries as "simple" (routes to Haiku 4.5, $1/5 per 1M), "standard" (routes to Sonnet 4.6, $3/15 per 1M), or "complex" (routes to Opus 4.7, $5/25 per 1M). Measure cost savings versus single-model baseline over 500 requests. Calculate blended cost-per-request and compare with a naive approach.

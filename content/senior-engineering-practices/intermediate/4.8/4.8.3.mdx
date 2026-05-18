@@ -1,0 +1,55 @@
+---
+code: 4.8.3
+title: Integration Testing and End-to-End Testing
+summary: Integration testing verifies that components work together correctly.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Integration Testing and End-to-End Testing
+
+> Integration testing verifies that components work together correctly.
+
+## Lesson
+
+Integration testing verifies that components work together correctly. End-to-end (E2E) testing simulates real user journeys through the full application stack.
+
+Test Type
+
+Scope
+
+Tool Examples
+
+Speed
+
+Unit
+
+Individual functions
+
+Jest, pytest, JUnit
+
+Fastest (< 100ms)
+
+Integration
+
+Component interactions
+
+Supertest, TestContainers
+
+Medium (< 5s)
+
+E2E
+
+Full user journeys
+
+Playwright, Cypress, Selenium
+
+Slowest (> 10s)
+
+The testing pyramid: Aim for 70% unit tests, 20% integration tests, and 10% E2E tests by count. Unit tests provide fast feedback during development; integration tests catch API contract violations; E2E tests validate critical user paths. AI can generate test scaffolding for all three levels from a single feature description, but human review is essential for asserting the right behavior, not just any behavior.
+
+## Practice
+
+### For a small API endpoint, write tests at all three levels
+
+For a small API endpoint, write tests at all three levels: unit tests for business logic, integration tests for database interactions, and E2E tests for the full HTTP request/response cycle. Generate initial test cases with AI, then review and refine for edge cases the AI missed.

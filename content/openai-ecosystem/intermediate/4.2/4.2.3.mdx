@@ -1,0 +1,21 @@
+---
+code: 4.2.3
+title: 'Google AI API: Gemini API and AI Studio Export'
+summary: >-
+  Google AI Studio is a browser-based workspace that maps every UI prompt to an
+  API call.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Google AI API: Gemini API and AI Studio Export
+
+> Google AI Studio is a browser-based workspace that maps every UI prompt to an API call.
+
+## Lesson
+
+Google AI Studio is a browser-based workspace that maps every UI prompt to an API call. The Get Code button exports any session as Python, JavaScript, or cURL - bridging experimentation to production in two clicks.
+
+Gemini 3.1 Pro offers the best price-performance ratio for coding: SWE-Bench 80.6% at $2/$12 per million tokens - 60% cheaper on input than Claude Opus. Four inference tiers exist: Standard (1.0x), Batch (~0.5x), Flex (~0.5x), and Priority (~1.8x).
+
+import google.genai as genaiclient = genai.Client(api_key="YOUR_KEY")response = client.models.generate_content( model="gemini-3.1-pro-preview", contents="Explain REST APIs.", config=genai.types.GenerateContentConfig( thinking_budget=1024 # Medium thinking level))

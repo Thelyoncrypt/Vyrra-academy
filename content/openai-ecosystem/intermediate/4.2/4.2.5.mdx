@@ -1,0 +1,27 @@
+---
+code: 4.2.5
+title: 'Error Handling, Rate Limits, Retries, and Production Patterns'
+summary: Production API integration requires defensive code at every boundary.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Error Handling, Rate Limits, Retries, and Production Patterns
+
+> Production API integration requires defensive code at every boundary.
+
+## Lesson
+
+Production API integration requires defensive code at every boundary.
+
+Exponential backoff pattern:
+
+import asynciofrom tenacity import retry, stop_after_attempt, wait_exponential@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))async def call_with_retry(api_func, **kwargs): return await api_func(**kwargs)
+
+Key rate limits (typical Tier): OpenAI: 500 RPM; Anthropic: 50 RPM; Google: 60 RPM; Kimi: 200 RPM. Always implement request queuing for production workloads. The most cost-effective production approach is tiered routing: route classification tasks to the cheapest model (Kimi K2.6 at $0.60/1M) and complex reasoning to frontier models (Claude Opus at $5/1M), achieving blended savings of 37-60%.
+
+## Practice
+
+### Build a Python script that calls all four APIs with the same prompt, measures response time and token usage, and outputs
+
+Build a Python script that calls all four APIs with the same prompt, measures response time and token usage, and outputs a comparison table. Implement exponential backoff on all requests.

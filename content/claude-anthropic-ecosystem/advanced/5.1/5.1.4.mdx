@@ -1,0 +1,22 @@
+---
+code: 5.1.4
+title: Multi-Model Pipeline Architecture
+summary: >-
+  A production pipeline chains multiple models where each stage's output feeds
+  the next stage's input: User Query -> [Router Classifier] -> [Retrieval Model]
+  -> [Reasoning Model] -> [Output Formatter] (Haiku) (Embedding) (
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Multi-Model Pipeline Architecture
+
+> A production pipeline chains multiple models where each stage's output feeds the next stage's input: User Query -> [Router Classifier] -> [Retrieval Model] -> [Reasoning Model] -> [Output Formatter] (Haiku) (Embedding) (
+
+## Lesson
+
+A production pipeline chains multiple models where each stage's output feeds the next stage's input:
+
+User Query -> [Router Classifier] -> [Retrieval Model] -> [Reasoning Model] -> [Output Formatter] (Haiku) (Embedding) (Sonnet/Opus) (Haiku)
+
+Each stage uses the cheapest model capable of that sub-task. This architecture, inspired by the Kimi K2.5 Agent Swarm's PARL system, achieves 4.5x execution reduction by spawning up to 100 sub-agents simultaneously, each with the minimum capability needed.

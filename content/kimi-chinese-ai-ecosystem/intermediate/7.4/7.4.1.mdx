@@ -1,0 +1,136 @@
+---
+code: 7.4.1
+title: 'Kimi K2.5/K2.6: Architecture, Benchmarks, Pricing'
+summary: >-
+  Both Kimi K2.5 (January 2026) and K2.6 (April 2026) share a 1-trillion
+  parameter Mixture-of-Experts (MoE) architecture with 32 billion active
+  parameters per token.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Kimi K2.5/K2.6: Architecture, Benchmarks, Pricing
+
+> Both Kimi K2.5 (January 2026) and K2.6 (April 2026) share a 1-trillion parameter Mixture-of-Experts (MoE) architecture with 32 billion active parameters per token.
+
+## Lesson
+
+Both Kimi K2.5 (January 2026) and K2.6 (April 2026) share a 1-trillion parameter Mixture-of-Experts (MoE) architecture with 32 billion active parameters per token. The architecture includes 384 experts per layer (8 routed + 1 shared) across 61 layers, Multi-head Latent Attention (MLA) for KV cache compression reducing memory bandwidth by 40-50%, a MoonViT-3D vision encoder with 400M parameters, 160K vocabulary size, and native INT4 quantization.
+
+Key Architectural Differences (K2.5 to K2.6):
+
+Feature
+
+K2.5 (Jan 2026)
+
+K2.6 (Apr 2026)
+
+Agent Swarm sub-agents
+
+Up to
+
+Up to
+
+Coordinated tool calls
+
+1,500
+
+4,000+
+
+SWE-Bench Verified
+
+76.8%
+
+80.2%
+
+SWE-Bench Pro
+
+50.7%
+
+58.6%
+
+Terminal-Bench 2.0
+
+50.8%
+
+66.7%
+
+BrowseComp (Swarm)
+
+78.4%
+
+86.3%
+
+Full Benchmark Comparison:
+
+Benchmark
+
+Kimi K2.6
+
+GPT-5.4
+
+Claude Opus 4.6
+
+Gemini 3.1 Pro
+
+SWE-Bench Pro
+
+58.6%
+
+57.7%
+
+53.4%
+
+54.2%
+
+SWE-Bench Verified
+
+80.2%
+
+~80%
+
+80.8%
+
+80.6%
+
+HLE-Full (w/tools)
+
+54.0%
+
+52.1%
+
+53.0%
+
+51.4%
+
+DeepSearchQA (F1)
+
+92.5%
+
+78.6%
+
+91.3%
+
+81.9%
+
+AIME 2026
+
+96.4%
+
+99.2%
+
+96.7%
+
+98.3%
+
+K2.6 leads on agentic/coding benchmarks (SWE-Bench Pro, DeepSearchQA) but trails on pure math reasoning (AIME, GPQA-Diamond).
+
+Pricing: K2.6 API at $0.60/1M input, $2.50-4.00/1M output - approximately 81% cheaper than Claude Opus API. K2.6 supports Thinking mode (temperature 1.0, chain-of-thought) and Instant mode (temperature 0.6).
+
+Hardware Requirements for Self-Hosting: Minimum 4x H100 with INT4; recommended 8x H100-80G; optimal 8x H200-141G-SXM5 (1,128GB total). Break-even versus API: ~326M tokens/day.
+
+## Practice
+
+### Cost-Benefit Analysis
+
+Cost-Benefit Analysis: For a team processing 10M tokens/month, calculate total costs for Kimi K2.6 API, Claude Sonnet 4.6 API, and self-hosted Kimi K2.6 (amortizing 8x H100 hardware over 3 years). Include personnel costs for the self-hosted option. Identify the crossover point where self-hosting becomes economical.

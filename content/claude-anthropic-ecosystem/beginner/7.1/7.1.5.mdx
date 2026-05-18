@@ -1,0 +1,51 @@
+---
+code: 7.1.5
+title: Constitutional AI 2.0 and Responsible Scaling Policy v3
+summary: >-
+  Anthropic's Constitutional AI (CAI) uses a written set of principles (a
+  "constitution") rather than relying solely on human raters for alignment.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Constitutional AI 2.0 and Responsible Scaling Policy v3
+
+> Anthropic's Constitutional AI (CAI) uses a written set of principles (a "constitution") rather than relying solely on human raters for alignment.
+
+## Lesson
+
+Anthropic's Constitutional AI (CAI) uses a written set of principles (a "constitution") rather than relying solely on human raters for alignment. In February 2026, Anthropic released CAI 2.0 with dynamic constitution updates - the model can propose amendments to its own constitution during training, subject to human oversight. Early results show a 40% reduction in harmful outputs versus RLHF-only baselines on red-teaming evaluations. Anthropic is the only major frontier lab built around a formal "Constitution" for model behavior.
+
+Responsible Scaling Policy (RSP) v3.0, released February 24, 2026, replaced the original "hard pause" safety trigger with a tiered system:
+
+Tier
+
+Description
+
+ASL-1
+
+Present, low risk - standard safety measures
+
+ASL-2
+
+Early safeguards - requires evaluations and mitigations
+
+ASL-3
+
+Security Standards - structured security classification for advanced systems; governs sandboxing, monitoring, red-teaming. Activated for CBRN risks
+
+ASL-4+
+
+Frontier-level safeguards - capability-linked safeguards scaling proportionally
+
+Key commitments: Anthropic is the only frontier lab that publicly commits to pausing scaling if risks exceed controls. The safety team has veto power over model releases.
+
+Claude Mythos Preview: Anthropic's most capable but restricted model exceeds Opus 4.7 on all benchmarks (SWE-bench Pro: 77.8% vs 64.3%; HLE: 56.8% vs 46.9%). Deemed "too dangerous for public release," Opus 4.7 serves as a bridge model where safety mechanisms get tested before Mythos rollout.
+
+Data Policy (Updated August 2025): Conversation data retention extended to 5 years for users not opted out of training. Consumer plans allow training by default - must manually toggle off. Team/Enterprise plans guarantee no model training on your data.
+
+## Practice
+
+### Safety Audit
+
+Safety Audit: Review Anthropic's published Constitution and RSP v3.0 documentation. Evaluate 10 Claude responses against ASL-3 criteria, identifying any responses that would trigger escalation. Document the specific constitutional principles that would apply and the recommended mitigation.

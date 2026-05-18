@@ -1,0 +1,55 @@
+---
+code: 7.2.2
+title: 'Codex CLI: Kernel-Level Sandboxing, Full-Auto Mode, AGENTS.md'
+summary: >-
+  Codex CLI is OpenAI's open-source (Apache 2.0), Rust-built terminal coding
+  agent with over 72,000 GitHub stars as of early 2026.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Codex CLI: Kernel-Level Sandboxing, Full-Auto Mode, AGENTS.md
+
+> Codex CLI is OpenAI's open-source (Apache 2.0), Rust-built terminal coding agent with over 72,000 GitHub stars as of early 2026.
+
+## Lesson
+
+Codex CLI is OpenAI's open-source (Apache 2.0), Rust-built terminal coding agent with over 72,000 GitHub stars as of early 2026. It is the only major AI coding agent that enforces security at the kernel level, not through application-layer hooks.
+
+Sandbox Architecture by Platform:
+
+Platform
+
+Sandboxing Technology
+
+macOS
+
+Apple Seatbelt (kernel-level)
+
+Linux
+
+Landlock + seccomp (kernel-level)
+
+Windows (native)
+
+AppContainer (experimental)
+
+Windows (WSL2)
+
+Same as Linux
+
+Three Sandbox Modes: read-only (can read, browse, view system info; cannot write or execute - safest mode); workspace-write (default; can read/write inside current workspace; network access off by default); danger-full-access (full filesystem and network access - isolated environments only).
+
+Approval Policies: on-request (default - asks before risky actions); never (fully automatic); on-failure (asks only when operations fail); untrusted (smart mode - auto-approves known-safe reads, asks for destructive operations).
+
+Key Commands: Interactive session (codex); direct prompt (codex "explain this codebase"); non-interactive execution (codex exec "fix the CI failure"); model switching (/model); local code review (codex review); web search; MCP support; and Codex Cloud task launching.
+
+AGENTS.md is the project-level configuration file for codifying style rules, build commands, and constraints - analogous to CLAUDE.md in the Claude ecosystem.
+
+Full-Auto Mode: Use --full-auto for daily development workflows equivalent to --sandbox workspace-write --ask-for-approval on-request.
+
+## Practice
+
+### Codex CLI Security Lab
+
+Codex CLI Security Lab: Install Codex CLI and configure all three sandbox modes. Execute the same task (refactor a utility function and run tests) in each mode, documenting which operations require approval in each configuration. Write an AGENTS.md file specifying your team's coding standards and verify Codex respects them without additional prompting.

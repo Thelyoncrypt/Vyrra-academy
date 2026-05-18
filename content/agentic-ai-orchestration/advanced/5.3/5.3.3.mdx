@@ -1,0 +1,57 @@
+---
+code: 5.3.3
+title: 'MCP Security: Sandboxing, Permissions, and Auditing'
+summary: >-
+  OWASP ASI04 (Agentic Supply Chain) identifies compromised MCP servers as a
+  critical risk vector.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# MCP Security: Sandboxing, Permissions, and Auditing
+
+> OWASP ASI04 (Agentic Supply Chain) identifies compromised MCP servers as a critical risk vector.
+
+## Lesson
+
+OWASP ASI04 (Agentic Supply Chain) identifies compromised MCP servers as a critical risk vector. The Trivy-to-LiteLLM supply chain attack (February-March 2026) demonstrated how an infected binary can steal credentials and compromise the entire agent ecosystem.
+
+Defense Layers:
+
+Layer
+
+Mechanism
+
+Description
+
+Prompt injection scanning
+
+Built-in detection
+
+Scans incoming prompts for injection attempts
+
+Credential filtering
+
+Context scanning
+
+Strips sensitive env vars from child processes
+
+Container hardening
+
+Sandbox backends
+
+Read-only root filesystem, dropped capabilities
+
+Command approval
+
+Pattern matching
+
+Detects destructive commands
+
+Skill manifest signing
+
+Supply chain
+
+Verify server signatures before connection
+
+Security Requirements Before Production: 1. Verify all MCP server signatures; use OAuth 2.1 + PKCE. Run each server in isolated containers with egress controls. Implement allowlists for which servers each agent can access. Log every tool invocation with parameters and results. Enable kill switches for immediate server disconnection

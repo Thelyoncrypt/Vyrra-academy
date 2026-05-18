@@ -1,0 +1,54 @@
+---
+code: 3.9.1
+title: Safety & Ethics Fundamentals
+summary: >-
+  Safety and ethics are not advanced topics-they are foundational requirements
+  woven into every level of AI usage.
+outcomes: []
+keyConcepts:
+  - Hallucination
+  - Data Privacy
+  - Responsible AI Usage
+  - Prompt Injection
+  - Defence-in-Depth
+estMinutes: 88
+---
+# Safety & Ethics Fundamentals
+
+> Safety and ethics are not advanced topics-they are foundational requirements woven into every level of AI usage.
+
+## Key Concepts
+
+- Hallucination
+- Data Privacy
+- Responsible AI Usage
+- Prompt Injection
+- Defence-in-Depth
+
+## Lesson
+
+Safety and ethics are not advanced topics-they are foundational requirements woven into every level of AI usage. This module covers hallucination detection, data privacy, responsible usage, and prompt injection awareness. Research from Anthropic's Constitutional AI 2.0 demonstrates a 40% reduction in harmful outputs through dynamic constitution updates.
+
+Prompt Injection Defence Pattern
+
+INJECTION_PATTERNS = [ r"ignore\\s+(all\\s+)?previous\\s+instructions", r"you\\s+are\\s+now\\s+(a|an)\\s+", r"reveal\\s+(your|the)\\s+(system\\s+)?prompt",]def screen_input(user_input: str) -> bool: for pattern in INJECTION_PATTERNS: if re.search(pattern, user_input, re.IGNORECASE): return False # Suspicious input detected return True
+
+Data Privacy by Platform | Platform | Training Opt-Out | Enterprise Guarantee | Retention Period | |----|------|-------|------| | Claude | Manual toggle | "No model training" | 5 years (if opted in) | | ChatGPT | Manual toggle | Business/Enterprise separate | Undisclosed | | Gemini | Workspace: no training | Admin-controlled | Standard Google policies | | Kimi | Limited | Requires self-hosting | Subject to Chinese data law |
+
+## Practice
+
+### Hallucination Hunt
+
+Hallucination Hunt (45 min): Ask an AI 10 questions requiring specific facts (dates, names, statistics). Verify each answer against Wikipedia or primary sources. Calculate the error rate.
+
+### Privacy Settings Audit
+
+Privacy Settings Audit (30 min): Navigate to privacy settings on Claude, ChatGPT, and Gemini. Document what data each platform collects, how to opt out of training, and what retention policies apply.
+
+### Prompt Injection Lab
+
+Prompt Injection Lab (45 min): Attempt 5 different prompt injection techniques on a test AI system (in a safe environment). Document which techniques succeed, which fail, and what defences are in place.
+
+### Bias Awareness Exercise
+
+Bias Awareness Exercise (30 min): Ask an AI to generate descriptions of a "successful entrepreneur" five times. Analyse demographic patterns in the generated descriptions.

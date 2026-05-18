@@ -1,0 +1,21 @@
+---
+code: 6.3.1
+title: 'Planning Loops: Tree Search and Monte Carlo Planning'
+summary: >-
+  Planning loops enable agents to reason about future action sequences before
+  execution.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Planning Loops: Tree Search and Monte Carlo Planning
+
+> Planning loops enable agents to reason about future action sequences before execution.
+
+## Lesson
+
+Planning loops enable agents to reason about future action sequences before execution. Tree of Thoughts (ToT) manages reasoning as a tree structure, using BFS or DFS search algorithms to explore multiple reasoning paths systematically. On sorting tasks, Graph of Thoughts (which extends ToT with aggregation and refinement operations on a DAG) achieved 62% higher accuracy than ToT alone with 31% fewer tokens.
+
+Monte Carlo Tree Search (MCTS) for agent planning uses four phases: Selection (traverse the tree using UCT to balance exploration and exploitation), Expansion (add child nodes for promising actions), Simulation (roll out a random policy to estimate value), and Backpropagation (update node statistics up the tree). MCTS is particularly effective when the action space is large and deterministic planning is infeasible.
+
+The ReAct (Reasoning + Acting) pattern interleaves Thought, Action, and Observation steps, dramatically improving reliability over pure reasoning by grounding each step in real observations. Variations include ReAct with Self-Reflection (adds quality evaluation after observations), ReAct with Critique (adds an inner critic to catch mistakes mid-reasoning), and Parallel ReAct (runs multiple chains simultaneously and merges results).

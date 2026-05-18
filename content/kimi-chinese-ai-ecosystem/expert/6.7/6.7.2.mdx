@@ -1,0 +1,75 @@
+---
+code: 6.7.2
+title: 'Cost-Performance Optimization: RouteLLM and Semantic Caching'
+summary: >-
+  RouteLLM (UC Berkeley, ICLR 2025) provides the theoretical foundation for
+  cost-performance optimization.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Cost-Performance Optimization: RouteLLM and Semantic Caching
+
+> RouteLLM (UC Berkeley, ICLR 2025) provides the theoretical foundation for cost-performance optimization.
+
+## Lesson
+
+RouteLLM (UC Berkeley, ICLR 2025) provides the theoretical foundation for cost-performance optimization. The controller routes queries between a strong model (expensive, high quality) and a weak model (cheap, lower quality) based on predicted query difficulty:
+
+from routellm.controller import Controllerclient = Controller( routers=["mf"], # Matrix factorization (best performing) strong_model="gpt-5-2", weak_model="gpt-5-mini",)response = client.chat.completions.create( model="router-mf-0.5", # 0.5 = balanced quality/cost messages=[{"role": "user", "content": "What is the capital of France?"}])# Simple query → routes to gpt-5-mini automatically
+
+RouteLLM achieves 85% cost reduction on MT-Bench while maintaining 95% of GPT-5.2 quality, with only 14% of queries requiring the expensive model and router overhead of just 11 microseconds.
+
+Semantic caching uses vector embeddings to match queries with similar meaning despite different wording. "What's the refund policy?" and "How do I return an item?" produce the same semantic embedding, triggering a cache hit with no LLM call needed. Cache hit rates reach 60-85% in FAQ and support workloads, with 96.9% latency reduction for cached queries (1.67s to 0.052s) and up to 73% cost reduction in conversational workloads.
+
+The Five-Phase Cost Optimization Playbook:
+
+Phase
+
+Timeline
+
+Actions
+
+Expected Savings
+
+1. Baseline
+
+Week
+
+Instrument all LLM calls, measure cost per request
+
+Establish baseline
+
+2. Quick Wins
+
+Weeks 2-3
+
+Enable prompt caching, exact-match caching, batch embeddings
+
+45-80% on cached content
+
+3. Routing
+
+Weeks 4-5
+
+Build complexity classifier, implement tiered routing
+
+70-85% cost reduction
+
+4. Advanced Caching
+
+Weeks 6-7
+
+Semantic caching, retrieval result caching, cache invalidation
+
+47-68% call reduction
+
+5. Optimization
+
+Ongoing
+
+Weekly cost reviews, A/B test routing rules
+
+Continuous improvement
+
+Key Anti-Patterns to avoid: over-caching dynamic content leads to stale answers; using message length as a routing signal fails because length != complexity; ignoring quality while optimizing cost leads to silent degradation; failing to implement fallback paths means cheap model failures go unrecovered.

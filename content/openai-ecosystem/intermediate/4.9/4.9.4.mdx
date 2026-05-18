@@ -1,0 +1,28 @@
+---
+code: 4.9.4
+title: 'Database Integrations: Connecting AI to Real Data'
+summary: >-
+  Connecting AI systems to databases requires: secure connection management
+  (environment variables, never hardcode credentials); parameterized queries to
+  prevent injection; connection pooling for performance; and read-only
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Database Integrations: Connecting AI to Real Data
+
+> Connecting AI systems to databases requires: secure connection management (environment variables, never hardcode credentials); parameterized queries to prevent injection; connection pooling for performance; and read-only
+
+## Lesson
+
+Connecting AI systems to databases requires: secure connection management (environment variables, never hardcode credentials); parameterized queries to prevent injection; connection pooling for performance; and read-only credentials for AI agents unless write access is explicitly needed.
+
+Pattern - AI-powered data analysis workflow:
+
+# 1. Database query returns structured dataresults = db.query("SELECT * FROM sales WHERE date > %s", (last_month,))# 2. Data formatted into context windowcontext = format_for_llm(results)# 3. AI generates analysis, summary, or insightsanalysis = llm.complete(f"Analyze these sales trends: {context}")# 4. Results stored, emailed, or displayedsend_email(to="manager@company.com", body=analysis)
+
+## Practice
+
+### Build an n8n workflow that
+
+Build an n8n workflow that: (1) receives a webhook trigger, (2) queries a PostgreSQL database, (3) sends results to an AI agent for summarization, (4) posts the summary to Slack, and (5) handles errors with a fallback email.

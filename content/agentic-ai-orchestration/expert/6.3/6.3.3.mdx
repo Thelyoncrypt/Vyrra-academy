@@ -1,0 +1,22 @@
+---
+code: 6.3.3
+title: 'Evaluation Loops: Automated Grading and Human Feedback Integration'
+summary: >-
+  Production agent systems require continuous evaluation through three-level
+  hierarchies: Level - Format Compliance uses automated JSON schema validation,
+  required field checks, and banned phrase detection; Level - Content
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Evaluation Loops: Automated Grading and Human Feedback Integration
+
+> Production agent systems require continuous evaluation through three-level hierarchies: Level - Format Compliance uses automated JSON schema validation, required field checks, and banned phrase detection; Level - Content
+
+## Lesson
+
+Production agent systems require continuous evaluation through three-level hierarchies: Level 1 - Format Compliance uses automated JSON schema validation, required field checks, and banned phrase detection; Level 2 - Content Quality employs judge LLMs scoring outputs on relevance, accuracy, completeness, and tone; Level 3 - Human Evaluation applies structured rating with multiple raters and inter-rater agreement metrics.
+
+Six-Surface Testing Framework for production prompt testing covers: test definition (YAML/Python/notebook), regression diffing (compare pass-rate, latency, cost), red-team plugins (jailbreak, PII leak, prompt injection), CI gate (pass/fail for build integration), A/B and shadow traffic (measured rollout), and trace integration (emit results as spans).
+
+A/B Testing Methodology for agent evaluation: split traffic 50/50 between control and variant; collect minimum 1,000 requests per variant; use chi-squared test for binary metrics and t-test for continuous metrics; evaluate on relevance, accuracy, completeness, and tone (1-5 scale); roll out the winner and archive the loser.

@@ -1,0 +1,71 @@
+---
+code: 4.1.1
+title: 'Claude Code: Setup, Plan Mode, Permissions, and Workflows'
+summary: >-
+  Claude Code is Anthropic's terminal-native coding agent, installed via a
+  single curl command on macOS and Linux or PowerShell on Windows.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Claude Code: Setup, Plan Mode, Permissions, and Workflows
+
+> Claude Code is Anthropic's terminal-native coding agent, installed via a single curl command on macOS and Linux or PowerShell on Windows.
+
+## Lesson
+
+Claude Code is Anthropic's terminal-native coding agent, installed via a single curl command on macOS and Linux or PowerShell on Windows. System requirements are modest: macOS 13+, Ubuntu 20.04+, Windows 10+ (WSL or native PowerShell), 4GB+ RAM, and an Anthropic account with a paid plan. Authentication uses browser-based OAuth for personal machines or API keys for headless/CI environments.
+
+The Six Permission Modes. Claude Code offers six permission modes that fundamentally shape the workflow:
+
+Mode
+
+Auto-Approved Actions
+
+Best For
+
+default
+
+Reads only
+
+Getting started, sensitive codebases
+
+acceptEdits
+
+Reads + file edits + filesystem commands (mkdir, touch, mv, cp)
+
+Iterating on code under review
+
+plan
+
+Reads only; Claude proposes a full plan before changes
+
+Architecture review, migration planning
+
+auto
+
+Everything, with background safety classifier blocking risky actions
+
+Long tasks, reducing prompt fatigue
+
+dontAsk
+
+Only pre-approved tools
+
+Locked-down CI and scripts
+
+bypassPermissions
+
+Everything (no safety checks)
+
+Isolated containers and VMs only
+
+Plan mode is the recommended starting point for intermediate learners: Claude reads files, reasons through the task, and outputs a structured action plan before making zero changes. "This one change eliminates most of the 'wait, why did it do that?' moments". Activate with claude --permission-mode plan or toggle mid-session with Shift+Tab.
+
+CLAUDE.md as Project Memory. The CLAUDE.md file is the single most impactful configuration for Claude Code effectiveness. Keep it under 200 lines; include project overview, tech stack, key commands, project structure, coding conventions, and important rules. Store at project root and commit to Git so team members share the same setup. For modular rule management, use the.claude/rules/ directory.
+
+## Practice
+
+### Install Claude Code, create a CLAUDE.md for an existing project, and complete the same refactoring task in plan, acceptE
+
+Install Claude Code, create a CLAUDE.md for an existing project, and complete the same refactoring task in plan, acceptEdits, and default modes. Document which mode produced the best result and why.

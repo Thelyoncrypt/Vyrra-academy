@@ -1,0 +1,26 @@
+---
+code: 4.9.3
+title: 'Browser Automation: Playwright Basics'
+summary: >-
+  Microsoft's Playwright MCP (March 2025) enables LLMs to control browsers via
+  the accessibility tree - a structured semantic representation that is 20-50x
+  cheaper in tokens than screenshots.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Browser Automation: Playwright Basics
+
+> Microsoft's Playwright MCP (March 2025) enables LLMs to control browsers via the accessibility tree - a structured semantic representation that is 20-50x cheaper in tokens than screenshots.
+
+## Lesson
+
+Microsoft's Playwright MCP (March 2025) enables LLMs to control browsers via the accessibility tree - a structured semantic representation that is 20-50x cheaper in tokens than screenshots. Playwright supports Chromium, Firefox, and WebKit.
+
+from playwright.sync_api import sync_playwrightwith sync_playwright() as p: browser = p.chromium.launch() page = browser.new_page() page.goto("https://example.com") # Accessibility tree enables AI-driven interaction page.fill("input[name='search']", "AI automation") page.click("button[type='submit']") browser.close()
+
+## Practice
+
+### Build a Playwright script that logs into a dashboard, extracts metrics from three pages, and saves results to a CSV.
+
+Build a Playwright script that logs into a dashboard, extracts metrics from three pages, and saves results to a CSV.

@@ -1,0 +1,25 @@
+---
+code: 4.3.3
+title: Prompt Chaining and Conditional Logic
+summary: >-
+  Prompt chaining decomposes complex tasks into sequential sub-prompts where
+  each step's output feeds the next step's input.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Prompt Chaining and Conditional Logic
+
+> Prompt chaining decomposes complex tasks into sequential sub-prompts where each step's output feeds the next step's input.
+
+## Lesson
+
+Prompt chaining decomposes complex tasks into sequential sub-prompts where each step's output feeds the next step's input. Conditional logic branches based on intermediate results.
+
+# Example: Content moderation pipelinestep1 = "Classify the following text as: spam, offensive, or clean. Text: {input}"step2_clean = "Summarize this text in 2 sentences: {input}"step2_spam = "REJECTED: Content flagged as spam."step2_offensive = "Flag for human review. Reason: {step1_reason}"
+
+## Practice
+
+### Build a 3-step prompt chain for customer support ticket routing
+
+Build a 3-step prompt chain for customer support ticket routing: (1) classify intent, (2) extract urgency signals, (3) generate response draft or escalation notice based on conditions.

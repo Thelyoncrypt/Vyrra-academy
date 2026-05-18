@@ -1,0 +1,147 @@
+"use client";
+
+/**
+ * ToolFilterGrid — the only client component on /tools. Holds category +
+ * skill-level filter facets in local state and renders matching ToolCards.
+ * DESIGN.md `category-tab` / `category-tab-active` for the facet pills.
+ * Filtering is pure derivation from props (no server state duplicated).
+ *
+ * Baseline states: populated (cards) and empty (no match → EmptyState).
+ * Loading/error are owned by the server route (data is synchronous here).
+ */
+import { useMemo, useState } from "react";
+
+import { ToolCard } from "./tool-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import type {
+  ToolCategory,
+  ToolDefinition,
+  ToolSkillLevel,
+} from "@/lib/tools/types";
+
+interface ToolFilterGridProps {
+  tools: readonly ToolDefinition[];
+  categories: readonly ToolCategory[];
+}
+
+const LEVELS: readonly ToolSkillLevel[] = [
+  "beginner",
+  "intermediate",
+  "advanced",
+  "expert",
+];
+
+export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
+  const [category, setCategory] = useState<string>("all");
+  const [level, setLevel] = useState<string>("all");
+
+  const visible = useMemo(
+    () =>
+      tools.filter((t) => {
+        const catOk = category === "all" || t.category === category;
+        const lvlOk = level === "all" || t.skillLevel === level;
+        return catOk && lvlOk;
+      }),
+    [tools, category, level],
+  );
+
+  const reset = () => {
+    setCategory("all");
+    setLevel("all");
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col gap-5">
+        <FilterRow
+          legend="Filter by category"
+          options={[
+            { value: "all", label: "All categories" },
+            ...categories.map((c) => ({ value: c, label: c })),
+          ]}
+          active={category}
+          onSelect={setCategory}
+        />
+        <FilterRow
+          legend="Filter by skill level"
+          options={[
+            { value: "all", label: "All levels" },
+            ...LEVELS.map((l) => ({ value: l, label: l })),
+          ]}
+          active={level}
+          onSelect={setLevel}
+        />
+      </div>
+
+      <p
+        className="mt-8 font-sans text-[0.8125rem] text-muted"
+        aria-live="polite"
+      >
+        Showing {visible.length} of {tools.length} tools
+      </p>
+
+      {visible.length > 0 ? (
+        <ul className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {visible.map((tool) => (
+            <li key={tool.slug}>
+              <ToolCard tool={tool} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="mt-4">
+          <EmptyState
+            title="No tools match those filters"
+            description="Try widening the category or skill level to see more of the toolkit."
+            action={
+              <button
+                type="button"
+                onClick={reset}
+                className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors hover:bg-surface-soft"
+              >
+                Clear filters
+              </button>
+            }
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface FilterRowProps {
+  legend: string;
+  options: readonly { value: string; label: string }[];
+  active: string;
+  onSelect: (value: string) => void;
+}
+
+function FilterRow({ legend, options, active, onSelect }: FilterRowProps) {
+  return (
+    <fieldset>
+      <legend className="mb-3 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+        {legend}
+      </legend>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => {
+          const isActive = opt.value === active;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => onSelect(opt.value)}
+              className={`rounded-md px-3.5 py-2 font-sans text-sm font-medium capitalize transition-colors ${
+                isActive
+                  ? "bg-surface-card text-ink"
+                  : "text-muted hover:text-ink"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}

@@ -1,0 +1,51 @@
+---
+code: 5.4.1
+title: 'Clean Architecture: Layers, Dependency Rule, and Boundaries'
+summary: >-
+  Clean Architecture organizes software into concentric rings with a strict
+  rule: code dependencies can only move inward.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Clean Architecture: Layers, Dependency Rule, and Boundaries
+
+> Clean Architecture organizes software into concentric rings with a strict rule: code dependencies can only move inward.
+
+## Lesson
+
+Clean Architecture organizes software into concentric rings with a strict rule: code dependencies can only move inward.
+
+Layer
+
+Responsibility
+
+Examples
+
+Entities
+
+Enterprise-wide critical business rules
+
+Business objects, domain logic
+
+Use Cases
+
+Application-specific business rules
+
+Orchestrate flow between entities
+
+Interface Adapters
+
+Convert data between use cases and external agencies
+
+Controllers, presenters, gateways
+
+Frameworks & Drivers
+
+External tools and frameworks
+
+Web frameworks, databases, UI
+
+AI-Specific Application: In an AI system, the entities layer contains domain models; use cases contain agent orchestration logic; interface adapters contain LLM client wrappers and tool connectors; frameworks contains FastAPI, LangGraph, and database drivers. This means changing from OpenAI to Anthropic requires modifying only the adapter layer, not business logic.
+
+Python Implementation: Use abstract base classes (ABCs) to enforce the Dependency Rule. The use case depends on an abstract LLMClient; the OpenAI adapter implements it concretely.

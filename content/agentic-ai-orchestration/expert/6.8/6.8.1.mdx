@@ -1,0 +1,24 @@
+---
+code: 6.8.1
+title: 'Hermes Agent: Architecture, Closed Learning Loop, and Skill Generation'
+summary: >-
+  Hermes Agent's defining architectural feature is its closed learning loop - a
+  self-improvement cycle where the agent automatically reflects on completed
+  tasks, extracts reusable patterns, and writes them as skill files.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Hermes Agent: Architecture, Closed Learning Loop, and Skill Generation
+
+> Hermes Agent's defining architectural feature is its closed learning loop - a self-improvement cycle where the agent automatically reflects on completed tasks, extracts reusable patterns, and writes them as skill files.
+
+## Lesson
+
+Hermes Agent's defining architectural feature is its closed learning loop - a self-improvement cycle where the agent automatically reflects on completed tasks, extracts reusable patterns, and writes them as skill files. This makes it "the agent that grows with you." The loop operates as follows: (1) the agent completes a complex task (typically 5+ tool calls); (2) a reflection module evaluates whether the pattern is reusable; (3) execution experience is distilled into a Markdown skill file following the agentskills.io open standard; (4) skills are stored at three levels: Level 0 (~3,000 token summary for quick retrieval), Level 1 (full skill content), and Level 2 (reference materials and linked resources); (5) every 15 tasks, a reflection loop evaluates existing skills for effectiveness and improves them.
+
+This contrasts with OpenClaw, where skills are static Markdown files handwritten by users and distributed through the ClawHub marketplace - a vector that Snyk found contained 1,467 malicious skills out of 5,700 audited (91% mixed prompt injection with traditional malware), with the single most-installed malicious skill exceeding 340,000 installations. Hermes's self-generated skills eliminate this third-party supply-chain attack vector entirely.
+
+The architecture consists of 10+ major subsystems: the Agent Loop (synchronous orchestration with provider selection, prompt construction, tool execution, retries, fallback, callbacks, compression, and persistence); the Prompt System (assembling system prompt from personality SOUL.md, memory MEMORY.md and USER.md, skills, context files, tool guidance, and model-specific instructions); Provider Resolution (shared runtime resolver handling 18+ providers and OAuth flows); the Tool System (70+ registered tools across ~28 toolsets); Session Persistence (SQLite-based with FTS5); the Messaging Gateway (20 platform adapters); Plugin System; Cron Scheduler; ACP Integration (VS Code, Zed, JetBrains); and Trajectories (ShareGPT-format for training data generation).
+
+Subagent Delegation supports 3 parallel subagents by default (configurable, no hard ceiling), max delegation depth of 3 levels, with each subagent receiving its own conversation, terminal session, and toolset. Parent and subagents share no conversation history; subagents see only the goal and context passed at creation.

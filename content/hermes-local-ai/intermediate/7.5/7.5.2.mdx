@@ -1,0 +1,35 @@
+---
+code: 7.5.2
+title: 'Setup: One-Line Install, 18+ Model Providers, Configuration'
+summary: >-
+  One-line install (macOS, Linux, WSL2): curl -fsSL
+  https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh
+  | bashsource ~/.bashrchermes The installer sets up Python 3.11 and uv package
+  manager,
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Setup: One-Line Install, 18+ Model Providers, Configuration
+
+> One-line install (macOS, Linux, WSL2): curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bashsource ~/.bashrchermes The installer sets up Python 3.11 and uv package manager,
+
+## Lesson
+
+One-line install (macOS, Linux, WSL2):
+
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bashsource ~/.bashrchermes
+
+The installer sets up Python 3.11 and uv package manager, Node.js dependencies, Chromium for browser automation (via Playwright), ripgrep, ffmpeg, and the ~/.hermes/ directory tree (config, memory, skills, logs, sessions).
+
+Provider Selection (18+ built-in): Nous Portal (single subscription, routes across Claude, GPT, GLM, MiniMax via OAuth); bring your own API key (Anthropic, OpenAI, DeepSeek, etc.); local model via Ollama (zero cost, fully offline); or skip and configure later with hermes model.
+
+Key Configuration Files: ~/.hermes/config.yaml (main configuration); ~/.hermes/.env (API keys and secrets); ~/.hermes/MEMORY.md (persistent environment memory, auto-managed); ~/.hermes/USER.md (user preference model, auto-managed); ~/.hermes/SOUL.md (personality and behavior definition).
+
+Model Switching: Switch models at any time with zero code changes using /model inside sessions or hermes model outside sessions. Supports 200+ models via OpenRouter with automatic fallback provider chains.
+
+## Practice
+
+### Provider Configuration
+
+Provider Configuration: Set up Hermes Agent with three provider configurations: (1) OpenRouter with Claude Sonnet 4.6 as primary, (2) Ollama with Qwen 2.5 Coder 32B for local offline work, and (3) a fallback chain that automatically switches to a local model when the cloud provider fails. Test each configuration and document latency/quality differences.

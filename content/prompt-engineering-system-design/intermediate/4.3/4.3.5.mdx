@@ -1,0 +1,50 @@
+---
+code: 4.3.5
+title: Prompt Evaluation and A/B Testing Basics
+summary: >-
+  Production prompt evaluation requires a three-level hierarchy: Level Method
+  Purpose - Format Compliance Automated JSON schema, required fields checks
+  Catch structural failures - Content Quality Judge LLM scores outputs o
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Prompt Evaluation and A/B Testing Basics
+
+> Production prompt evaluation requires a three-level hierarchy: Level Method Purpose - Format Compliance Automated JSON schema, required fields checks Catch structural failures - Content Quality Judge LLM scores outputs o
+
+## Lesson
+
+Production prompt evaluation requires a three-level hierarchy:
+
+Level
+
+Method
+
+Purpose
+
+1 - Format Compliance
+
+Automated JSON schema, required fields checks
+
+Catch structural failures
+
+2 - Content Quality
+
+Judge LLM scores outputs on relevance, accuracy
+
+Catch semantic failures
+
+3 - Human Evaluation
+
+Structured rating with multiple raters
+
+Catch nuanced failures
+
+A/B testing methodology: Split traffic 50/50 between control (current prompt) and variant; collect minimum 1,000 requests per variant; use chi-squared tests for binary metrics and t-tests for continuous metrics; evaluate on relevance, accuracy, completeness, and tone.
+
+## Practice
+
+### Write two variants of a customer support response prompt. Run 50 test cases through both. Score outputs on a 1-5 scale f
+
+Write two variants of a customer support response prompt. Run 50 test cases through both. Score outputs on a 1-5 scale for accuracy and tone. Calculate which variant wins and whether the difference is statistically significant.

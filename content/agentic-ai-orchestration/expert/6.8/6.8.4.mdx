@@ -1,0 +1,44 @@
+---
+code: 6.8.4
+title: 'Model-Agnostic Design: 200+ Models via OpenRouter and Local Deployment'
+summary: >-
+  Hermes Agent supports 200+ models via 18+ built-in providers: Nous Portal,
+  OpenAI, Anthropic, OpenRouter, NovitaAI, z.ai/GLM, Kimi/Moonshot, MiniMax,
+  DeepSeek, NVIDIA, xAI, Ollama, Bedrock, Azure, Hugging Face, and more.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Model-Agnostic Design: 200+ Models via OpenRouter and Local Deployment
+
+> Hermes Agent supports 200+ models via 18+ built-in providers: Nous Portal, OpenAI, Anthropic, OpenRouter, NovitaAI, z.ai/GLM, Kimi/Moonshot, MiniMax, DeepSeek, NVIDIA, xAI, Ollama, Bedrock, Azure, Hugging Face, and more.
+
+## Lesson
+
+Hermes Agent supports 200+ models via 18+ built-in providers: Nous Portal, OpenAI, Anthropic, OpenRouter, NovitaAI, z.ai/GLM, Kimi/Moonshot, MiniMax, DeepSeek, NVIDIA, xAI, Ollama, Bedrock, Azure, Hugging Face, and more. OpenRouter serves as the default fallback aggregator, with model IDs following provider/model-name format. Switch models at any time with zero code changes using hermes model (outside session) or /model (inside session) - conversation history, memory, and skills carry over regardless of provider.
+
+Popular OpenRouter models for Hermes:
+
+Model ID
+
+Best For
+
+anthropic/claude-sonnet-4.6
+
+Best all-round agent model
+
+deepseek/deepseek-v4-pro
+
+Strong coding, very low cost
+
+google/gemini-3.1-pro-preview
+
+Long context, multimodal
+
+x-ai/grok-4.20
+
+Real-time knowledge
+
+moonshotai/kimi-k2.6
+
+Long context, research tasks

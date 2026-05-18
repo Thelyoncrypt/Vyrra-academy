@@ -1,0 +1,31 @@
+---
+code: 7.1.4
+title: CLAUDE.md and Project Configuration Best Practices
+summary: >-
+  CLAUDE.md is the single most impactful configuration for Claude Code
+  effectiveness, read automatically at the start of every session.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# CLAUDE.md and Project Configuration Best Practices
+
+> CLAUDE.md is the single most impactful configuration for Claude Code effectiveness, read automatically at the start of every session.
+
+## Lesson
+
+CLAUDE.md is the single most impactful configuration for Claude Code effectiveness, read automatically at the start of every session. Best practices from production teams: keep under 200 lines; link to skills as needed; include project overview, tech stack, key commands, project structure, coding conventions, and important rules; store at project root and commit to Git; use.claude/rules/ directory for modular rule management.
+
+Example CLAUDE.md structure:
+
+# Project Context## Overview[Brief description]## Tech Stack- Language: TypeScript- Framework: Next.js 15 with App Router- Database: PostgreSQL + Drizzle ORM## Commands- npm run dev \u2014 start dev server on port 3000- npm test \u2014 run Jest## Conventions- Server components by default- TypeScript strict mode, no `any`## Important Rules- Never commit secrets- Always run tests before committing
+
+Memory Architecture (Three-Layer System): Layer 1 is Chat Memory (extractive summarization, processes conversations roughly every 24 hours). Layer 2 is CLAUDE.md + Auto Memory (~/.claude/projects/<project>/memory/MEMORY.md) capturing learned preferences. Layer 3 is the API Memory Tool with six operations (view, create, str_replace, insert, delete, rename). The May 2026 update adds Managed Agents built-in memory (public beta) and Dreaming (research preview) for self-improvement.
+
+Best Practices from Real-World Usage: Start with CLAUDE.md as the foundation; manually compact at 50% context usage (the "agent dumb zone" starts at 60-70%); press Esc twice to rollback when Claude goes off track; press Ctrl+G to open a plan in your text editor before approving; use /statusline to monitor context usage in real-time; version control everything except settings.local.json and CLAUDE.local.md; build a "Gotchas" section in each skill documenting failure modes.
+
+## Practice
+
+### CLAUDE
+
+CLAUDE.md Workshop: Write a comprehensive CLAUDE.md for an existing project following the template structure. Include at least 3 skills references, 5 coding conventions, and 3 "important rules" derived from actual team pain points. Test by running Claude Code on a task and measuring whether the generated code follows your conventions without additional prompting.

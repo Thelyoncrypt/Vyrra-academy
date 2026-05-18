@@ -1,0 +1,36 @@
+# Local dev database — Vercel Postgres (Neon) + pgvector parity.
+#
+# architecture.md §6: "Local dev — Local Postgres + pgvector (Docker)".
+# pgvector/pgvector:pg17 is Postgres 17 with the `vector` extension preinstalled
+# so `CREATE EXTENSION vector` and the HNSW index (prisma/README.md) work locally
+# exactly as on Neon.
+#
+# Credentials here are DEV-ONLY and intentionally weak. They are NOT secrets:
+# the real DATABASE_URL is read from the gitignored root .env (system-design
+# §5.1 — secrets are env vars only, never inline in source). Host port 5434 is
+# used (not 5432, and not 5433 which a pre-existing unrelated local container
+# already binds) to avoid clashing with any other local Postgres.
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: ai-course-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aicourse
+      POSTGRES_PASSWORD: aicourse
+      POSTGRES_DB: aicourse
+    ports:
+      - "5434:5432"
+    volumes:
+      - ai-course-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aicourse -d aicourse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  ai-course-db-data:
+    name: ai-course-db-data

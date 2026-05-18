@@ -1,0 +1,22 @@
+---
+code: 5.9.4
+title: Integrating Media Generation into Applications
+summary: >-
+  Architecture Pattern: Use a multi-model abstraction layer that abstracts the
+  specific generator, enabling vendor switching without code changes: class
+  MediaGenerator(ABC): @abstractmethod async def generate_image(self, p
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Integrating Media Generation into Applications
+
+> Architecture Pattern: Use a multi-model abstraction layer that abstracts the specific generator, enabling vendor switching without code changes: class MediaGenerator(ABC): @abstractmethod async def generate_image(self, p
+
+## Lesson
+
+Architecture Pattern: Use a multi-model abstraction layer that abstracts the specific generator, enabling vendor switching without code changes:
+
+class MediaGenerator(ABC): @abstractmethod async def generate_image(self, prompt: str, size: str) -> bytes:... @abstractmethod async def generate_video(self, prompt: str, duration: int) -> bytes:...class GPTImage2Generator(MediaGenerator):...class FluxKleinGenerator(MediaGenerator):...
+
+Best Practices: - Cache generated media to avoid regenerating identical assets - Implement fallback chains (primary -> secondary -> local model) - Store prompts alongside generated images for reproducibility - Monitor generation costs per user and implement rate limits - Always respect platform Terms of Service and content policies

@@ -1,0 +1,29 @@
+---
+code: 6.3.5
+title: 'Persistent Memory: SQLite+FTS5, Vector Databases, and Checkpointers'
+summary: >-
+  Hermes Agent's three-layer memory system exemplifies embedded-first persistent
+  memory design.
+outcomes: []
+keyConcepts: []
+estMinutes: 28
+---
+# Persistent Memory: SQLite+FTS5, Vector Databases, and Checkpointers
+
+> Hermes Agent's three-layer memory system exemplifies embedded-first persistent memory design.
+
+## Lesson
+
+Hermes Agent's three-layer memory system exemplifies embedded-first persistent memory design. Layer 1 (Session Context) stores current conversation buffer, tool outputs, and scratch space in-process only. Layer 2 (Persistent Store) uses SQLite with WAL mode and FTS5 full-text index to store every conversation turn with ~10ms retrieval latency for 10,000+ documents. Layer 3 (User Model) tracks preferences, coding style, timezone, tone, and frequent collaborators in a SQLite JSON field, with drift-adjusted learning across sessions.
+
+Two autonomous markdown files - MEMORY.md (~2,200 characters for environment facts) and USER.md (~1,375 characters for user preferences) - are agent-curated, read once at session start as frozen snapshots embedded in the system prompt, and writable mid-session with changes appearing in the next session. This prefix-cache friendly design keeps Anthropic cache breakpoints valid across sessions.
+
+Nous Research explicitly chose SQLite + FTS5 over vector databases for the embedded-first deployment story - the whole agent ships as files under ~/.hermes/, with no external database dependencies. Retrieval latency stays at ~10ms for 10,000+ entries, the inflection point where most vector DB architectures show tail latency. However, at larger scales (100K+ documents), dedicated vector databases like pgvector or ChromaDB provide superior similarity search performance.
+
+LangGraph checkpointers enable production-grade persistence through multiple backends: PostgreSQL for relational state storage, Redis for low-latency caching, and MongoDB for flexible document storage. The checkpointer pattern persists state after every node execution, enabling time-travel debugging (fork from any previous state), long-running durable execution (agents sleep and wake on external events), and fault tolerance (resume from last checkpoint after crashes).
+
+## Practice
+
+### Memory System Architecture. Design a persistent memory system for a multi-agent research platform handling 100,000+ docu
+
+Memory System Architecture. Design a persistent memory system for a multi-agent research platform handling 100,000+ documents. Specify the storage architecture (which memory types use which storage backends), the retrieval pipeline (how agents query across memory layers), the security model (isolation between agents and users), and the performance budget (target latencies for each operation type).

@@ -1,0 +1,63 @@
+---
+code: 6.7.3
+title: 'Open-Weight Deployment: Ollama, vLLM, and Quantization'
+summary: >-
+  Open-weight deployment enables fully local, zero-API-cost inference with
+  complete data sovereignty.
+outcomes: []
+keyConcepts: []
+estMinutes: 8
+---
+# Open-Weight Deployment: Ollama, vLLM, and Quantization
+
+> Open-weight deployment enables fully local, zero-API-cost inference with complete data sovereignty.
+
+## Lesson
+
+Open-weight deployment enables fully local, zero-API-cost inference with complete data sovereignty. Ollama provides the easiest setup: ollama pull qwen2.5-coder:32b for a community favorite coding model, or ollama pull gemma4 for general capability requiring ~16GB VRAM. Hermes Agent integrates with Ollama through a custom endpoint at http://127.0.0.1:11434/v1 with no API key required.
+
+vLLM and SGLang provide production GPU serving with advanced features: continuous batching, PagedAttention for efficient KV cache management, and tensor parallelism across multiple GPUs. For Kimi K2.6 specifically, vLLM 0.19.1 is the recommended stable version, with SGLang and KTransformers as alternatives. Hardware requirements for K2.6 self-hosting: minimum 4x H100 with INT4 quantization, recommended 8x H100-80G, and optimal 8x H200-141G-SXM5 for full context length.
+
+Quantization Options:
+
+Precision
+
+Disk Size
+
+Quality Impact
+
+GPU Required (7B model)
+
+Full precision (FP16)
+
+~2.05 TB
+
+None
+
+14GB+
+
+INT4 (native)
+
+~595 GB
+
+Minimal
+
+4-8GB
+
+FP4
+
+Reduced
+
+Slight
+
+4-6GB
+
+FP8
+
+Reduced
+
+Very slight
+
+6-10GB
+
+Important caveat: Do not use small models (Gemma 8B, Llama 8B) for agent work - they lack the tool-calling capability and context handling needed for multi-step agent workflows. Qwen 2.5 Coder 32B is the community favorite for local agent work.
