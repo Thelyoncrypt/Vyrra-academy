@@ -41,6 +41,17 @@ const DEV_EMAIL = "dev@local";
  * The signature and return type stay identical so no caller changes.
  */
 export async function getCurrentPrincipal(): Promise<Principal> {
+  if (process.env.NODE_ENV === "production") {
+    // Hard prod guard: this is fake auth (a single fixed dev user). Shipping
+    // it = total authn bypass + cross-user data exposure. Fail fast instead
+    // of silently serving every request as `dev-local-user` (security review
+    // Loop 1 / Loop 15, CRITICAL/HIGH). Removed by the Clerk wave.
+    throw new Error(
+      "[auth/session] getCurrentPrincipal stub must never run in production " +
+        "— it returns a fixed fake user. Wire Clerk before any live deploy.",
+    );
+  }
+
   const user = await db.user.upsert({
     where: { clerkUserId: DEV_CLERK_USER_ID },
     update: {},

@@ -27,6 +27,7 @@
 
 import { getTutorPrincipal } from "@/lib/ai/auth-stub";
 import { streamTutorAnswer } from "@/lib/ai/tutor-agent";
+import { canAccessLesson } from "@/lib/authz/gating";
 import { rateLimiter } from "@/lib/rag/rate-limit";
 import { retrievalService } from "@/lib/rag/retrieval";
 import {
@@ -88,11 +89,8 @@ export async function POST(req: Request): Promise<Response> {
         message: "Sign in to use the tutor.",
       });
     }
-    // TODO(clerk-wave + db-wave): enforce canAccessLesson(principal, lesson)
-    // here (system-design §4.3) → 403 `forbidden` if not entitled, BEFORE
-    // any retrieval, so the tutor cannot ground in inaccessible content.
 
-    // ---- 3. Rate limit (STUB allows — DB wave; system-design §5.4) -------
+    // ---- 3. Rate limit (real token bucket; system-design §5.4) -----------
     const rl = await rateLimiter.consume(principal.userId);
     if (!rl.allowed) {
       return errorResponse({
@@ -102,12 +100,29 @@ export async function POST(req: Request): Promise<Response> {
       });
     }
 
-    // ---- 4. Scope + retrieve (STUB — DB wave; system-design §3.2) --------
+    // ---- 4. Resolve scope (id → curriculum scope; no content read) ------
     const scope = await retrievalService.resolveScope(lessonId);
     if (!scope) {
       return errorResponse({
         code: "invalid_request",
         message: "Unknown lesson for this conversation.",
+      });
+    }
+
+    // ---- 4b. Entitlement (system-design §4.3) — BEFORE any retrieval -----
+    // The tutor must never ground answers in a lesson the learner cannot
+    // access (content-confidentiality; security review Loop 2, MEDIUM).
+    // `canAccessLesson` is keyed by lesson CODE — derived from the resolved
+    // scope, never from client input. Staff bypass + enrollment +
+    // prerequisite gating all live in that single service (no duplication).
+    const access = await canAccessLesson(
+      { userId: principal.userId, role: principal.role },
+      scope.lessonCode,
+    );
+    if (!access.allowed) {
+      return errorResponse({
+        code: "forbidden",
+        message: "You don't have access to this lesson's tutor yet.",
       });
     }
 

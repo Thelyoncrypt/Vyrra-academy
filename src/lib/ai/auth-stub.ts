@@ -35,6 +35,16 @@ export interface TutorPrincipal {
 export async function getTutorPrincipal(
   _req: Request,
 ): Promise<TutorPrincipal | null> {
+  if (process.env.NODE_ENV === "production") {
+    // Hard prod guard: this returns a fixed fake identity. Combined with the
+    // (now real) rate limiter keyed off this id, shipping it would scope every
+    // tutor request to one synthetic user. Fail fast (security review Loop 1 /
+    // Loop 15). Replaced by the Clerk session read in the Clerk wave.
+    throw new Error(
+      "[ai/auth-stub] getTutorPrincipal stub must never run in production — " +
+        "it returns a fixed fake user. Wire Clerk before any live deploy.",
+    );
+  }
   void _req;
   return { userId: "stub-user-00000000", role: "learner" };
 }

@@ -161,7 +161,25 @@ function mean(nums: readonly number[]): number {
  * and typecheck before Neon/Gateway exist. NEVER hits the network.
  */
 export class StubRetrievalService implements RetrievalService {
+  /**
+   * Hard prod guard. This service returns fixed fake chunks with no DB and no
+   * embeddings; grounding the tutor on it in production would serve learners
+   * placeholder content as if it were the curriculum (security review Loop 15,
+   * HIGH). Fail fast instead of silently shipping. Replaced by
+   * `PgVectorRetrievalService` in the DB wave.
+   */
+  private assertNotProduction(): void {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[rag/retrieval] StubRetrievalService must never run in production " +
+          "— it returns fake chunks, not real grounded content. Wire the " +
+          "pgvector retrieval service before any live deploy.",
+      );
+    }
+  }
+
   async resolveScope(lessonId: string): Promise<RetrievalScope | null> {
+    this.assertNotProduction();
     if (!lessonId) return null;
     return fakeScope(lessonId);
   }
@@ -171,6 +189,7 @@ export class StubRetrievalService implements RetrievalService {
     question: string,
     options?: RetrieveOptions,
   ): Promise<RetrievalResult> {
+    this.assertNotProduction();
     const k = options?.k ?? DEFAULT_RETRIEVAL_K;
     const chunks = fakeChunks(scope, question).slice(0, k);
     const meanScore = mean(chunks.map((c) => c.score));

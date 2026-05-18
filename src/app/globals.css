@@ -134,6 +134,21 @@
     border-radius: var(--radius-sm);
   }
 
+  /*
+   * a11y audit finding #10 (2.4.7 Focus Visible): react-simple-code-editor
+   * sets inline `outline: none` on its textarea, which the global
+   * :focus-visible rule above cannot override (inline style wins). Restore a
+   * visible keyboard-focus indicator as a box-shadow ring on the editor
+   * surface when the inner textarea has :focus-visible. Box-shadow is used
+   * (not outline) so it renders correctly over the dark code surface and is
+   * not suppressed by the inline outline reset.
+   */
+  .code-editor-surface:has(textarea:focus-visible) {
+    box-shadow:
+      0 0 0 2px var(--color-surface-dark),
+      0 0 0 4px var(--color-primary);
+  }
+
   /* Respect reduced-motion preference */
   @media (prefers-reduced-motion: reduce) {
     *,

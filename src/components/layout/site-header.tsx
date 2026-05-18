@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SpikeMark } from "@/components/brand/spike-mark";
+import { MobileNav } from "./mobile-nav";
 import { PRIMARY_NAV_LINKS } from "./nav-links";
 
 /**
@@ -40,10 +41,14 @@ export function SiteHeader() {
 
         <Link
           href="/dashboard"
-          className="rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active"
+          className="hidden rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active md:inline-flex"
         >
           Start learning
         </Link>
+
+        {/* Mobile-only hamburger → full-screen cream sheet (a11y #1). The
+            desktop nav + CTA above are unchanged at ≥ md. */}
+        <MobileNav />
       </nav>
     </header>
   );

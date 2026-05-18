@@ -95,6 +95,10 @@ export default async function LevelPage({ params }: LevelPageProps) {
           trackSlug={track.slug}
           levelOrder={levelOrder}
           initiallyEnrolled={enrolled}
+          // Defense-in-depth (deployment.md B2): the "enrol in everything" dev
+          // control is not even rendered in production, independent of the
+          // service-side NODE_ENV guard on devEnrollAllAction.
+          showDevControl={process.env.NODE_ENV !== "production"}
         />
       </div>
 

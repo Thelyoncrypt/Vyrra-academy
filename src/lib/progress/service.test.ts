@@ -21,6 +21,7 @@ const { db } = vi.hoisted(() => ({
     level: { findFirst: vi.fn() },
     track: { findUnique: vi.fn() },
     assessment: { findFirst: vi.fn() },
+    enrollment: { findUnique: vi.fn() },
   },
 }));
 
@@ -101,6 +102,8 @@ describe("getLevelCompletion — levelCompleted predicate", () => {
     lessonIds: string[];
     completedCount: number;
     confirmedPassing: boolean;
+    /** Default true: the user is enrolled in this (track, level). */
+    enrolledHere?: boolean;
   }) {
     db.level.findFirst.mockResolvedValue({ id: "level-1" });
     db.track.findUnique.mockResolvedValue({ id: "track-1" });
@@ -108,6 +111,9 @@ describe("getLevelCompletion — levelCompleted predicate", () => {
       opts.lessonIds.map((id) => ({ id })),
     );
     db.progress.count.mockResolvedValue(opts.completedCount);
+    db.enrollment.findUnique.mockResolvedValue(
+      (opts.enrolledHere ?? true) ? { id: "enrollment-1" } : null,
+    );
     db.assessment.findFirst.mockResolvedValue(
       opts.confirmedPassing ? { id: "assessment-1" } : null,
     );
@@ -175,6 +181,54 @@ describe("getLevelCompletion — levelCompleted predicate", () => {
     const where = db.assessment.findFirst.mock.calls[0][0].where;
     expect(where.confirmedAt).toEqual({ not: null });
     expect(where.outcome).toEqual({ in: ["pass", "merit", "distinction"] });
+  });
+
+  test("capstone pass does NOT credit a track the user is not enrolled in (track-scoping, security #6)", async () => {
+    // Arrange — all lessons done AND a confirmed passing assessment exists
+    // for a capstone of this (shared) level, but the user is NOT enrolled in
+    // THIS (track, level): a pass earned under another track must not
+    // cross-credit this track's prerequisite gate.
+    arrangeGraph({
+      lessonIds: ["l1"],
+      completedCount: 1,
+      confirmedPassing: true,
+      enrolledHere: false,
+    });
+
+    // Act
+    const result = await getLevelCompletion("user-1", 1, "other-track");
+
+    // Assert — lessons may be done, but the capstone gate stays unsatisfied
+    // because the credit is bound to an active enrollment in this track.
+    expect(result.allLessonsCompleted).toBe(true);
+    expect(result.capstonePassed).toBe(false);
+    expect(result.levelCompleted).toBe(false);
+    // The expensive assessment query must be skipped entirely when not
+    // enrolled here (no cross-track read).
+    expect(db.assessment.findFirst).not.toHaveBeenCalled();
+  });
+
+  test("capstone pass credits the gate when the user IS enrolled in this (track, level)", async () => {
+    // Arrange — same passing assessment, but enrolled here.
+    arrangeGraph({
+      lessonIds: ["l1"],
+      completedCount: 1,
+      confirmedPassing: true,
+      enrolledHere: true,
+    });
+
+    // Act
+    const result = await getLevelCompletion("user-1", 1, "claude");
+
+    // Assert
+    expect(result.capstonePassed).toBe(true);
+    expect(result.levelCompleted).toBe(true);
+    const where = db.enrollment.findUnique.mock.calls[0][0].where;
+    expect(where.userId_trackId_levelId).toEqual({
+      userId: "user-1",
+      trackId: "track-1",
+      levelId: "level-1",
+    });
   });
 
   test("a level with NO lessons is treated as not-yet-progressed (not a free pass)", async () => {

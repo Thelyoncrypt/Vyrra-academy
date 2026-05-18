@@ -53,7 +53,7 @@ export function CodeEditor({
   const grammarKey = PRISM_GRAMMAR[language];
 
   return (
-    <div className="overflow-hidden rounded-lg bg-surface-dark">
+    <div className="code-editor-surface overflow-hidden rounded-lg bg-surface-dark">
       <div
         aria-hidden="true"
         className="flex items-center gap-2 border-b border-white/5 px-5 py-3"

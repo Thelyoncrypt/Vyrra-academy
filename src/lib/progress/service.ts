@@ -174,21 +174,43 @@ export async function getLevelCompletion(
     allLessonsCompleted = completedCount === lessonIds.length;
   }
 
-  // Capstone gate: a CONFIRMED, passing Assessment on a submission for any
+  // Capstone gate: a CONFIRMED, passing Assessment on a submission for a
   // capstone of this level. AI drafts that are not human-confirmed
   // (confirmedAt = null) never count (system-design §5.3).
-  const passingAssessment = await db.assessment.findFirst({
+  //
+  // TRACK-SCOPING (security review #6): a Capstone is modelled per-LEVEL only
+  // (no Capstone.trackId), so a level shared by multiple tracks shares its
+  // capstone(s). Without a track constraint a pass earned while progressing
+  // track A would cross-credit the same level's prerequisite under track B.
+  // The track binding is the user's ACTIVE Enrollment in (track, level): a
+  // capstone pass only credits this (track, level) if the user is enrolled
+  // here. This scopes the gate to the track context without a schema change.
+  const enrolledHere = await db.enrollment.findUnique({
     where: {
-      confirmedAt: { not: null },
-      outcome: { in: ["pass", "merit", "distinction"] },
-      submission: {
+      userId_trackId_levelId: {
         userId,
-        capstone: { levelId: level.id },
+        trackId: track.id,
+        levelId: level.id,
       },
     },
     select: { id: true },
   });
-  const capstonePassed = passingAssessment !== null;
+
+  let capstonePassed = false;
+  if (enrolledHere) {
+    const passingAssessment = await db.assessment.findFirst({
+      where: {
+        confirmedAt: { not: null },
+        outcome: { in: ["pass", "merit", "distinction"] },
+        submission: {
+          userId,
+          capstone: { levelId: level.id },
+        },
+      },
+      select: { id: true },
+    });
+    capstonePassed = passingAssessment !== null;
+  }
 
   return {
     allLessonsCompleted,
