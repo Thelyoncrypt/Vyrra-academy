@@ -24,7 +24,7 @@ export function WorkflowVisualizer({ steps }: WorkflowVisualizerProps) {
 
   return (
     <div>
-      <ol className="space-y-3">
+      <ol className="space-y-3" aria-live="polite">
         {steps.slice(0, revealed).map((step, i) => (
           <li
             key={step.label}

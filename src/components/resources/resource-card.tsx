@@ -35,7 +35,12 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 
       <h3 className="mt-4 text-[1.125rem] font-medium leading-snug text-ink group-hover:text-primary">
         {resource.title}
-        {isLink ? <span aria-hidden="true"> ↗</span> : null}
+        {isLink ? (
+          <>
+            <span aria-hidden="true"> ↗</span>
+            <span className="sr-only"> (opens in a new tab)</span>
+          </>
+        ) : null}
       </h3>
 
       {resource.topic ? (

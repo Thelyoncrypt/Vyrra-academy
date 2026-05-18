@@ -106,7 +106,9 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
   if (isLocked) {
     return (
       <div
+        role="group"
         aria-disabled="true"
+        aria-label={`${lesson.title} — locked. Complete the prerequisites to unlock this lesson.`}
         className="flex cursor-not-allowed items-start gap-4 rounded-lg px-4 py-4 opacity-70"
       >
         {inner}

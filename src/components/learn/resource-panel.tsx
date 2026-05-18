@@ -50,6 +50,7 @@ export function ResourcePanel({ resources }: ResourcePanelProps) {
               <span className="mt-1 block font-sans text-[0.9375rem] font-medium text-ink group-hover:text-primary">
                 {r.title}
                 <span aria-hidden="true"> ↗</span>
+                <span className="sr-only"> (opens in a new tab)</span>
               </span>
             </a>
           ) : (
