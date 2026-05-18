@@ -139,4 +139,46 @@ describe("scoreToOutcome — defensive handling", () => {
     expect(totalScore).toBe(0);
     expect(outcome).toBe("fail");
   });
+
+  test("all-zero criterion weights ⇒ safe 0/fail (no divide-by-zero NaN)", () => {
+    // Arrange — criteria exist but every weight is 0; weightSum is 0 so the
+    // naive (weighted / weightSum) would be NaN.
+    const criteria = [
+      { id: "c1", weight: 0 },
+      { id: "c2", weight: 0 },
+    ];
+    const scores = [
+      { criterionId: "c1", score: 4 },
+      { criterionId: "c2", score: 4 },
+    ];
+
+    // Act
+    const { totalScore, outcome } = scoreToOutcome(criteria, scores);
+
+    // Assert — never NaN; clamped to a sane fail/0.
+    expect(Number.isNaN(totalScore)).toBe(false);
+    expect(totalScore).toBe(0);
+    expect(outcome).toBe("fail");
+  });
+
+  test("negative criterion weight cannot push the score out of [0,100]", () => {
+    // Arrange — a hostile/buggy negative weight could otherwise yield a score
+    // outside the band table and mis-band the outcome.
+    const criteria = [
+      { id: "c1", weight: -5 },
+      { id: "c2", weight: 1 },
+    ];
+    const scores = [
+      { criterionId: "c1", score: 1 },
+      { criterionId: "c2", score: 4 },
+    ];
+
+    // Act
+    const { totalScore } = scoreToOutcome(criteria, scores);
+
+    // Assert — clamped into the valid 0–100 range, finite.
+    expect(Number.isFinite(totalScore)).toBe(true);
+    expect(totalScore).toBeGreaterThanOrEqual(0);
+    expect(totalScore).toBeLessThanOrEqual(100);
+  });
 });

@@ -250,16 +250,30 @@ export async function requestAiDraftAction(
   const submission = await getSubmissionForGrading(parsed.data.submissionId);
   if (!submission) return { ok: false, error: "Submission not found." };
 
-  const contractCapstone = listContractCapstoneForDbId(
-    submission.capstone.title,
-    submission.capstone.level.order,
-  );
+  let contractCapstone;
+  try {
+    contractCapstone = resolveContractCapstone(
+      submission.capstone.title,
+      submission.capstone.level.order,
+    );
+  } catch {
+    // Fail loudly instead of silently drafting against an EMPTY rubric: if the
+    // seeded DB capstone's natural key doesn't match any contract capstone,
+    // the AI would grade with no requirements/deliverables context. Refuse the
+    // draft with a typed, non-leaky message (code-review HIGH).
+    return {
+      ok: false,
+      error:
+        "Could not match this capstone to its curriculum requirements. " +
+        "Grade manually and report this so the content can be re-synced.",
+    };
+  }
 
   const payload = submission.payload as { notes?: string } | null;
   const draft = await generateAiDraft({
     capstoneTitle: submission.capstone.title,
-    requirements: contractCapstone?.requirements ?? [],
-    deliverables: contractCapstone?.deliverables ?? [],
+    requirements: contractCapstone.requirements,
+    deliverables: contractCapstone.deliverables,
     criteria: submission.capstone.rubric.criteria,
     submission: {
       artifactUrl: submission.artifactUrl,
@@ -330,14 +344,24 @@ export async function requestAiDraftAction(
   return { ok: true, drafted: true };
 }
 
-/** Look up the contract capstone (for requirements/deliverables context). */
-function listContractCapstoneForDbId(title: string, levelOrder: number) {
-  // The contract capstone is matched by the same natural key the seed used.
-  return (
-    listCapstones().find(
-      (c) => c.title === title && c.levelOrder === levelOrder,
-    ) ?? null
+/**
+ * Resolve the contract capstone (requirements/deliverables context for the AI
+ * grader) by the SAME natural key the seed used (title + level order). Throws
+ * if there is no match — the caller turns this into a typed action error so a
+ * content/seed drift can never silently produce an empty-context AI draft
+ * (code-review HIGH).
+ */
+function resolveContractCapstone(title: string, levelOrder: number) {
+  const match = listCapstones().find(
+    (c) => c.title === title && c.levelOrder === levelOrder,
   );
+  if (!match) {
+    throw new Error(
+      `No contract capstone matches DB capstone "${title}" ` +
+        `(level ${levelOrder}). Content/seed drift.`,
+    );
+  }
+  return match;
 }
 
 /* ----------------- Confirm: the ONLY gate-satisfying act ---------------- */

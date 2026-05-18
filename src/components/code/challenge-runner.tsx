@@ -13,14 +13,50 @@
  * success/error dots. No inline hex, no fourth surface tone.
  */
 import { useState, useTransition } from "react";
+import dynamic from "next/dynamic";
 
-import { CodeEditor } from "./code-editor";
 import { submitChallengeAction } from "@/lib/sandbox/actions";
 import type {
   ChallengeLanguage,
   CriterionResult,
   ValidationResult,
 } from "@/lib/sandbox/types";
+
+/**
+ * Prism + 6 grammars + react-simple-code-editor are heavy and only needed once
+ * a learner reaches a code challenge. Lazy-load the editor (client-only, no
+ * SSR — it is a controlled textarea with no SEO value) so it leaves the
+ * per-page critical JS bundle (perf P1). The fallback preserves the DESIGN.md
+ * `code-window-card`: dark navy surface, chrome dots, mono label.
+ */
+const CodeEditor = dynamic(
+  () => import("./code-editor").then((m) => m.CodeEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="overflow-hidden rounded-lg bg-surface-dark">
+        <div
+          aria-hidden="true"
+          className="flex items-center gap-2 border-b border-white/5 px-5 py-3"
+        >
+          <span className="h-3 w-3 rounded-full bg-error/70" />
+          <span className="h-3 w-3 rounded-full bg-warning/70" />
+          <span className="h-3 w-3 rounded-full bg-success/70" />
+          <span className="ml-3 font-mono text-[0.75rem] text-on-dark-soft">
+            loading editor…
+          </span>
+        </div>
+        <div
+          role="status"
+          aria-label="Loading code editor"
+          className="min-h-64 bg-surface-dark-soft px-6 py-6 font-mono text-[0.875rem] text-on-dark-soft"
+        >
+          Preparing the editor…
+        </div>
+      </div>
+    ),
+  },
+);
 
 interface ChallengeRunnerProps {
   challengeId: string;
@@ -196,7 +232,7 @@ function ResultPanel({
 
       {progressRecorded ? (
         <p className="mt-2 font-sans text-[0.8125rem] text-muted">
-          Saved — this counts toward the linked lesson's completion.
+          Saved — this counts toward the linked lesson&apos;s completion.
         </p>
       ) : null}
 

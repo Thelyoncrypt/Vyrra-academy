@@ -28,7 +28,7 @@ import { ResourcePanel } from "@/components/learn/resource-panel";
 import { PracticeBlock } from "@/components/learn/practice-block";
 import { CompletionForm } from "@/components/learn/completion-form";
 import { LessonBodySlot } from "@/components/learn/lesson-body-slot";
-import { TutorPanel } from "@/components/tutor/tutor-panel";
+import { TutorPanelLazy } from "@/components/tutor/tutor-panel-lazy";
 import {
   getLesson,
   getModule,
@@ -210,7 +210,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
             </div>
           </div>
 
-          <TutorPanel lessonId={lesson.code} />
+          <TutorPanelLazy lessonId={lesson.code} />
         </aside>
       </div>
     </div>

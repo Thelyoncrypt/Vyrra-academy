@@ -77,11 +77,6 @@ function createPrisma(): PrismaClient {
  */
 let prisma: PrismaClient;
 
-/** Map the content contract's 1–4 level order to a stable slug fallback. */
-function levelKey(order: number): string {
-  return `level-${order}`;
-}
-
 /** Read + parse the manifest, or signal "not generated yet" (exit 0). */
 function loadManifest(): CurriculumManifest | null {
   if (!existsSync(MANIFEST_PATH)) {

@@ -22,7 +22,11 @@
   --color-body: #3d3d3a;
   --color-body-strong: #252523;
   --color-muted: #6c6a64;
-  --color-muted-soft: #8e8b82;
+  /* WCAG 2.1 AA: #8e8b82 was ~3.2:1 on the #faf9f5 canvas — fails 4.5:1 for
+   * normal text (a11y audit finding #16). Darkened to the closest warm-taupe
+   * value that meets ≥4.5:1 (#747165 ≈ 4.64:1) while staying lighter than
+   * --color-muted so the muted→muted-soft hierarchy (DESIGN.md) is preserved. */
+  --color-muted-soft: #747165;
   --color-on-primary: #ffffff;
   --color-on-dark: #faf9f5;
   --color-on-dark-soft: #a09d96;

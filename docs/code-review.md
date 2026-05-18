@@ -80,6 +80,12 @@ Injection: Tutor prompt static. Learner input isolated in user message.
 
 ## Testing Coverage Gaps (future waves)
 
+> **Wave 5 update:** the manual coverage estimate is superseded by real
+> `@vitest/coverage-v8` numbers in [`docs/test-coverage.md`](./test-coverage.md)
+> (138 tests pass; core decision logic — gating 96%, quiz-scoring 89%, sandbox
+> validator 94%, tools ~98–100% — at/above the 80% org bar; overall 48.5% is
+> diluted by deliberately-deferred I/O shells). The gaps below still hold.
+
 1. Quiz scoring: all question types + edge cases (no auto, all manual, zero points).
 2. Gating: level chains + capstone-pass requirement end-to-end.
 3. Capstone: missing criteria in draft; confirm idempotence.

@@ -69,7 +69,18 @@ export interface RetrievalService {
 // Deterministic stub (no DB, no embeddings, no keys)
 // ---------------------------------------------------------------------------
 
-/** Tiny stable hash → reproducible fake scores/ids. Not cryptographic. */
+/**
+ * Tiny stable hash (FNV-1a 32-bit) → reproducible fake scores/ids.
+ *
+ * NON-CRYPTOGRAPHIC, STUB-ONLY. Two different `lessonId` / `lessonId:question`
+ * inputs CAN collide (32-bit space, no avalanche guarantees). That is
+ * ACCEPTED: this hash exists solely to make the DB-free stub deterministic for
+ * local dev + tests — a collision only means two stub inputs return the same
+ * fake scope/scores, which is harmless because none of it is real retrieval.
+ * It is NOT used for identity, security, or de-duplication. The DB wave
+ * replaces `StubRetrievalService` with real pgvector ANN (see TODO(db-wave)
+ * below); this function is deleted then. Do not promote it to production use.
+ */
 function stableHash(input: string): number {
   let h = 2166136261;
   for (let i = 0; i < input.length; i += 1) {

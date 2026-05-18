@@ -198,8 +198,15 @@ export function scoreToOutcome(
     weighted += clamped * c.weight;
     weightSum += c.weight;
   }
-  const normalized =
+  // Guard divide-by-zero / NaN: weightSum is 0 when there are no criteria OR
+  // every criterion weight is 0 (or negative). Fall back to 0 in that case,
+  // then clamp into [0,100] so a malformed rubric can never yield NaN or an
+  // out-of-band score that would mis-band the outcome (code-review HIGH).
+  const raw =
     weightSum > 0 ? ((weighted / weightSum - 1) / 3) * 100 : 0;
+  const normalized = Number.isFinite(raw)
+    ? Math.max(0, Math.min(100, raw))
+    : 0;
   const totalScore = Math.round(normalized * 10) / 10;
 
   let outcome: AssessmentOutcome = "fail";
