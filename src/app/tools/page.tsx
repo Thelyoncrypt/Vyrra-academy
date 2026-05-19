@@ -23,7 +23,7 @@ import { ToolFilterGrid } from "@/components/tools/tool-filter-grid";
 import { listTools, TOOL_CATEGORIES } from "@/lib/tools/registry";
 
 export const metadata: Metadata = {
-  title: "Tools — AI Course App",
+  title: "Tools — Vyrra Academy",
   description:
     "A curated, simulated toolkit for hands-on AI engineering practice — safe by design.",
 };

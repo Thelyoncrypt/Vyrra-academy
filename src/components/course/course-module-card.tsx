@@ -60,7 +60,7 @@ export function CourseModuleCard({ module, isLast }: CourseModuleCardProps) {
           aria-hidden="true"
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-[0.9375rem] leading-none tracking-[-0.3px] sm:h-11 sm:w-11 sm:text-[1.0625rem] ${
             isCompleted
-              ? "bg-ink text-on-dark"
+              ? "bg-ink text-on-dark dark:bg-on-dark dark:text-canvas"
               : isCurrent
                 ? "bg-primary text-on-primary"
                 : "bg-surface-cream-strong text-body-strong"

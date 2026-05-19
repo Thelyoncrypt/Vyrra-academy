@@ -65,9 +65,9 @@ export async function generateMetadata({
 }: LessonPageProps): Promise<Metadata> {
   const { lessonCode } = await params;
   const lesson = getLesson(lessonCode);
-  if (!lesson) return { title: "Lesson not found — AI Course App" };
+  if (!lesson) return { title: "Lesson not found — Vyrra Academy" };
   return {
-    title: `${lesson.title} — AI Course App`,
+    title: `${lesson.title} — Vyrra Academy`,
     description: lesson.summary,
   };
 }
@@ -260,20 +260,25 @@ export default async function LessonPage({ params }: LessonPageProps) {
             </div>
           </LessonSection>
 
-          <LessonSection
-            title="Watch"
-            id="lesson-watch"
-            eyebrow="Curated video"
-          >
-            <p className="font-sans text-[1rem] leading-[1.7] text-body">
-              Hand-picked videos for this lesson. Each is graded for
-              freshness and source so you know what you&rsquo;re getting —
-              they open in a new tab; nothing autoplays or is embedded here.
-            </p>
-            <div className="mt-9">
-              <VideoList videos={videos} />
-            </div>
-          </LessonSection>
+          {/* Watch is OMITTED entirely when there are no curated videos —
+              an empty "no videos, the reading stands on its own" apology
+              block was pure scroll-cost noise (UX audit). */}
+          {videos.length > 0 ? (
+            <LessonSection
+              title="Watch"
+              id="lesson-watch"
+              eyebrow="Curated video"
+            >
+              <p className="font-sans text-[1rem] leading-[1.7] text-body">
+                Hand-picked videos for this lesson. Each is graded for
+                freshness and source so you know what you&rsquo;re getting —
+                they open in a new tab; nothing autoplays or is embedded here.
+              </p>
+              <div className="mt-9">
+                <VideoList videos={videos} />
+              </div>
+            </LessonSection>
+          ) : null}
 
           <LessonSection
             title="Practise & prove understanding"

@@ -107,7 +107,7 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
       </div>
 
       {visible.length > 0 ? (
-        <ul className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map(({ track, lessonCount }, i) => (
             // Re-keying by the active facets remounts the cards when a filter
             // changes, so the matching set cascades in fresh. Delay cycles the

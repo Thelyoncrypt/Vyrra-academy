@@ -49,7 +49,7 @@ import type { AcademyNextCourse } from "@/lib/academy";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
 export const metadata: Metadata = {
-  title: "Dashboard — AI Course App",
+  title: "Dashboard — Vyrra Academy",
   description:
     "Your tracks, skill progression, recommended next lesson, and next actions.",
 };

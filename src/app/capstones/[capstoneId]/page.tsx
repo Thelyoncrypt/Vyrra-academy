@@ -47,9 +47,9 @@ export async function generateMetadata({
 }: CapstonePageProps): Promise<Metadata> {
   const { capstoneId } = await params;
   const capstone = getCapstone(capstoneId);
-  if (!capstone) return { title: "Capstone not found — AI Course App" };
+  if (!capstone) return { title: "Capstone not found — Vyrra Academy" };
   return {
-    title: `${capstone.title} — Capstone — AI Course App`,
+    title: `${capstone.title} — Capstone — Vyrra Academy`,
     description: `Level ${capstone.levelOrder} capstone: ${capstone.title}.`,
   };
 }

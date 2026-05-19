@@ -95,7 +95,7 @@ export function CriterionScorer({
                 aria-hidden="true"
                 className={`mt-px flex h-6 w-6 shrink-0 items-center justify-center rounded-pill font-sans text-[0.75rem] font-medium transition-colors duration-fast ${
                   checked
-                    ? "bg-ink text-on-dark"
+                    ? "bg-ink text-on-dark dark:bg-on-dark dark:text-canvas"
                     : "bg-surface-cream-strong text-muted"
                 }`}
               >

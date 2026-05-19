@@ -37,7 +37,7 @@ interface AssessmentPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Assessment — AI Course App",
+  title: "Assessment — Vyrra Academy",
 };
 
 const STAFF = new Set(["instructor", "admin"]);

@@ -73,7 +73,7 @@ export function StageProgress({
           const isDone = i < activeIndex || (allCleared && i === activeIndex);
           const isCurrent = i === activeIndex && !allCleared;
           const node = isDone
-            ? "scale-100 bg-ink text-on-dark"
+            ? "scale-100 bg-ink text-on-dark dark:bg-on-dark dark:text-canvas"
             : isCurrent
               ? "scale-100 bg-canvas text-ink ring-2 ring-inset ring-ink"
               : "scale-95 bg-surface-cream-strong text-muted";

@@ -30,7 +30,7 @@ export async function generateMetadata({
 }: ToolPageProps): Promise<Metadata> {
   const { toolSlug } = await params;
   const tool = getTool(toolSlug);
-  if (!tool) return { title: "Tool not found — AI Course App" };
+  if (!tool) return { title: "Tool not found — Vyrra Academy" };
   return { title: `${tool.name} — Tools`, description: tool.description };
 }
 

@@ -26,7 +26,8 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { SpikeMark } from "@/components/brand/spike-mark";
+import { BrandLogo } from "@/components/brand/brand-logo";
+import { ThemeToggle } from "@/components/brand/theme-toggle";
 import {
   PRIMARY_NAV_LINKS,
   SECONDARY_NAV_LINKS,
@@ -97,7 +98,7 @@ export function MobileNav() {
         aria-controls={panelId}
         aria-label="Open navigation menu"
         onClick={() => setOpen(true)}
-        className="flex h-10 w-10 items-center justify-center rounded-md text-ink transition-colors duration-fast ease-standard hover:bg-surface-card active:bg-surface-cream-strong"
+        className="flex h-11 w-11 items-center justify-center rounded-md text-ink transition-colors duration-fast ease-standard hover:bg-surface-card active:bg-surface-cream-strong"
       >
         <span aria-hidden="true" className="relative block h-3.5 w-5">
           <span className="absolute left-0 top-0 h-0.5 w-full rounded-full bg-current" />
@@ -117,22 +118,25 @@ export function MobileNav() {
         >
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2.5 text-ink">
-              <SpikeMark size={18} />
-              <span className="font-display text-[1.25rem] leading-none tracking-[-0.3px]">
-                AI&nbsp;Course&nbsp;App
+              <BrandLogo size={44} className="rounded-[9px] shadow-raise" />
+              <span className="font-display text-[0.95rem] uppercase leading-none tracking-[2px] text-muted">
+                Academy
               </span>
             </span>
-            <button
-              type="button"
-              onClick={close}
-              aria-label="Close navigation menu"
-              className="flex h-10 w-10 items-center justify-center rounded-md text-ink transition-colors duration-fast ease-standard hover:bg-surface-card active:bg-surface-cream-strong"
-            >
-              <span aria-hidden="true" className="relative block h-4 w-4">
-                <span className="absolute left-1/2 top-1/2 h-0.5 w-full -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
-                <span className="absolute left-1/2 top-1/2 h-0.5 w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
-              </span>
-            </button>
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <button
+                type="button"
+                onClick={close}
+                aria-label="Close navigation menu"
+                className="flex h-11 w-11 items-center justify-center rounded-md text-ink transition-colors duration-fast ease-standard hover:bg-surface-card active:bg-surface-cream-strong"
+              >
+                <span aria-hidden="true" className="relative block h-4 w-4">
+                  <span className="absolute left-1/2 top-1/2 h-0.5 w-full -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
+                  <span className="absolute left-1/2 top-1/2 h-0.5 w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
+                </span>
+              </button>
+            </div>
           </div>
 
           <nav

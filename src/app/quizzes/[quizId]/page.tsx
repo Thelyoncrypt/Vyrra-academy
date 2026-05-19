@@ -36,9 +36,9 @@ export async function generateMetadata({
 }: QuizPageProps): Promise<Metadata> {
   const { quizId } = await params;
   const resolved = resolveQuiz(quizId);
-  if (!resolved) return { title: "Quiz not found — AI Course App" };
+  if (!resolved) return { title: "Quiz not found — Vyrra Academy" };
   return {
-    title: `${resolved.quiz.title} — AI Course App`,
+    title: `${resolved.quiz.title} — Vyrra Academy`,
     description: `Staged quiz for lesson ${resolved.lesson.code}: ${resolved.lesson.title}.`,
   };
 }

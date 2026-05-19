@@ -48,12 +48,12 @@ export async function generateMetadata({
 }: ModulePageProps): Promise<Metadata> {
   const { moduleNumber } = await params;
   const n = parseModuleNumber(moduleNumber);
-  if (n === null) return { title: "Module not found — AI Course App" };
+  if (n === null) return { title: "Module not found — Vyrra Academy" };
   const principal = await getCurrentPrincipal();
   const result = await getCourseModule(principal, n, "complete");
-  if (!result) return { title: "Module not found — AI Course App" };
+  if (!result) return { title: "Module not found — Vyrra Academy" };
   return {
-    title: `Module ${n}: ${result.module.title} — AI Course App`,
+    title: `Module ${n}: ${result.module.title} — Vyrra Academy`,
     description: result.module.summary,
   };
 }

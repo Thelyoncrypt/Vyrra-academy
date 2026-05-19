@@ -30,7 +30,7 @@ export async function generateMetadata({
 }: ChallengePageProps): Promise<Metadata> {
   const { challengeId } = await params;
   const challenge = getChallenge(challengeId);
-  if (!challenge) return { title: "Challenge not found — AI Course App" };
+  if (!challenge) return { title: "Challenge not found — Vyrra Academy" };
   return {
     title: `${challenge.title} — Code Challenge`,
     description: challenge.summary,

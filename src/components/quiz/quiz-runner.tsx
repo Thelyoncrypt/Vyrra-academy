@@ -150,7 +150,7 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
                 aria-hidden="true"
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-pill font-sans text-[0.875rem] font-medium transition-[transform,background-color,color] duration-normal ease-out ${
                   stageDone
-                    ? "scale-100 bg-ink text-on-dark"
+                    ? "scale-100 bg-ink text-on-dark dark:bg-on-dark dark:text-canvas"
                     : "scale-95 bg-surface-cream-strong text-body-strong"
                 }`}
               >

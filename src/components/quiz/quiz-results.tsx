@@ -164,7 +164,7 @@ export function QuizResults({
                     aria-hidden="true"
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-pill font-sans text-[0.75rem] font-medium ${
                       cleared
-                        ? "bg-ink text-on-dark"
+                        ? "bg-ink text-on-dark dark:bg-on-dark dark:text-canvas"
                         : "bg-surface-cream-strong text-muted"
                     }`}
                   >
@@ -253,7 +253,7 @@ export function QuizResults({
                 </p>
               ) : null}
               {!g.correct && g.mode === "auto" ? (
-                <p className="mt-3 rounded-md bg-canvas/60 px-3 py-2 font-sans text-[0.8125rem] leading-relaxed text-muted">
+                <p className="mt-3 rounded-md border-l-2 border-accent-amber bg-surface-soft px-3.5 py-2.5 font-sans text-[0.8125rem] leading-relaxed text-body">
                   <span className="font-medium text-body-strong">
                     Review:{" "}
                   </span>

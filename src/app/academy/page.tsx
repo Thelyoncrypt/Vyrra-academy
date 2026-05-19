@@ -39,7 +39,7 @@ import {
 } from "@/lib/academy";
 
 export const metadata: Metadata = {
-  title: "Anthropic Academy — AI Course App",
+  title: "Anthropic Academy — Vyrra Academy",
   description:
     "Mirror of Anthropic's official course catalog. Sign up and take each course on Anthropic; track your completion here.",
 };

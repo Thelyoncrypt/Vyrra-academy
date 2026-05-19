@@ -18,7 +18,7 @@ import { ChallengeCard } from "@/components/code/challenge-card";
 import { listChallenges } from "@/lib/sandbox/registry";
 
 export const metadata: Metadata = {
-  title: "Code Challenges — AI Course App",
+  title: "Code Challenges — Vyrra Academy",
   description:
     "Hands-on coding practice with deterministic, simulated validation — no code is executed on the server.",
 };

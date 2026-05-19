@@ -25,7 +25,7 @@ import { getCurrentPrincipal } from "@/lib/auth/session";
 import { isEnrolled } from "@/lib/enrollment/service";
 
 export const metadata: Metadata = {
-  title: "Learning tracks — AI Course App",
+  title: "Learning tracks — Vyrra Academy",
   description:
     "Every track in the AI Development Ecosystems programme, filterable by skill level and ecosystem.",
 };

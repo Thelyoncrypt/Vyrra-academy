@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { getServerTheme } from "@/lib/theme";
 
 /* DESIGN.md substitute fonts: Cormorant Garamond (serif display), Inter (sans body), JetBrains Mono (code). */
 const cormorant = Cormorant_Garamond({
@@ -25,26 +27,31 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Course App — Interactive Learning Environment",
+  title: "Vyrra Academy — Interactive Learning Environment",
   description:
     "A premium, hands-on training environment for the AI Development Ecosystems curriculum.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const theme = await getServerTheme();
   return (
-    <html
-      lang="en"
-      className={`${cormorant.variable} ${inter.variable} ${jetbrainsMono.variable} h-full`}
-      style={{ colorScheme: "light" }}
+    <ClerkProvider>
+      <html
+        lang="en"
+      className={`${cormorant.variable} ${inter.variable} ${jetbrainsMono.variable} h-full${
+        theme === "dark" ? " dark" : ""
+      }`}
+      style={{ colorScheme: theme }}
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col bg-canvas text-body">
         <a
           href="#main-content"
-          className="sr-only rounded-md bg-ink px-4 py-2 text-on-dark focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+          className="sr-only rounded-md bg-ink px-4 py-2 text-on-dark focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 dark:bg-on-dark dark:text-canvas"
         >
           Skip to main content
         </a>
@@ -54,6 +61,7 @@ export default function RootLayout({
         </main>
         <SiteFooter />
       </body>
-    </html>
+      </html>
+    </ClerkProvider>
   );
 }

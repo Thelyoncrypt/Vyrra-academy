@@ -23,7 +23,7 @@ import { WorkflowVisualizer } from "@/components/tools/workflow-visualizer";
 import { listWorkflowPatterns } from "@/lib/tools/workflows";
 
 export const metadata: Metadata = {
-  title: "Agent & Workflow Training — AI Course App",
+  title: "Agent & Workflow Training — Vyrra Academy",
   description:
     "Interactive, simulation-only training on agent patterns: when to use them, their failure modes, and the safeguards that contain them.",
 };

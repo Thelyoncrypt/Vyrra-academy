@@ -39,7 +39,7 @@ import {
 } from "@/lib/course/sequence";
 
 export const metadata: Metadata = {
-  title: "The course — AI Course App",
+  title: "The course — Vyrra Academy",
   description:
     "A 15-module guided path from AI foundations to multi-agent architecture. Follow it in order — you always know exactly what's next.",
 };

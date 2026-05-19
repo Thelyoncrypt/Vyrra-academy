@@ -35,7 +35,7 @@ import {
 } from "@/lib/content/queries";
 
 export const metadata: Metadata = {
-  title: "Curated Video Index — AI Course App",
+  title: "Curated Video Index — Vyrra Academy",
   description:
     "Every hand-picked video across the curriculum — graded for freshness and source, filterable by module. Each video plays inline, in the app.",
 };

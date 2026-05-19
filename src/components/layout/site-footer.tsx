@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SpikeMark } from "@/components/brand/spike-mark";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { Container } from "@/components/ui/container";
 
 /**
@@ -49,9 +49,9 @@ export function SiteFooter() {
       <Container className="grid grid-cols-1 gap-12 py-16 lg:grid-cols-[5fr_7fr]">
         <div>
           <div className="flex items-center gap-2.5 text-on-dark">
-            <SpikeMark size={18} />
-            <span className="font-display text-[1.25rem] leading-none tracking-[-0.3px]">
-              AI&nbsp;Course&nbsp;App
+            <BrandLogo size={44} className="rounded-[9px] shadow-raise" />
+            <span className="font-display text-[0.95rem] uppercase leading-none tracking-[2px] text-on-dark-soft">
+              Academy
             </span>
           </div>
           <p className="mt-5 max-w-sm font-sans text-sm leading-relaxed">
@@ -90,7 +90,7 @@ export function SiteFooter() {
       <div className="border-t border-white/[0.06]">
         <Container className="py-6">
           <p className="font-sans text-[0.8125rem] text-on-dark-soft">
-            © {year} AI Course App. Built as an interactive learning platform.
+            © {year} Vyrra Academy. Built as an interactive learning platform.
           </p>
         </Container>
       </div>

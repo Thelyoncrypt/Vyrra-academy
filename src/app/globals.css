@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
 /*
+ * Dark mode = class strategy (cookie-driven, server-rendered — see
+ * lib/theme.ts). This enables `dark:` utilities if ever needed, but the app
+ * is fully token-driven so the real switch is the `html.dark` override of the
+ * semantic --color-* tokens below: every component adapts with no change.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
  * Design tokens translated from DESIGN.md (Anthropic warm-editorial / Claude system).
  * DESIGN.md is the single source of truth; this file is its Tailwind v4 implementation.
  * Fonts use DESIGN.md's documented open-source substitutes:
@@ -10,42 +18,46 @@
  */
 
 @theme {
-  /* --- Color: brand & accent --- */
-  --color-primary: #cc785c;
-  --color-primary-active: #a9583e;
-  --color-primary-disabled: #e6dfd8;
-  --color-accent-teal: #5db8a6;
-  --color-accent-amber: #e8a55a;
+  /*
+   * --- Vyrra palette (LIGHT) — derived from the brand logo ---
+   * Logo = glossy near-black body + chrome "V" + a spectrum of spheres.
+   * That replaces the old warm-cream/coral editorial system entirely: cool
+   * graphite neutrals (the logo body), an electric-blue primary (the logo's
+   * blue sphere) as the single voltage, and the spectrum reused for the
+   * semantic trio. Fully token-driven — every component followed with no
+   * per-component edit. Contrast holds WCAG 2.1 AA on --color-canvas.
+   */
+  --color-primary: #2f6fd0; /* logo blue sphere — the new voltage */
+  --color-primary-active: #2459ad;
+  --color-primary-disabled: #c8d2e6;
+  --color-accent-teal: #1ea896; /* logo green→teal */
+  --color-accent-amber: #ef8a22; /* logo orange */
 
-  /* --- Color: text --- */
-  --color-ink: #141413;
-  --color-body: #3d3d3a;
-  --color-body-strong: #252523;
-  --color-muted: #6c6a64;
-  /* WCAG 2.1 AA: #8e8b82 was ~3.2:1 on the #faf9f5 canvas — fails 4.5:1 for
-   * normal text (a11y audit finding #16). Darkened to the closest warm-taupe
-   * value that meets ≥4.5:1 (#747165 ≈ 4.64:1) while staying lighter than
-   * --color-muted so the muted→muted-soft hierarchy (DESIGN.md) is preserved. */
-  --color-muted-soft: #747165;
-  --color-on-primary: #ffffff;
-  --color-on-dark: #faf9f5;
-  --color-on-dark-soft: #a09d96;
+  /* --- Color: text (cool graphite, logo-body derived) --- */
+  --color-ink: #0e0f13;
+  --color-body: #3a3f48;
+  --color-body-strong: #1c2027;
+  --color-muted: #5b606b;
+  --color-muted-soft: #666b74; /* ≈4.7:1 on --color-canvas */
+  --color-on-primary: #ffffff; /* ≈4.6:1 on --color-primary */
+  --color-on-dark: #f4f5f7;
+  --color-on-dark-soft: #aab0ba;
 
-  /* --- Color: surface --- */
-  --color-canvas: #faf9f5;
-  --color-surface-soft: #f5f0e8;
-  --color-surface-card: #efe9de;
-  --color-surface-cream-strong: #e8e0d2;
-  --color-surface-dark: #181715;
-  --color-surface-dark-elevated: #252320;
-  --color-surface-dark-soft: #1f1e1b;
-  --color-hairline: #e6dfd8;
-  --color-hairline-soft: #ebe6df;
+  /* --- Color: surface (cool near-white → glossy logo-black panels) --- */
+  --color-canvas: #f7f8fa;
+  --color-surface-soft: #eef0f4;
+  --color-surface-card: #e7eaef;
+  --color-surface-cream-strong: #dce0e7;
+  --color-surface-dark: #16161a; /* glossy logo body */
+  --color-surface-dark-elevated: #23242b;
+  --color-surface-dark-soft: #1c1d22;
+  --color-hairline: #d7dae1;
+  --color-hairline-soft: #e4e6eb;
 
-  /* --- Color: semantic --- */
-  --color-success: #5db872;
-  --color-warning: #d4a017;
-  --color-error: #c64545;
+  /* --- Color: semantic (from the logo spectrum) --- */
+  --color-success: #1f9d57;
+  --color-warning: #d9821a;
+  --color-error: #d63b2f;
 
   /* --- Typography: families ---
    * DESIGN.md serif-display law. `--font-cormorant` is the hashed family that
@@ -90,15 +102,16 @@
   --text-caption: 0.8125rem; /* 13px */
   --text-caption--line-height: 1.4;
 
-  /* --- Spacing scale (4px base) --- */
-  --spacing-xxs: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-xxl: 48px;
-  --spacing-section: 96px;
+  /*
+   * --- Spacing ---
+   * Tailwind v4's built-in `--spacing` multiplier (0.25rem) drives every
+   * numeric utility (`px-6`, `gap-12`, `mt-9`, …) the app actually uses.
+   * The former named scale (`--spacing-xs|sm|md|lg|xl|xxl|section`) was
+   * REMOVED: those keys share Tailwind's sizing t-shirt names, so they hijacked
+   * `max-w-{sm,md,lg,xl}` (→ 12–32px) and collapsed every constrained
+   * paragraph in the app to one word per line, on all viewports. Nothing
+   * consumed them as spacing; semantic widths come from `--container-*` below.
+   */
 
   /*
    * --- B0: Responsive layout system (additive; consumed via Tailwind v4
@@ -113,6 +126,29 @@
    * unchanged. Gutters step up with the viewport per the DESIGN.md
    * Collapsing Strategy; header-h / sticky-offset match the 64px top-nav. ---
    */
+  /*
+   * Tailwind v4 sizing scale (`max-w-sm` … `max-w-7xl`, `w-*`, `min-w-*`).
+   * MUST be declared explicitly: the custom `--spacing-{xs,sm,md,lg,xl,xxl}`
+   * tokens above share the t-shirt names of Tailwind's sizing scale, so
+   * without these `max-w-xl` resolved to `var(--spacing-xl)` = 32px and every
+   * `max-w-{sm,md,lg,xl}` paragraph in the app collapsed to one word per line
+   * (error cards, footer, dashboard, course, quizzes — all viewports). These
+   * restore Tailwind v4's documented container scale and win for `max-w-*`.
+   */
+  --container-3xs: 16rem;
+  --container-2xs: 18rem;
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
+
   --container-page: 1200px;
   --container-narrow: 760px;
   --container-reading: 640px;
@@ -156,6 +192,70 @@
   --shadow-raise: 0 1px 3px rgba(20, 20, 19, 0.08);
   --shadow-raise-lg: 0 4px 16px -2px rgba(20, 20, 19, 0.1);
   --shadow-overlay: 0 12px 40px -8px rgba(20, 20, 19, 0.18);
+}
+
+/*
+ * --- Dark theme (html.dark) ---
+ * Re-binds ONLY the semantic colour tokens; type, spacing, radius, motion and
+ * the container scale are theme-invariant and stay in @theme. `html.dark`
+ * (specificity 0,1,1) deterministically beats Tailwind's :root (0,1,0) and is
+ * source-ordered after it. The warm-editorial identity is preserved — same
+ * coral voltage, same warm-ink character, just inverted onto a warm near-black
+ * canvas. Contrast holds WCAG 2.1 AA (body/ink ≥ 7:1, muted-soft ≥ 4.5:1 on
+ * --color-canvas). Placeholder values pending the Vyrra-logo-derived palette;
+ * because everything is token-driven, that refinement is a values-only edit.
+ */
+html.dark {
+  /* Brand voltage — logo blue, lifted so it stays vivid on graphite-black. */
+  --color-primary: #4a82e0;
+  --color-primary-active: #6499ec;
+  --color-primary-disabled: #2a3242;
+  --color-accent-teal: #2cc1a6;
+  --color-accent-amber: #f0982f;
+
+  /* Text — chrome-white → graded cool greys. */
+  --color-ink: #f3f5f8;
+  --color-body: #c3c8d1;
+  --color-body-strong: #e9ebef;
+  --color-muted: #9aa0ab;
+  --color-muted-soft: #8b919c; /* ≈4.9:1 on --color-canvas */
+  --color-on-dark: #f3f5f8;
+  --color-on-dark-soft: #bcc1cb; /* 11px caps / mono labels */
+
+  /*
+   * Surfaces — a real elevation LADDER, not near-equal greys. The first dark
+   * build set canvas≈surface-dark (~1.1:1) so every card/footer/code panel
+   * vanished. Each step clears ≥1.4:1 against the one below so depth and card
+   * edges read without borders. Order (dark→light): canvas < surface-soft <
+   * surface-dark-soft < surface-card ≈ surface-dark < cream-strong <
+   * surface-dark-elevated. Tuned to the logo's glossy graphite-black body.
+   */
+  --color-canvas: #0d0e10;
+  --color-surface-soft: #15161a;
+  --color-surface-card: #1b1d22;
+  --color-surface-cream-strong: #23252c;
+  --color-hairline: #343842; /* visible divider on canvas */
+  --color-hairline-soft: #262932;
+
+  /* Product "dark" surfaces are ELEVATED panels above the canvas so lesson
+     chrome / code / progress troughs keep depth instead of melting in. */
+  --color-surface-dark: #1b1d22;
+  --color-surface-dark-elevated: #2c2f38;
+  --color-surface-dark-soft: #141519;
+
+  /* Semantic (logo spectrum, lifted for the dark canvas). */
+  --color-success: #34bd6b;
+  --color-warning: #ec9a33;
+  --color-error: #ec5247;
+
+  /*
+   * Elevation — the @theme shadows are warm-ink (rgba(20,20,19,…)); on a
+   * near-black canvas they are invisible, so every hover-raise / overlay lost
+   * its depth cue. Redeclare as true black at higher alpha for dark.
+   */
+  --shadow-raise: 0 1px 3px rgba(0, 0, 0, 0.55);
+  --shadow-raise-lg: 0 6px 20px -4px rgba(0, 0, 0, 0.62);
+  --shadow-overlay: 0 16px 44px -10px rgba(0, 0, 0, 0.72);
 }
 
 /* Base layer: cream canvas floor + warm ink text + editorial defaults */

@@ -39,9 +39,9 @@ export async function generateMetadata({
   const { trackSlug, levelSlug } = await params;
   const track = getTrack(trackSlug);
   const level = getLevelBySlug(levelSlug);
-  if (!track || !level) return { title: "Not found — AI Course App" };
+  if (!track || !level) return { title: "Not found — Vyrra Academy" };
   return {
-    title: `${level.title} · ${track.title} — AI Course App`,
+    title: `${level.title} · ${track.title} — Vyrra Academy`,
     description: `${track.title}: the ${level.title} level — modules, lessons, and capstone.`,
   };
 }

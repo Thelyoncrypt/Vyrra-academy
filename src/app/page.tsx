@@ -140,7 +140,7 @@ export default async function HomePage() {
         >
           A complete training environment, not a course website.
         </h2>
-        <ul className="mt-12 grid gap-6 md:grid-cols-3">
+        <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {PILLARS.map((pillar) => (
             <li
               key={pillar.title}

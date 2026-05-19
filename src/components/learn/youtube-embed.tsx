@@ -55,7 +55,7 @@ function PlayButton({ title, onClick }: { title: string; onClick: () => void }) 
       />
       <span
         aria-hidden="true"
-        className="relative grid h-[68px] w-[68px] place-items-center overflow-hidden rounded-full bg-surface-dark/55 shadow-[0_6px_24px_rgba(20,20,19,0.45)] ring-1 ring-white/20 backdrop-blur-sm transition-transform duration-normal ease-standard group-hover/play:scale-[1.06] group-focus-visible/play:scale-[1.06]"
+        className="relative grid h-[68px] w-[68px] place-items-center overflow-hidden rounded-full bg-surface-dark/55 shadow-raise-lg ring-1 ring-white/20 backdrop-blur-sm transition-transform duration-normal ease-standard group-hover/play:scale-[1.06] group-focus-visible/play:scale-[1.06]"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

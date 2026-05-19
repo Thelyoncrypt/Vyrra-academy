@@ -144,7 +144,7 @@ export function ToolFilterGrid({
 
       {visible.length > 0 ? (
         <ul
-          className={`mt-4 grid md:grid-cols-2 lg:grid-cols-3 ${
+          className={`mt-4 grid sm:grid-cols-2 lg:grid-cols-3 ${
             compact ? "gap-3" : "gap-6"
           }`}
         >

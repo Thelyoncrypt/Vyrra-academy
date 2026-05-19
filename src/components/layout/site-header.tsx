@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { SpikeMark } from "@/components/brand/spike-mark";
+import { BrandLogo } from "@/components/brand/brand-logo";
+import { ThemeToggle } from "@/components/brand/theme-toggle";
 import { MobileNav } from "./mobile-nav";
 import { NavLinksDesktop } from "./nav-links-desktop";
 import { SECONDARY_NAV_LINKS } from "./nav-links";
@@ -24,20 +25,22 @@ export function SiteHeader() {
         <Link
           href="/"
           className="group flex items-center gap-2.5 text-ink"
-          aria-label="AI Course App — home"
+          aria-label="Vyrra Academy — home"
         >
-          <SpikeMark
-            size={20}
-            className="text-ink transition-transform duration-slow ease-out group-hover:rotate-45"
+          <BrandLogo
+            size={52}
+            priority
+            className="rounded-[11px] shadow-raise transition-transform duration-normal ease-standard group-hover:scale-[1.05]"
           />
-          <span className="font-display text-[1.25rem] leading-none tracking-[-0.3px]">
-            AI&nbsp;Course&nbsp;App
+          <span className="font-display text-[0.95rem] uppercase leading-none tracking-[2px] text-muted">
+            Academy
           </span>
         </Link>
 
         <NavLinksDesktop />
 
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           {/* Demoted catalogue entry — quiet text-link, never competes with
               the course CTA (DESIGN.md: coral scarce; product decision:
               the guided course is the primary path). */}

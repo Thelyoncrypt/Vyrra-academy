@@ -47,7 +47,7 @@ import {
 } from "@/content/contract";
 
 export const metadata: Metadata = {
-  title: "Resource Library — AI Course App",
+  title: "Resource Library — Vyrra Academy",
   description:
     "Searchable, filterable library of docs, cheat sheets, prompt templates, tool guides, architecture and code examples, checklists, and model notes.",
 };
@@ -193,8 +193,8 @@ export default async function ResourcesPage({
             <ul
               className={`grid sm:grid-cols-2 ${
                 compact
-                  ? "gap-3 xl:grid-cols-3"
-                  : "gap-5 xl:grid-cols-3"
+                  ? "gap-3 lg:grid-cols-3"
+                  : "gap-5 lg:grid-cols-3"
               }`}
             >
               {resources.map((r, i) => (

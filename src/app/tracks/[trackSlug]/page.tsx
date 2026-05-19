@@ -37,9 +37,9 @@ export async function generateMetadata({
 }: TrackPageProps): Promise<Metadata> {
   const { trackSlug } = await params;
   const track = getTrack(trackSlug);
-  if (!track) return { title: "Track not found — AI Course App" };
+  if (!track) return { title: "Track not found — Vyrra Academy" };
   return {
-    title: `${track.title} — AI Course App`,
+    title: `${track.title} — Vyrra Academy`,
     description: track.description,
   };
 }
