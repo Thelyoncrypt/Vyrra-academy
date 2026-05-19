@@ -49,13 +49,27 @@ export function TrackCard({ track, lessonCount, progress }: TrackCardProps) {
       <div className="flex items-start gap-4">
         <TrackGlyph
           title={track.title}
-          className="transition-colors duration-200 group-hover:text-primary"
+          className="shrink-0 transition-colors duration-200 group-hover:text-primary"
         />
-        <div className="flex flex-wrap items-center gap-2 pt-0.5">
-          <Badge tone="outline">{track.focusEcosystem}</Badge>
-          <Badge tone="level">
-            {track.levelOrders.map(levelDifficultyLabel).join(" → ")}
-          </Badge>
+        {/* `min-w-0` lets this column shrink inside the flex row so its text
+            wraps instead of forcing the card (and the whole grid) to overflow
+            below ~1188px. The level pills are one badge PER level (a single
+            joined "A → B → C → D" badge is whitespace-nowrap and unbreakable,
+            so it was wider than the card). `focusEcosystem` is a long
+            technology list, not a short tag — it renders as a wrapping meta
+            line (DESIGN.md `badge-pill` is for short category tags only;
+            forcing prose into a nowrap pill is what overflowed). */}
+        <div className="flex min-w-0 flex-1 flex-col gap-2 pt-0.5">
+          <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+            {track.focusEcosystem}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            {track.levelOrders.map((order) => (
+              <Badge key={order} tone="level">
+                {levelDifficultyLabel(order)}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
 
