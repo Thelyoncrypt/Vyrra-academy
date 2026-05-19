@@ -1,30 +1,43 @@
 /**
- * Learner dashboard (/dashboard). Server Component — zero client JS. All
- * numbers are fixture-derived placeholders; every component already accepts
- * real props, so wiring auth + the progress model later is a data swap only.
+ * Learner dashboard (/dashboard). Async Server Component — zero client JS.
  *
- * DESIGN.md pacing: cream page floor → the dark `product-mockup-card-dark`
- * recommended-next card as the single cream→dark VOLTAGE moment, placed high
- * so the next action leads → cream stat band with scale contrast (one feature
- * tile, not a uniform 4-up) → cream track grid → cream insight panels. 96px
- * section rhythm via <Section>. Coral stays scarce: only the resume CTA and
- * progress rails carry it.
+ * Every number, recommendation, track row, weak area and next action is REAL,
+ * derived server-side from the principal's enrollment + progress + attempts
+ * via `@/lib/journey`. There are NO fixtures: an empty programme renders an
+ * honest first-run orientation, not fabricated data. `progress/actions.ts`
+ * and `quiz-actions.ts` both `revalidatePath("/dashboard")`, so completing a
+ * lesson (manually or by passing a quiz) recomputes "what's next" here.
+ *
+ * DESIGN.md pacing: cream page floor → the single dark voltage card high up
+ * (a `NextLessonCard` resume/start, or a compact dark `product-mockup-card`
+ * capstone CTA) → cream stat band with scale contrast (one feature tile) →
+ * cream track grid → cream insight panels. Coral stays scarce: only the
+ * resume/capstone CTA and progress rails carry it. Section rhythm via
+ * <Section>; heading order page H1 → section H2 → panel H3 (WCAG 2.1 AA).
  */
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
+import { Button } from "@/components/ui/button";
 import { StatTile } from "@/components/learn/stat-tile";
 import { NextLessonCard } from "@/components/learn/next-lesson-card";
 import { TrackCard } from "@/components/learn/track-card";
 import { InsightList } from "@/components/learn/insight-list";
-import { PanelHeading } from "@/components/ui/panel-heading";
+import type { InsightItem } from "@/components/learn/insight-list";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   listTracks,
-  getTrack,
-  getLesson,
   countLessonsForTrack,
+  getLesson,
 } from "@/lib/content/queries";
+import { getCurrentPrincipal } from "@/lib/auth/session";
+import {
+  recommendNextAction,
+  getProgrammeStats,
+  getEnrolledTrackProgress,
+  getWeakAreas,
+} from "@/lib/journey";
+import type { NextAction } from "@/lib/journey";
 
 export const metadata: Metadata = {
   title: "Dashboard — AI Course App",
@@ -32,23 +45,21 @@ export const metadata: Metadata = {
     "Your tracks, skill progression, recommended next lesson, and next actions.",
 };
 
-export default function DashboardPage() {
-  const tracks = listTracks();
+export default async function DashboardPage() {
+  const principal = await getCurrentPrincipal();
 
-  // Placeholder recommendation/progress until the recommender lands; real
-  // progress now flows through @/lib/progress for the lesson + completion.
-  const recommendedLesson = getLesson("3.1.1");
-  const recommendedTrack = getTrack("claude-anthropic-ecosystem");
-
-  const trackProgress = new Map<string, number>([
-    ["claude-anthropic-ecosystem", 12],
-    ["prompt-engineering-system-design", 8],
+  const [next, stats, trackProgress, weakAreas] = await Promise.all([
+    recommendNextAction(principal),
+    getProgrammeStats(principal),
+    getEnrolledTrackProgress(principal),
+    getWeakAreas(principal),
   ]);
 
-  const recommendedPct =
-    recommendedTrack && trackProgress.has(recommendedTrack.slug)
-      ? (trackProgress.get(recommendedTrack.slug) ?? 0)
-      : undefined;
+  const enrolled = trackProgress.length > 0;
+  const progressBySlug = new Map(
+    trackProgress.map((t) => [t.trackSlug, t]),
+  );
+  const tracks = listTracks();
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-16">
@@ -59,105 +70,108 @@ export default function DashboardPage() {
         lead="Your skill progression across the AI Development Ecosystems programme — capability by capability, beginner to expert."
       />
 
-      {/* The single cream→dark voltage moment, led with so the next action
-          is the first thing the eye lands on (DESIGN.md pacing rhythm). */}
-      {recommendedLesson && recommendedTrack ? (
-        <Section
-          id="dashboard-next"
-          title="Your next move"
-          description="The one lesson to do next — chosen from your progress and prerequisites."
-        >
-          <NextLessonCard
-            lesson={recommendedLesson}
-            trackTitle={recommendedTrack.title}
-            trackPercent={recommendedPct}
-            reason="It builds directly on the model-foundations lesson you just finished and unlocks the rest of the Claude track."
-          />
-        </Section>
-      ) : (
-        <Section
-          id="dashboard-next"
-          title="Your next move"
-          description="Start a track and your recommended next lesson appears here."
-        >
-          <EmptyState
-            title="No recommendation yet"
-            description="Enrol in a track below and we'll surface the single best lesson to do next, every time you return."
-          />
-        </Section>
-      )}
-
+      {/* The single cream→dark voltage moment, led with so the next action is
+          the first thing the eye lands on (DESIGN.md pacing rhythm). */}
       <Section
-        id="dashboard-overview"
-        title="At a glance"
-        description="A snapshot of where you stand across the programme."
+        id="dashboard-next"
+        title="Your next move"
+        description="The one thing to do next — chosen from your real progress and prerequisites."
       >
-        {/* Scale contrast, not a uniform 4-up: the programme-completion tile
-            is the feature (larger serif, cream-card, spans 2 cols) and reads
-            as the headline metric; the rest are quieter canvas tiles. The
-            band rises as one unit (reduced-motion safe via globals.css). */}
-        <div className="animate-rise-in grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="sm:col-span-2">
+        <NextMove action={next} enrolled={enrolled} />
+      </Section>
+
+      {enrolled ? (
+        <Section
+          id="dashboard-overview"
+          title="At a glance"
+          description="A snapshot of where you stand across the programme."
+        >
+          {/* Scale contrast, not a uniform 4-up: the programme-completion
+              tile is the feature (larger serif, cream-card, spans 2 cols);
+              the rest are quieter canvas tiles. Reduced-motion safe. */}
+          <div className="animate-rise-in grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="sm:col-span-2">
+              <StatTile
+                feature
+                label="Programme completion"
+                value={`${stats.completionPct}%`}
+                hint="Across your enrolled tracks · beginner to expert"
+                fillPct={stats.completionPct}
+              />
+            </div>
             <StatTile
-              feature
-              label="Programme completion"
-              value="6%"
-              hint="Across all started tracks · beginner to expert"
-              fillPct={6}
+              label="Active tracks"
+              value={String(stats.activeTracks)}
+              hint="Tracks you're enrolled in"
+            />
+            <StatTile
+              label="Current level"
+              value={stats.currentLevelLabel}
+              hint="Highest level you're enrolled in"
+            />
+            <StatTile
+              label="Lessons done"
+              value={`${stats.lessonsCompleted}`}
+              hint={`Of ${stats.lessonsTotal} in your enrolled scope`}
+            />
+            <StatTile
+              label="Day streak"
+              value={stats.dayStreak === null ? "—" : String(stats.dayStreak)}
+              hint={
+                stats.dayStreak === null
+                  ? "Study today to start a streak"
+                  : "Keep it going — return tomorrow"
+              }
+            />
+            <StatTile
+              label="Quiz accuracy"
+              value={
+                stats.quizAccuracyPct === null
+                  ? "—"
+                  : `${stats.quizAccuracyPct}%`
+              }
+              hint={
+                stats.quizAccuracyPct === null
+                  ? "Take a quiz to track accuracy"
+                  : "Across graded attempts"
+              }
+              fillPct={stats.quizAccuracyPct ?? undefined}
             />
           </div>
-          <StatTile
-            label="Active tracks"
-            value={String(tracks.length)}
-            hint="Across 4 skill levels"
-          />
-          <StatTile label="Current level" value="Beginner" hint="Level 1 of 4" />
-          <StatTile
-            label="Lessons done"
-            value="3"
-            hint="Of the started tracks"
-          />
-          <StatTile
-            label="Day streak"
-            value="4"
-            hint="Keep it going — return tomorrow"
-          />
-          <StatTile
-            label="Quiz accuracy"
-            value="78%"
-            hint="Across graded stages"
-            fillPct={78}
-          />
-        </div>
-      </Section>
+        </Section>
+      ) : null}
 
       <Section
         id="dashboard-tracks"
-        title="Your tracks"
-        description="Progress is per track; resume any of them."
+        title={enrolled ? "Your tracks" : "Choose a track to begin"}
+        description={
+          enrolled
+            ? "Progress is per track; resume any of them."
+            : "Open enrollment — pick a track and your recommended next lesson appears here every visit."
+        }
       >
         {tracks.length > 0 ? (
           <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {tracks.map((track, i) => {
               const total = countLessonsForTrack(track.slug);
-              const pct = trackProgress.get(track.slug) ?? 0;
-              // Cascade by position, cycling the 3 documented delay steps so
-              // a long grid never waits more than 210ms (reduced-motion safe:
-              // globals.css base layer neutralises the animation entirely).
+              const tp = progressBySlug.get(track.slug);
+              // Cascade by position, cycling 3 documented delay steps so a
+              // long grid never waits >210ms (reduced-motion safe).
               const delay = `delay-${(i % 3) + 1}`;
               return (
-                <li
-                  key={track.slug}
-                  className={`animate-rise-in ${delay}`}
-                >
+                <li key={track.slug} className={`animate-rise-in ${delay}`}>
                   <TrackCard
                     track={track}
                     lessonCount={total}
-                    progress={{
-                      percentComplete: pct,
-                      lessonsCompleted: Math.round((pct / 100) * total),
-                      lessonsTotal: total,
-                    }}
+                    progress={
+                      tp
+                        ? {
+                            percentComplete: tp.percentComplete,
+                            lessonsCompleted: tp.lessonsCompleted,
+                            lessonsTotal: tp.lessonsTotal,
+                          }
+                        : undefined
+                    }
                   />
                 </li>
               );
@@ -171,106 +185,127 @@ export default function DashboardPage() {
         )}
       </Section>
 
-      {/* Asymmetric insight composition — weak areas lead at 2/3 width
-          (the motivating "what to fix next"), actions + assessments stack
-          beside it. Not three equal columns (anti-template). */}
-      <Section
-        id="dashboard-insights"
-        title="Where to focus"
-        description="What to reinforce, what to do next, and what's open."
-      >
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div className="rounded-xl border border-hairline bg-surface-card p-7">
-              <h3
-                id="dashboard-weak"
-                className="text-[1.375rem] tracking-[-0.2px] text-ink"
-              >
-                Weak areas
-              </h3>
-              <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-muted">
-                Concepts your recent quizzes flagged — clearing these unlocks
-                steadier progress.
-              </p>
-              <div className="mt-5">
-                <InsightList
-                  emptyText="No weak areas detected yet — complete a quiz and we'll pinpoint what to review."
-                  items={[
-                    {
-                      id: "w1",
-                      label: "Output contracts",
-                      meta: "2 of 3 questions missed · review Lesson 3.1.2",
-                      href: "/lessons/3.1.2",
-                      tone: "warning",
-                    },
-                    {
-                      id: "w2",
-                      label: "Token economics",
-                      meta: "Review recommended · Claude & Anthropic Ecosystem",
-                      href: "/tracks/claude-anthropic-ecosystem",
-                      tone: "warning",
-                    },
-                  ]}
-                />
-              </div>
+      {enrolled ? (
+        <Section
+          id="dashboard-insights"
+          title="Where to focus"
+          description="What your recent quizzes flagged to reinforce."
+        >
+          <div className="rounded-xl border border-hairline bg-surface-card p-7">
+            <h3
+              id="dashboard-weak"
+              className="text-[1.375rem] tracking-[-0.2px] text-ink"
+            >
+              Weak areas
+            </h3>
+            <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-muted">
+              Lessons your failed quiz attempts flagged — clearing these
+              unlocks steadier progress.
+            </p>
+            <div className="mt-5">
+              <InsightList
+                emptyText="No weak areas detected — pass your quizzes and nothing surfaces here."
+                items={weakAreas.map(
+                  (w): InsightItem => ({
+                    id: w.id,
+                    label: w.lessonTitle,
+                    meta: w.reason,
+                    href: `/lessons/${w.lessonCode}`,
+                    tone: "warning",
+                  }),
+                )}
+              />
             </div>
           </div>
-
-          <div className="flex flex-col gap-8">
-            <div>
-              <h3
-                id="dashboard-actions"
-                className="text-[1.375rem] tracking-[-0.2px] text-ink"
-              >
-                Suggested next actions
-              </h3>
-              <div className="mt-4">
-                <InsightList
-                  emptyText="Nothing queued — you're all caught up."
-                  items={[
-                    {
-                      id: "a1",
-                      label: "Continue: Foundations of AI Tools",
-                      meta: "Claude & Anthropic Ecosystem",
-                      href: "/lessons/3.1.1",
-                      tone: "coral",
-                    },
-                    {
-                      id: "a2",
-                      label: "Start the Prompt Engineering track",
-                      meta: "Beginner",
-                      href: "/tracks/prompt-engineering-system-design",
-                      tone: "teal",
-                    },
-                  ]}
-                />
-              </div>
-            </div>
-
-            <div>
-              <h3
-                id="dashboard-assessments"
-                className="text-[1.375rem] tracking-[-0.2px] text-ink"
-              >
-                Active assessments
-              </h3>
-              <div className="mt-4">
-                <InsightList
-                  emptyText="No assessments in progress."
-                  items={[
-                    {
-                      id: "as1",
-                      label: "Beginner capstone: Two-Tool Integration",
-                      meta: "Not started · Level 1",
-                      tone: "neutral",
-                    },
-                  ]}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
+        </Section>
+      ) : null}
     </div>
+  );
+}
+
+/* --- The next-move card: lesson / capstone / orientation ----------------- */
+
+function NextMove({
+  action,
+  enrolled,
+}: {
+  action: NextAction | null;
+  enrolled: boolean;
+}) {
+  if (action && action.kind === "lesson") {
+    // The journey service guarantees this lesson exists in the manifest;
+    // re-read the canonical contract value rather than reconstructing one.
+    const lesson = getLesson(action.lessonCode);
+    if (lesson) {
+      return (
+        <NextLessonCard
+          lesson={lesson}
+          trackTitle={action.trackTitle}
+          trackPercent={action.trackPercent}
+          reason={action.reason}
+        />
+      );
+    }
+  }
+
+  if (action && action.kind === "capstone") {
+    return <CapstoneCta action={action} />;
+  }
+
+  if (enrolled) {
+    return (
+      <EmptyState
+        title="You're all caught up"
+        description="Every unlocked lesson at your enrolled levels is complete. Enrol in another track or level to keep progressing."
+        action={
+          <Button href="/tracks" withArrow>
+            Browse tracks
+          </Button>
+        }
+      />
+    );
+  }
+
+  // First-run orientation — no fixtures, an honest "pick a track" prompt.
+  return (
+    <EmptyState
+      title="Start your first track"
+      description="You're not enrolled yet. Choose a track to begin — we'll then surface the single best lesson to do next, every time you return."
+      action={
+        <Button href="/tracks" withArrow>
+          Pick a track
+        </Button>
+      }
+    />
+  );
+}
+
+/** Compact dark capstone CTA — DESIGN.md `product-mockup-card-dark` style. */
+function CapstoneCta({
+  action,
+}: {
+  action: Extract<NextAction, { kind: "capstone" }>;
+}) {
+  return (
+    <article className="relative overflow-hidden rounded-xl bg-surface-dark p-8 text-on-dark sm:p-10">
+      <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-on-dark-soft">
+        Level capstone · {action.trackTitle} · {action.levelLabel}
+      </p>
+      <h3 className="mt-4 max-w-2xl text-[clamp(1.875rem,1rem+2.5vw,2.5rem)] leading-[1.1] tracking-[-0.5px] text-on-dark">
+        {action.capstoneTitle}
+      </h3>
+      <p className="mt-4 max-w-2xl font-sans text-[0.875rem] leading-relaxed text-on-dark-soft">
+        <span className="font-medium text-accent-teal">Why now</span>
+        <span aria-hidden="true" className="mx-2 text-on-dark-soft">
+          ·
+        </span>
+        {action.reason}
+      </p>
+      <div className="mt-8">
+        <Button href={`/capstones/${action.capstoneId}`} withArrow>
+          Start the capstone
+        </Button>
+      </div>
+    </article>
   );
 }

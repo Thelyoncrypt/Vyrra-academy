@@ -11,7 +11,17 @@ import {
   TrackFilterGrid,
   type TrackGridItem,
 } from "@/components/learn/track-filter-grid";
-import { listTracks, countLessonsForTrack } from "@/lib/content/queries";
+import {
+  TrackEnrollmentStrip,
+  type EnrolledTrackEntry,
+} from "@/components/learn/track-enrollment-strip";
+import {
+  listTracks,
+  countLessonsForTrack,
+  getLevel,
+} from "@/lib/content/queries";
+import { getCurrentPrincipal } from "@/lib/auth/session";
+import { isEnrolled } from "@/lib/enrollment/service";
 
 export const metadata: Metadata = {
   title: "Learning tracks — AI Course App",
@@ -19,7 +29,7 @@ export const metadata: Metadata = {
     "Every track in the AI Development Ecosystems programme, filterable by skill level and ecosystem.",
 };
 
-export default function TracksPage() {
+export default async function TracksPage() {
   const tracks = listTracks();
   const items: TrackGridItem[] = tracks.map((track) => ({
     track,
@@ -28,6 +38,32 @@ export default function TracksPage() {
 
   const ecosystemCount = new Set(tracks.map((t) => t.focusEcosystem)).size;
   const totalLessons = items.reduce((sum, i) => sum + i.lessonCount, 0);
+
+  // Enrollment discoverability: a track is "enrolled" if the learner is
+  // enrolled at its entry (lowest-order) level. Resolved server-side via the
+  // existing `isEnrolled` reader — the client never decides this.
+  const principal = await getCurrentPrincipal();
+  const enrolledResults = await Promise.all(
+    tracks.map(async (track) => {
+      const entryOrder = Math.min(...track.levelOrders);
+      const entryLevel = getLevel(entryOrder);
+      if (!entryLevel) return null;
+      const enrolled = await isEnrolled(
+        principal.userId,
+        track.slug,
+        entryOrder,
+      );
+      if (!enrolled) return null;
+      return {
+        slug: track.slug,
+        title: track.title,
+        entryLevelSlug: entryLevel.slug,
+      } satisfies EnrolledTrackEntry;
+    }),
+  );
+  const enrolledTracks = enrolledResults.filter(
+    (e): e is EnrolledTrackEntry => e !== null,
+  );
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-16">
@@ -72,6 +108,11 @@ export default function TracksPage() {
           </dd>
         </div>
       </dl>
+
+      <TrackEnrollmentStrip
+        enrolled={enrolledTracks}
+        trackCount={tracks.length}
+      />
 
       <div className="mt-12">
         <TrackFilterGrid items={items} />

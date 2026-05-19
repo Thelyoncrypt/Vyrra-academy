@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { ModuleOutline } from "@/components/learn/module-outline";
+import { LevelNextCue } from "@/components/learn/level-next-cue";
+import { deriveLevelProgress } from "@/components/learn/level-progress";
 import { EnrollPanel } from "@/components/quiz/enroll-panel";
 import {
   getTrack,
@@ -25,6 +27,7 @@ import {
 import { getCurrentPrincipal } from "@/lib/auth/session";
 import { getLevelLockState } from "@/lib/authz/gating";
 import { isEnrolled } from "@/lib/enrollment/service";
+import { getUserProgress } from "@/lib/progress/service";
 
 interface LevelPageProps {
   params: Promise<{ trackSlug: string; levelSlug: string }>;
@@ -57,15 +60,38 @@ export default async function LevelPage({ params }: LevelPageProps) {
 
   // Real gating decision (system-design §4.3), re-evaluated server-side.
   const principal = await getCurrentPrincipal();
-  const [lockState, enrolled] = await Promise.all([
+  const [lockState, enrolled, progress] = await Promise.all([
     getLevelLockState(principal, track.slug),
     isEnrolled(principal.userId, track.slug, level.order),
+    getUserProgress(principal.userId),
   ]);
   const lock = lockState.find((l) => l.levelOrder === level.order);
   const levelUnlocked = lock ? !lock.locked : false;
   // `level.order` is the contract SkillLevelOrder (1|2|3|4) — narrow for the
   // EnrollPanel prop without a cast.
   const levelOrder = level.order as 1 | 2 | 3 | 4;
+
+  // Real per-lesson state from Progress, derived once for the WHOLE level so
+  // the single "Start here" cue is level-wide. Lesson codes are globally
+  // unique, so a flat completed-set keyed by code is unambiguous. Gating is
+  // level-scoped (system-design §4.3): when the level is locked the whole
+  // outline is locked upstream and these states are ignored — there are NO
+  // intra-level locks.
+  const completedCodes = new Set(
+    progress
+      .filter((p) => p.status === "completed")
+      .map((p) => p.lessonCode),
+  );
+  const lessonsInLevelOrder = modules.flatMap((m) =>
+    listLessonsForModule(m.code),
+  );
+  const { lessonStates, currentLesson, levelComplete } = deriveLevelProgress(
+    lessonsInLevelOrder,
+    completedCodes,
+  );
+  const hasStarted = lessonsInLevelOrder.some((l) =>
+    completedCodes.has(l.code),
+  );
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-16">
@@ -145,7 +171,15 @@ export default async function LevelPage({ params }: LevelPageProps) {
               The full outline is previewable so you can see what's ahead.
             </Alert>
           </div>
-        ) : null}
+        ) : (
+          <div className="mb-6">
+            <LevelNextCue
+              current={currentLesson}
+              levelComplete={levelComplete}
+              started={hasStarted}
+            />
+          </div>
+        )}
 
         {modules.length > 0 ? (
           <div className="space-y-5">
@@ -158,6 +192,7 @@ export default async function LevelPage({ params }: LevelPageProps) {
                   module={m}
                   lessons={listLessonsForModule(m.code)}
                   unlocked={levelUnlocked}
+                  lessonStates={lessonStates}
                 />
               </div>
             ))}

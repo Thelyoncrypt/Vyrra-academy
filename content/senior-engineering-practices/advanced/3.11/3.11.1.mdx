@@ -1,0 +1,250 @@
+---
+code: 3.11.1
+title: AI Coding Agents Comparison
+summary: 'Compare Claude Code, Codex, GitHub Copilot, and Cursor side-by-side'
+objectives:
+  - 'Compare Claude Code, Codex, GitHub Copilot, and Cursor side-by-side'
+  - Understand the feature comparison matrix across all tools
+  - Calculate costs and optimize token usage
+  - Make informed tool selection decisions
+  - Implement token management strategies
+estMinutes: 32
+---
+# AI Coding Agents Comparison
+
+> Module 10 of the AI Mastery interactive course — mapped to the senior-engineering-practices track, advanced level.
+
+## Learning Objectives
+
+- Compare Claude Code, Codex, GitHub Copilot, and Cursor side-by-side
+- Understand the feature comparison matrix across all tools
+- Calculate costs and optimize token usage
+- Make informed tool selection decisions
+- Implement token management strategies
+
+## Key Concepts
+
+- Each tool has different strengths, pricing, and ideal use cases
+- The landscape is evolving rapidly - capabilities change monthly
+- Many developers use multiple tools for different tasks
+- The "best" tool depends on your workflow, team, and budget
+
+## Lesson
+
+## 10.1 Claude Code vs Codex vs GitHub Copilot vs Cursor
+
+**Key Concepts:**
+
+- Each tool has different strengths, pricing, and ideal use cases
+
+- The landscape is evolving rapidly - capabilities change monthly
+
+- Many developers use multiple tools for different tasks
+
+- The "best" tool depends on your workflow, team, and budget
+
+### High-Level Comparison
+
+| Dimension | Claude Code | OpenAI Codex | GitHub Copilot | Cursor |
+
+|-----------|-------------|--------------|----------------|--------|
+
+| **Creator** | Anthropic | OpenAI | GitHub/Microsoft | Anysphere |
+
+| **Pricing** | $20/mo Pro | $20/mo Plus | $10-19/mo | $20/mo Pro |
+
+| **Interface** | Terminal | Web/CLI/IDE | IDE only | IDE (VS Code fork) |
+
+| **Agentic** | Yes (full) | Yes (full) | Limited | Yes |
+
+| **MCP Support** | Native | Native | Limited | Via extensions |
+
+| **Context** | 200K tokens | 256K tokens | Limited | 200K tokens |
+
+| **Sandbox** | No | Yes (kernel) | No | No |
+
+| **Free Tier** | Yes (generous) | Yes (limited) | Yes (limited) | Yes (limited) |
+
+| **Best For** | Complex projects | Secure execution | IDE integration | Speed/Vibe coding |
+
+## 10.2 Feature Comparison Matrix
+
+### Core Features
+
+| Feature | Claude Code | Codex | Copilot | Cursor |
+
+|---------|-------------|-------|---------|--------|
+
+| Code generation | ✅ | ✅ | ✅ | ✅ |
+
+| Multi-file editing | ✅ | ✅ | ⚠️ | ✅ |
+
+| Terminal commands | ✅ | ✅ | ❌ | ✅ |
+
+| Plan/Review mode | ✅ | ✅ | ❌ | ✅ |
+
+| Custom instructions | ✅ (CLAUDE.md) | ✅ (AGENTS.md) | ✅ | ✅ (.cursorrules) |
+
+| MCP servers | ✅ Native | ✅ Native | ❌ | ⚠️ |
+
+| Git integration | ✅ Deep | ✅ Deep | Basic | ✅ |
+
+| Code review | ✅ | ✅ | ✅ | ✅ |
+
+| Test generation | ✅ | ✅ | ✅ | ✅ |
+
+| Debugging | ✅ | ✅ | ✅ | ✅ |
+
+| CI/CD | ✅ | ✅ | ❌ | ❌ |
+
+| Sandbox | ❌ | ✅ | ❌ | ❌ |
+
+### Unique Features
+
+| Tool | Unique Feature | When It Matters |
+
+|------|---------------|-----------------|
+
+| **Claude Code** | Skills (SKILL.md), subagents, hooks | Building reusable workflows, team standardization |
+
+| **Codex** | Kernel-level sandboxing | Running untrusted code safely |
+
+| **Copilot** | IDE-native, Copilot Workspace | Seamless IDE integration, large team adoption |
+
+| **Cursor** | Tab completion, @-mentions, composer | Fast iteration, vibe coding |
+
+## 10.3 Cost Analysis & Optimization
+
+### Pricing Comparison (May 2026)
+
+| Tool | Free Tier | Paid Tier | Enterprise |
+
+|------|-----------|-----------|------------|
+
+| Claude Code | 5x queries/day | $20/mo Pro | $30/mo Team |
+
+| Codex | Limited usage | $20/mo ChatGPT Plus | Custom |
+
+| Copilot | 2K completions/mo | $10/mo Individual | $19/mo Business |
+
+| Cursor | 500 fast requests | $20/mo Pro | Custom |
+
+### Cost Optimization Strategies
+
+1. **Use the right model for the task**: Don't use Opus for simple tasks
+
+2. **Clear context regularly**: `/clear` when switching tasks
+
+3. **Use CLAUDE.md/AGENTS.md**: Better context = fewer iterations
+
+4. **Batch similar tasks**: Group related changes
+
+5. **Plan before acting**: Reduces rework
+
+6. **Use jCodeMunch MCP**: Indexes codebases, reduces token burn
+
+## 10.4 When to Use Which Tool
+
+### Decision Tree
+
+```text
+Are you working in an IDE primarily?
+├── Yes → Cursor or Copilot
+│   ├── Need agentic capabilities? → Cursor
+│   └── Want seamless integration? → Copilot
+└── No → Terminal-based
+    ├── Need secure code execution? → Codex
+    ├── Building reusable workflows? → Claude Code
+    └── General purpose with best reasoning? → Claude Code
+```
+
+### By Task Type
+
+| Task | Best Tool | Why |
+
+|------|-----------|-----|
+
+| Quick bug fix | Copilot or Cursor | Fastest |
+
+| Complex refactor | Claude Code | Plan mode, best reasoning |
+
+| Untrusted code | Codex | Sandboxing |
+
+| Team standardization | Claude Code | Skills, CLAUDE.md |
+
+| Vibe coding | Cursor | Fastest iteration |
+
+| Enterprise deployment | Claude Code or Codex | Security, governance |
+
+| Learning/exploring | Claude Code | Best explanations |
+
+## 10.5 Token Management & Cost Control
+
+### Understanding Token Economics
+
+- **Input tokens**: Everything you send (files, messages, context)
+
+- **Output tokens**: Everything the model generates
+
+- **Cost varies by model**: Opus > Sonnet > Haiku (for Claude)
+
+- **Context accumulation**: Every turn adds to the conversation
+
+### Token Management Strategies
+
+```bash
+# Monitor current usage
+/context          # Claude Code
+
+# Clear context when switching tasks
+/clear
+
+# Use smaller models for simple tasks
+/model sonnet     # Instead of opus for simple tasks
+
+# Limit file reads — only include what's needed
+# Use .claudeignore to exclude large/generated files
+
+# Compress CLAUDE.md — concise instructions cost less
+```
+
+### .claudeignore Template
+
+```gitignore
+# Dependencies
+node_modules/
+vendor/
+
+# Generated files
+*.min.js
+*.min.css
+dist/
+build/
+coverage/
+
+# Large data files
+*.csv
+*.jsonl
+datasets/
+
+# Lock files (usually not needed)
+package-lock.json
+yarn.lock
+poetry.lock
+
+# Binary files
+*.png
+*.jpg
+*.gif
+*.pdf
+*.zip
+
+# Logs
+*.log
+logs/
+```
+
+## Curated Videos
+
+- [Stop Claude From Burning Your Tokens NOW! - J. Gravelle](https://www.youtube.com/watch?v=vzCy44o3JwA) (8:18) — jCodeMunch MCP that dramatically reduces token usage by indexing codebases and retrieving only needed symbols. 51K views. User's saved video.
+- [GitHub Copilot CLI's Rubber Duck Feature is Kind of Genius - Burke Holland](https://www.youtube.com/watch?v=VgwrtU_dTUU) (2:56) — Short video showing Copilot CLI's innovative rubber duck debugging feature. 11K views. Demonstrates how different tools approach developer assistance. User's saved video.

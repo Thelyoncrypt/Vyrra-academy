@@ -123,6 +123,29 @@ enum Difficulty {
   expert
 }
 
+/// Hosting platform of a curated video (contract.ts VideoProvider; Pillar V).
+enum VideoProvider {
+  youtube
+  vimeo
+  other
+}
+
+/// Content-freshness band: 🟢 fresh / 🟡 recent / 🔴 dated-but-foundational
+/// (contract.ts VideoFreshness; Pillar V curated-video legend).
+enum VideoFreshness {
+  fresh
+  recent
+  dated
+}
+
+/// Provenance of a curated video: 🎓 official course / 📺 external channel /
+/// ✅ curated personal save (contract.ts VideoSource; Pillar V legend).
+enum VideoSource {
+  official
+  channel
+  academic
+}
+
 // ---------------------------------------------------------------------------
 // Identity
 // ---------------------------------------------------------------------------
@@ -240,9 +263,60 @@ model Lesson {
   progress      Progress[]
   embeddings    LessonChunkEmbedding[]
   conversations TutorConversation[]
+  videos        VideoResource[]
+  exercises     Exercise[]
 
   @@unique([moduleId, code])
   @@index([moduleId])
+}
+
+/// A curated video attached to a lesson (Pillar V — "Video Curation").
+/// `id` is the content contract's stable kebab-case slug (the manifest's
+/// natural key), so re-seeding upserts rather than duplicates. `moduleCode`
+/// is the (nullable) link to the owning app-Module by curriculum code — kept
+/// as a plain string (not a hard FK) so a video survives module re-coding;
+/// `lessonId` is the hard ownership FK. The app links out / embeds — it never
+/// re-hosts the video (system-design: no third-party re-hosting; CSP allowlist).
+model VideoResource {
+  id          String         @id
+  lessonId    String
+  title       String
+  url         String
+  provider    VideoProvider
+  durationSec Int?
+  freshness   VideoFreshness
+  source      VideoSource
+  rationale   String
+  /// Owning app-Module curriculum code (e.g. "3.1"); nullable module link.
+  moduleCode  String?
+  /// Owning lesson curriculum code (e.g. "3.1.1") for cheap UI lookups.
+  lessonCode  String?
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([moduleCode])
+  @@index([freshness])
+  @@index([source])
+}
+
+/// An authored hands-on coding exercise on a lesson (Pillar V). Rendered by
+/// the simulated code-runner UI — NEVER executed on the server (CLAUDE.md
+/// "Coding sandbox security"). `id` is the contract's stable slug (idempotent
+/// upsert by natural key).
+model Exercise {
+  id              String  @id
+  lessonId        String
+  title           String
+  language        String
+  instructions    String
+  starterCode     String?
+  solutionCode    String?
+  expectedOutcome String
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
 }
 
 /// An exercise / lab / quiz inside a lesson (system-design §1.3 Activity).

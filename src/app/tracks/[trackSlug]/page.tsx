@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { ModuleOutline } from "@/components/learn/module-outline";
+import { LevelNextCue } from "@/components/learn/level-next-cue";
+import { deriveLevelProgress } from "@/components/learn/level-progress";
 import {
   getTrack,
   getTrackLevels,
@@ -24,6 +26,7 @@ import {
 } from "@/lib/content/queries";
 import { getCurrentPrincipal } from "@/lib/auth/session";
 import { getLevelLockState } from "@/lib/authz/gating";
+import { getUserProgress } from "@/lib/progress/service";
 
 interface TrackPageProps {
   params: Promise<{ trackSlug: string }>;
@@ -50,9 +53,19 @@ export default async function TrackPage({ params }: TrackPageProps) {
   const totalLessons = countLessonsForTrack(track.slug);
 
   const principal = await getCurrentPrincipal();
-  const lockState = await getLevelLockState(principal, track.slug);
+  const [lockState, progress] = await Promise.all([
+    getLevelLockState(principal, track.slug),
+    getUserProgress(principal.userId),
+  ]);
   const lockedByOrder = new Map(
     lockState.map((l) => [l.levelOrder, l]),
+  );
+  // Lesson codes are globally unique, so one completed-set keyed by code is
+  // unambiguous; each level derives its own level-scoped state from it below.
+  const completedCodes = new Set(
+    progress
+      .filter((p) => p.status === "completed")
+      .map((p) => p.lessonCode),
   );
 
   return (
@@ -110,6 +123,17 @@ export default async function TrackPage({ params }: TrackPageProps) {
         const lock = lockedByOrder.get(level.order);
         const levelUnlocked = lock ? !lock.locked : false;
 
+        // Per-level real progress (level-scoped: the "Start here" cue is
+        // level-wide, not per-module). Ignored when the level is locked.
+        const lessonsInLevelOrder = modules.flatMap((m) =>
+          listLessonsForModule(m.code),
+        );
+        const { lessonStates, currentLesson, levelComplete } =
+          deriveLevelProgress(lessonsInLevelOrder, completedCodes);
+        const hasStarted = lessonsInLevelOrder.some((l) =>
+          completedCodes.has(l.code),
+        );
+
         return (
           <Section
             key={level.slug}
@@ -141,6 +165,14 @@ export default async function TrackPage({ params }: TrackPageProps) {
                   You can still preview the outline below.
                 </Alert>
               </div>
+            ) : modules.length > 0 ? (
+              <div className="mb-5">
+                <LevelNextCue
+                  current={currentLesson}
+                  levelComplete={levelComplete}
+                  started={hasStarted}
+                />
+              </div>
             ) : null}
 
             {modules.length > 0 ? (
@@ -154,6 +186,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
                       module={m}
                       lessons={listLessonsForModule(m.code)}
                       unlocked={levelUnlocked}
+                      lessonStates={lessonStates}
                     />
                   </div>
                 ))}

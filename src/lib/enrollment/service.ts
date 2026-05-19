@@ -85,6 +85,40 @@ export async function enrollPrincipal(
   return { ok: true };
 }
 
+/** One active `(track, level)` the principal is enrolled in. */
+export interface EnrollmentSummary {
+  trackSlug: string;
+  levelOrder: number;
+}
+
+/**
+ * Every `active` `(track, level)` the principal is enrolled in, resolved back
+ * to the stable curriculum identifiers (track slug + level order 1–4) the
+ * content layer/UI speak. Read-only companion to {@link enrollPrincipal} for
+ * the journey/recommendation layer; it does NOT decide access (that stays in
+ * `src/lib/authz/gating.ts`). Ordered by track slug then level for a stable,
+ * deterministic recommendation walk.
+ */
+export async function listEnrollments(
+  userId: string,
+): Promise<EnrollmentSummary[]> {
+  const rows = await db.enrollment.findMany({
+    where: { userId, status: "active" },
+    select: {
+      track: { select: { slug: true } },
+      level: { select: { order: true } },
+    },
+  });
+
+  return rows
+    .map((r) => ({ trackSlug: r.track.slug, levelOrder: r.level.order }))
+    .sort(
+      (a, b) =>
+        a.trackSlug.localeCompare(b.trackSlug) ||
+        a.levelOrder - b.levelOrder,
+    );
+}
+
 /**
  * Is the principal enrolled in this `(track, level)`? Cheap existence check
  * used by the UI to decide whether to show an enrol CTA vs. progress.

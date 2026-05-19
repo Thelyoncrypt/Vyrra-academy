@@ -100,6 +100,28 @@
   --spacing-xxl: 48px;
   --spacing-section: 96px;
 
+  /*
+   * --- B0: Responsive layout system (additive; consumed via Tailwind v4
+   * arbitrary values, e.g. max-w-[var(--container-page)]).
+   *
+   * The product DESIGN.md law caps content at ~1200px (signed-off intentional
+   * desktop widening) with a narrower reading measure for lessons/quizzes.
+   * These tokens give the shared ui/* primitives (Container / PageShell /
+   * ResponsiveGrid) ONE source of truth so every route stops hand-rolling
+   * `mx-auto max-w-[…] px-6`. No color/type/radius/motion is touched here —
+   * WCAG 2.1 AA (muted-soft ≥4.5:1, focus-visible ring, reduced-motion) is
+   * unchanged. Gutters step up with the viewport per the DESIGN.md
+   * Collapsing Strategy; header-h / sticky-offset match the 64px top-nav. ---
+   */
+  --container-page: 1200px;
+  --container-narrow: 760px;
+  --container-reading: 640px;
+  --spacing-gutter: 20px;
+  --spacing-gutter-sm: 24px;
+  --spacing-gutter-lg: 32px;
+  --header-h: 64px;
+  --sticky-offset: 88px;
+
   /* --- Border radius scale --- */
   --radius-xs: 4px;
   --radius-sm: 6px;

@@ -1,0 +1,305 @@
+---
+code: 2.1.1
+title: Claude Ecosystem - Beginner to Advanced
+summary: Master the Claude.ai web interface and all its features
+objectives:
+  - Master the Claude.ai web interface and all its features
+  - 'Understand and apply the 4E Framework (Effective, Efficient, Ethical, Safe)'
+  - 'Use Claude for writing, data analysis, design, and everyday work'
+  - 'Build reusable workflows using Projects, Artifacts, and Memory'
+  - Implement AI fluency principles across professional contexts
+estMinutes: 182
+---
+# Claude Ecosystem - Beginner to Advanced
+
+> Module 4 of the AI Mastery interactive course — mapped to the claude-anthropic-ecosystem track, intermediate level.
+
+## Learning Objectives
+
+- Master the Claude.ai web interface and all its features
+- Understand and apply the 4E Framework (Effective, Efficient, Ethical, Safe)
+- Use Claude for writing, data analysis, design, and everyday work
+- Build reusable workflows using Projects, Artifacts, and Memory
+- Implement AI fluency principles across professional contexts
+
+## Key Concepts
+
+- Creating your Claude.ai account (Free, Pro $20/mo, Team $30/mo)
+- The Claude interface: Chat, Projects, and Settings
+- Understanding model selection: Haiku, Sonnet, Opus
+- Extended Thinking mode for complex reasoning
+- Artifacts: Interactive output windows
+- Projects: Organized workspaces with persistent context
+- Claude responds exceptionally well to XML structure
+- Use `<anthropic:thinking>` for complex reasoning tasks
+- Leverage `<example>` tags for few-shot prompting
+- Always specify output format with `<output>` tags
+- Use `<constraint>` tags for guardrails
+- Email drafting and response suggestions
+- Meeting summarization and action item extraction
+- Calendar scheduling and planning
+- Research and information synthesis
+- Presentation creation and slide outlines
+
+## Lesson
+
+## 4.1 Claude 101: Getting Started
+
+**Key Concepts:**
+
+- Creating your Claude.ai account (Free, Pro $20/mo, Team $30/mo)
+
+- The Claude interface: Chat, Projects, and Settings
+
+- Understanding model selection: Haiku, Sonnet, Opus
+
+- Extended Thinking mode for complex reasoning
+
+- Artifacts: Interactive output windows
+
+- Projects: Organized workspaces with persistent context
+
+## 4.2 Claude Interface Deep Dive
+
+**Key Concepts:**
+
+### Artifacts
+
+- Interactive windows for code, documents, and visualizations
+
+- Can be previewed, copied, or downloaded
+
+- Support for React components, SVG, HTML, and more
+
+- Collaboration feature: Share artifacts with teammates
+
+### Projects
+
+- Persistent workspaces with uploaded files
+
+- Project-specific instructions and context
+
+- Shared team projects with unified billing
+
+- Best practice: Create a project per major initiative
+
+### Memory
+
+- Claude remembers key facts across conversations
+
+- You can explicitly tell Claude to remember things
+
+- Memory can be reviewed and managed in settings
+
+- Limitations: Does not persist across different browsers/accounts
+
+### The "Creative" Slider
+
+- Adjust response style: Precise → Balanced → Creative
+
+- Precise: Best for coding, analysis, facts
+
+- Creative: Best for writing, brainstorming, design
+
+## 4.3 Prompting with Claude (XML Best Practices)
+
+**Key Concepts:**
+
+- Claude responds exceptionally well to XML structure
+
+- Use `<anthropic:thinking>` for complex reasoning tasks
+
+- Leverage `<example>` tags for few-shot prompting
+
+- Always specify output format with `<output>` tags
+
+- Use `<constraint>` tags for guardrails
+
+### Claude-Specific Best Practices
+
+```xml
+<anthropic:thinking>
+This is a complex task that requires multi-step reasoning.
+Let me break it down:
+1. Understand the input format
+2. Apply the transformation rules
+3. Validate the output
+</anthropic:thinking>
+
+<task>
+Transform the following JSON data into a markdown table.
+Include only these fields: name, email, role.
+Sort by role alphabetically.
+</task>
+
+<input>
+[{"name":"Alice","email":"a@co.com","role":"Engineer","dept":"IT"},
+ {"name":"Bob","email":"b@co.com","role":"Manager","dept":"HR"}]
+</input>
+
+<output_format>
+| Name | Email | Role |
+|------|-------|------|
+| ... | ... | ... |
+</output_format>
+```
+
+## 4.4 Claude for Everyday Work
+
+**Key Concepts:**
+
+- Email drafting and response suggestions
+
+- Meeting summarization and action item extraction
+
+- Calendar scheduling and planning
+
+- Research and information synthesis
+
+- Presentation creation and slide outlines
+
+- Spreadsheet analysis and formula generation
+
+## 4.5 Claude for Writing & Documentation
+
+**Key Concepts:**
+
+- Claude excels at long-form writing with consistent voice
+
+- Style transfer: "Write this in the style of [author/publication]"
+
+- Iterative refinement: "Make this more concise," "Add more data points"
+
+- Document types: Blog posts, white papers, technical docs, proposals
+
+- Multilingual writing and translation
+
+## 4.6 Claude for Data Analysis
+
+**Key Concepts:**
+
+- Upload CSV, Excel, JSON files directly to Claude
+
+- Ask natural language questions about your data
+
+- Generate charts and visualizations as Artifacts
+
+- Statistical analysis without writing code
+
+- Data cleaning and transformation suggestions
+
+- Export results in multiple formats
+
+## 4.7 Claude for Design & Creative Work
+
+**Key Concepts:**
+
+- Generating UI mockups with code (HTML/CSS, React)
+
+- Creating SVG illustrations and logos
+
+- Color palette generation and design system suggestions
+
+- Image analysis and feedback
+
+- Wireframe generation from text descriptions
+
+- Design critique and improvement suggestions
+
+## 4.8 AI Fluency: The 4E Framework
+
+**Key Concepts (Based on Anthropic Academy):**
+
+### Effective
+
+- Getting high-quality outputs from AI
+
+- Choosing the right tool for the task
+
+- Iterative refinement and feedback
+
+- Knowing when AI helps vs. hinders
+
+### Efficient
+
+- Automating repetitive tasks
+
+- Batch processing with AI
+
+- Building reusable templates and workflows
+
+- Time savings measurement
+
+### Ethical
+
+- Transparency about AI use
+
+- Avoiding bias amplification
+
+- Respecting copyright and intellectual property
+
+- Considering societal impact
+
+### Safe
+
+- Never sharing sensitive personal data
+
+- Verifying AI outputs (hallucinations happen)
+
+- Using AI-appropriate security practices
+
+- Understanding model limitations
+
+## Curated Videos
+
+- [FULL Claude Tutorial for Beginners in 2026 - Jas Wong](https://www.youtube.com/watch?v=RN2RFHlPIeA) (1:00:12) — Comprehensive 1-hour tutorial covering Claude from absolute beginner to pro. 166K views. Covers interface, features, prompting techniques, and real-world use cases. The best single video for getting started with Claude.
+- [Master 99% of Claude Cowork in 26 Minutes (No Code) - Brock Mesarich](https://www.youtube.com/watch?v=9owy-NV5l6k) (26:13) — Excellent overview of Claude's non-technical automation platform. 22K views. Perfect for non-developers who want to leverage Claude for work automation. User's saved video.
+- [If You're Ambitious But Unfocused, AI Makes You Dangerous - theMITmonk](https://www.youtube.com/watch?v=m7U0353WlrQ) (13:55) — Strategic perspective on AI fluency - understanding which tools to use when, rather than trying to master everything. The 4E Framework in action. User's saved video.
+
+## Hands-On Exercises
+
+### Daily Workflow Automation
+
+1. **Morning Briefing**: Upload your calendar + key docs, ask Claude to summarize your day 2. **Email Triage**: Paste 10 emails, ask Claude to prioritize and draft responses 3. **Meeting Prep**: Give Claude an agenda + attendee list, generate discussion points 4. **Post-Meeting**: Paste transcript or notes, extract action items with owners and deadlines
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.
+
+### Technical Documentation
+
+Complete the hands-on exercise: Technical Documentation.
+
+```text
+Task: Document a REST API endpoint
+
+Steps:
+1. Paste your code for the endpoint
+2. Ask Claude: "Generate API documentation for this endpoint
+   following OpenAPI 3.0 spec. Include parameters, request/response
+   examples, and error codes."
+3. Review and refine: "Add authentication details" or "Include
+   rate limiting information"
+4. Export as an Artifact in markdown format
+```
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.
+
+### Complete Business Workflow
+
+Create a Claude Project called "Weekly Report Automation" and set it up with: 1. **Upload these files** (create sample data): - `sales-data.csv` - Weekly sales figures - `meeting-notes.md` - Notes from team meetings - `goals.md` - Monthly goals and KPIs 2. **Set Project Instructions:**
+
+```text
+You are my weekly report assistant. Each week, I will upload
+new data and ask you to generate a comprehensive report.
+
+The report should include:
+1. Executive summary (3-4 sentences)
+2. Key metrics vs. goals (table format)
+3. Notable wins and concerns
+4. Action items for next week
+5. Questions that need team discussion
+
+Use a professional but approachable tone.
+Format everything in clean markdown with tables where appropriate.
+```
+
+*Expected outcome:* 3. **Run the workflow** 3 times with different inputs to refine 4. **Save the best output** as a template for future use

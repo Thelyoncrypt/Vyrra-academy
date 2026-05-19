@@ -1,0 +1,253 @@
+---
+code: 2.3.1
+title: Google AI & Gemini Ecosystem
+summary: Understand Gemini model tiers and their use cases
+objectives:
+  - Understand Gemini model tiers and their use cases
+  - Master Google AI Studio for experimentation
+  - Leverage Gemini in Google Workspace
+  - Use NotebookLM for source-grounded research
+  - Generate images and video with Imagen 4 and Veo 3.1
+  - Build with Google's developer tools and Vertex AI
+estMinutes: 50
+---
+# Google AI & Gemini Ecosystem
+
+> Module 8 of the AI Mastery interactive course — mapped to the google-gemini-ecosystem track, intermediate level.
+
+## Learning Objectives
+
+- Understand Gemini model tiers and their use cases
+- Master Google AI Studio for experimentation
+- Leverage Gemini in Google Workspace
+- Use NotebookLM for source-grounded research
+- Generate images and video with Imagen 4 and Veo 3.1
+- Build with Google's developer tools and Vertex AI
+
+## Key Concepts
+
+- Gemini 2.5 Pro
+- Gemini 2.5 Flash
+- Gemini Flash-Lite
+- Context window
+- Multimodal
+- Grounding
+- Free experimentation environment
+- Test different models and parameters
+- Build and save prompts
+- API key generation
+- Model comparison tools
+- Export code in multiple languages
+- Docs
+- Sheets
+- Gmail
+- Slides
+
+## Lesson
+
+## 8.1 Gemini Models: Pro, Flash, Flash-Lite
+
+**Key Concepts:**
+
+- **Gemini 2.5 Pro**: Most capable, best for complex reasoning and coding
+
+- **Gemini 2.5 Flash**: Fast, cost-effective, good for most tasks
+
+- **Gemini Flash-Lite**: Ultra-fast, cheapest option, good for simple tasks
+
+- **Context window**: Up to 1M tokens (2M for select use cases)
+
+- **Multimodal**: Text, image, audio, video input natively
+
+- **Grounding**: Connect to Google Search for factual responses
+
+### Model Selection Guide
+
+| Task | Recommended Model | Why |
+
+|------|-------------------|-----|
+
+| Complex coding | 2.5 Pro | Best reasoning |
+
+| Quick chat/QA | 2.5 Flash | Fast, capable |
+
+| High-volume processing | Flash-Lite | Cheapest |
+
+| Long document analysis | 2.5 Pro | 1M+ context |
+
+| Image understanding | 2.5 Pro | Best vision |
+
+| Real-time applications | Flash/Flash-Lite | Low latency |
+
+## 8.2 Google AI Studio
+
+**Key Concepts:**
+
+- Free experimentation environment
+
+- Test different models and parameters
+
+- Build and save prompts
+
+- API key generation
+
+- Model comparison tools
+
+- Export code in multiple languages
+
+### Getting Started
+
+1. Go to https://aistudio.google.com
+
+2. Sign in with Google account
+
+3. Start a new chat or structured prompt
+
+4. Experiment with system instructions
+
+5. Generate your API key for applications
+
+## 8.3 Gemini in Workspace
+
+**Key Concepts:**
+
+- **Docs**: Write, edit, summarize, rewrite
+
+- **Sheets**: Generate formulas, analyze data, create charts
+
+- **Gmail**: Draft emails, summarize threads, suggest replies
+
+- **Slides**: Generate presentations from prompts
+
+- **Gemini side panel**: Available across all Workspace apps
+
+### Practical Workflows
+
+```text
+In Google Docs:
+"Summarize this 20-page document into 5 bullet points"
+"Rewrite this paragraph in a more professional tone"
+"Generate a table of contents for this document"
+
+In Google Sheets:
+"Explain this formula"
+"Generate a formula to sum values where status = 'complete'"
+"Create a chart showing monthly trends"
+
+In Gmail:
+"Draft a follow-up email to this thread"
+"Summarize all emails from this sender this week"
+"Suggest a professional response"
+```
+
+## 8.4 NotebookLM Deep Dive
+
+**Key Concepts:**
+
+- Source-grounded research tool
+
+- Upload documents, web pages, YouTube videos, Google Drive files
+
+- AI generates summaries, FAQs, study guides, timelines
+
+- Audio Overviews: AI-generated podcast discussions
+
+- NotebookLM-PY: CLI integration for automation
+
+- **Key principle**: All responses grounded in your sources
+
+### Advanced NotebookLM Workflows
+
+1. **Research Project**: Upload 20+ papers → Generate literature review
+
+2. **Meeting Preparation**: Upload agendas + past notes → Generate discussion points
+
+3. **Learning**: Upload textbook chapters → Generate study guides + quiz questions
+
+4. **Content Creation**: Upload source materials → Generate blog post drafts
+
+## 8.5 Imagen 4 & Veo 3.1 for Media
+
+**Key Concepts:**
+
+- **Imagen 4**: Google's latest image generation model
+
+- High-quality photorealistic images
+
+- Text rendering in images
+
+- Style control and editing
+
+- Commercial use allowed
+
+- **Veo 3.1**: Video generation model
+
+- Up to 8-second clips
+
+- High resolution
+
+- Style consistency
+
+- Camera motion control
+
+- **Gemini**: Can understand and reason about images/videos
+
+- Upload image → ask questions
+
+- Upload video → get analysis
+
+- Generate image → edit iteratively
+
+## 8.6 Google AI for Developers
+
+**Key Concepts:**
+
+- **Gemini API**: REST and SDK access
+
+- **Vertex AI**: Enterprise AI platform on Google Cloud
+
+- **Gemini CLI**: Command-line interface
+
+- **Code assist**: AI-powered code completion
+
+- **Model Garden**: Curated list of deployable models
+
+### Gemini API Quickstart
+
+```python
+# pip install google-generativeai
+import google.generativeai as genai
+
+genai.configure(api_key="YOUR_API_KEY")
+
+model = genai.GenerativeModel('gemini-2.5-flash')
+
+response = model.generate_content("Explain quantum computing in simple terms")
+print(response.text)
+
+# Multimodal: Image + Text
+import PIL.Image
+img = PIL.Image.open('photo.jpg')
+response = model.generate_content(["Describe this image", img])
+```
+
+## 8.7 Vertex AI / Gemini Enterprise Agent Platform
+
+**Key Concepts:**
+
+- **Vertex AI**: Google's unified AI development platform
+
+- **Agent Builder**: Create enterprise AI agents
+
+- **Model tuning**: Fine-tune Gemini on your data
+
+- **RAG (Retrieval Augmented Generation)**: Ground responses in enterprise data
+
+- **MLOps**: Deploy and manage models at scale
+
+- **Enterprise security**: IAM, VPC, encryption
+
+## Curated Videos
+
+- [Claude Code + NotebookLM = CHEAT CODE - Chase AI](https://www.youtube.com/watch?v=usTeU4Uh0iM) (11:08) — Shows how to connect Claude Code to NotebookLM for automated research pipelines. Search YouTube, push to NotebookLM, extract insights, generate deliverables. 96K views. User's saved video.
+- [AntiGravity + Spline Builds Insane 3D Websites - Jay E | RoboNuggets](https://www.youtube.com/watch?v=csOEsfiBfvo) (17:53) — Tutorial on building 3D websites with Google's AntiGravity AI + Spline 3D. Shows Google's design AI ecosystem in action. 141K views. User's saved video.

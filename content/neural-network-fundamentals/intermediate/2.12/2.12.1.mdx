@@ -1,0 +1,226 @@
+---
+code: 2.12.1
+title: Neural Networks & Deep Learning Foundations
+summary: Understand what AI is and how neural networks function at a conceptual level
+objectives:
+  - Understand what AI is and how neural networks function at a conceptual level
+  - 'Learn the difference between AI, Machine Learning, and Deep Learning'
+  - Grasp how transformer architectures power modern LLMs
+  - Build intuition for how Large Language Models process and generate text
+  - Complete a hands-on exercise building a simple neural network
+estMinutes: 300
+---
+# Neural Networks & Deep Learning Foundations
+
+> Module 1 of the AI Mastery interactive course — mapped to the neural-network-fundamentals track, intermediate level.
+
+## Learning Objectives
+
+- Understand what AI is and how neural networks function at a conceptual level
+- Learn the difference between AI, Machine Learning, and Deep Learning
+- Grasp how transformer architectures power modern LLMs
+- Build intuition for how Large Language Models process and generate text
+- Complete a hands-on exercise building a simple neural network
+
+## Key Concepts
+
+- Artificial Intelligence: Machines simulating human intelligence
+- Narrow AI vs. General AI vs. Superintelligent AI
+- The AI revolution: Why 2023-2026 changed everything
+- Generative AI: Creating new content (text, images, code, video)
+- AI Agents: Systems that perceive, reason, and act autonomously
+- Biological neurons vs. artificial neurons (perceptrons)
+- Layers: Input, Hidden, Output
+- Weights, biases, and activation functions
+- Forward propagation and backpropagation
+- Training: Loss functions and gradient descent
+- Deep learning: Networks with many hidden layers
+- Why deep learning emerged (data + compute + algorithms)
+- Convolutional Neural Networks (CNNs) for images
+- Recurrent Neural Networks (RNNs) for sequences
+- Vanishing gradient problem
+- Activation functions: ReLU, Sigmoid, Tanh, Softmax
+
+## Lesson
+
+## 1.1 What is AI?
+
+**Key Concepts:**
+
+- Artificial Intelligence: Machines simulating human intelligence
+
+- Narrow AI vs. General AI vs. Superintelligent AI
+
+- The AI revolution: Why 2023-2026 changed everything
+
+- Generative AI: Creating new content (text, images, code, video)
+
+- AI Agents: Systems that perceive, reason, and act autonomously
+
+## 1.2 Neural Networks Explained
+
+**Key Concepts:**
+
+- Biological neurons vs. artificial neurons (perceptrons)
+
+- Layers: Input, Hidden, Output
+
+- Weights, biases, and activation functions
+
+- Forward propagation and backpropagation
+
+- Training: Loss functions and gradient descent
+
+- Deep learning: Networks with many hidden layers
+
+## 1.3 Deep Learning Fundamentals
+
+**Key Concepts:**
+
+- Why deep learning emerged (data + compute + algorithms)
+
+- Convolutional Neural Networks (CNNs) for images
+
+- Recurrent Neural Networks (RNNs) for sequences
+
+- Vanishing gradient problem
+
+- Activation functions: ReLU, Sigmoid, Tanh, Softmax
+
+- Dropout, batch normalization, regularization
+
+## 1.4 Machine Learning Algorithms Overview
+
+**Key Concepts:**
+
+- Supervised Learning: Linear Regression, Logistic Regression, SVM, Decision Trees, Random Forest
+
+- Unsupervised Learning: K-Means Clustering, PCA
+
+- Reinforcement Learning: Q-Learning, policy gradients
+
+- When to use which algorithm
+
+## 1.5 Transformers & Attention Mechanisms
+
+**Key Concepts:**
+
+- Why transformers replaced RNNs
+
+- Self-attention mechanism: "The Importance of Being Attentive"
+
+- Multi-head attention
+
+- Positional encoding
+
+- The original "Attention Is All You Need" paper (2017)
+
+- How transformers enable parallelization
+
+## 1.6 LLMs: How They Work
+
+**Key Concepts:**
+
+- Pre-training: Learning language patterns from vast text corpora
+
+- Next-token prediction as the fundamental task
+
+- Fine-tuning: Adapting to specific tasks
+
+- RLHF (Reinforcement Learning from Human Feedback)
+
+- Context windows and token limits
+
+- Temperature, top-p, and sampling parameters
+
+- Emergent capabilities at scale
+
+- Multimodal LLMs (text + image + audio + video)
+
+## Curated Videos
+
+- [What Is AI? | Artificial Intelligence | AI In 5 Mins - Simplilearn](https://www.youtube.com/watch?v=uMzUB89uSxU) (5:28) — 3.7M views. The most concise, accessible introduction to AI. Perfect 5-minute foundation despite being older - the fundamentals haven't changed.
+- [Getting started with Claude.ai - Anthropic](https://www.youtube.com/watch?v=8RfDeVC50) (15:00) — Official Anthropic introduction showing practical AI usage with Claude from day one.
+- [But what is a neural network? - 3Blue1Brown](https://www.youtube.com/watch?v=aircAruvnKk) (19:00) — The gold standard visual explanation of neural networks. 3Blue1Brown's legendary series builds intuition better than any other resource. Watch the full series if you want deeper understanding.
+- [AI and Machine Learning Full Course 2026 - Simplilearn](https://www.youtube.com/watch?v=MsVujBISof8) (22:02:31) — Comprehensive 2026 course covering all ML algorithms, deep learning, neural networks, and practical implementations. Use as a reference - dip into specific chapters as needed.
+- [Transformers Explained - Simplilearn](https://www.youtube.com/watch?v=ZhAz268Hdpw) (8:42) — Clear explanation of transformer architecture and the attention mechanism that powers all modern LLMs.
+
+## Hands-On Exercises
+
+### Your First Neural Network
+
+Complete the hands-on exercise: Your First Neural Network.
+
+```python
+# Install required packages:
+# pip install numpy tensorflow
+
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+# Step 1: Create a simple dataset
+# Problem: Predict whether a number is positive or negative
+X = np.array([[-5], [-3], [-1], [0], [1], [3], [5], [10], [-10], [2]])
+y = np.array([[0], [0], [0], [0], [1], [1], [1], [1], [0], [1]])  # 0=negative, 1=positive
+
+# Step 2: Build the neural network
+model = keras.Sequential([
+    layers.Dense(4, activation='relu', input_shape=(1,)),  # Hidden layer with 4 neurons
+    layers.Dense(1, activation='sigmoid')  # Output layer (binary classification)
+])
+
+# Step 3: Compile the model
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Step 4: Train
+print("Training the neural network...")
+model.fit(X, y, epochs=200, verbose=0)
+
+# Step 5: Test predictions
+test_numbers = np.array([[-7], [4], [0.5], [-2]])
+predictions = model.predict(test_numbers, verbose=0)
+
+print("\nPredictions (closer to 1 = positive, closer to 0 = negative):")
+for num, pred in zip(test_numbers, predictions):
+    label = "positive" if pred[0] > 0.5 else "negative"
+    confidence = pred[0] if pred[0] > 0.5 else 1 - pred[0]
+    print(f"  {num[0]:>4} → {pred[0]:.4f} → {label} ({confidence:.1%} confidence)")
+
+print("\n--- KEY INSIGHT ---")
+print("This tiny network learned to classify numbers without being explicitly programmed!")
+print("Real LLMs use the same fundamental principles, just with billions of parameters.")
+```
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.
+
+### Understanding Tokens
+
+Complete the hands-on exercise: Understanding Tokens.
+
+```python
+# pip install tiktoken
+
+import tiktoken
+
+# See how text is broken into tokens (the unit LLMs work with)
+encoder = tiktoken.encoding_for_model("gpt-4")
+
+texts = [
+    "Hello, world!",
+    "Artificial Intelligence",
+    "The quick brown fox jumps over the lazy dog",
+    "AI",  # Short words may be 1 token
+    "antidisestablishmentarianism",  # Long words = many tokens
+]
+
+for text in texts:
+    tokens = encoder.encode(text)
+    print(f"'{text}' → {len(tokens)} tokens: {tokens}")
+    # Decode each token individually
+    decoded = [encoder.decode([t]) for t in tokens]
+    print(f"  Token breakdown: {decoded}\n")
+```
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.

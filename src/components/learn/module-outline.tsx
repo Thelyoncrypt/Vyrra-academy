@@ -1,8 +1,23 @@
 /**
- * ModuleOutline — a module card listing its lessons via LessonRow. The visual
- * gating heuristic here is intentionally simple and PURELY presentational
- * (first lesson available, rest locked) so the locked/unlocked affordance is
- * demonstrable before the real progress + prerequisite engine drives it.
+ * ModuleOutline — a module card listing its lessons via LessonRow.
+ *
+ * Per-lesson state is now driven by REAL progress + the real prerequisite
+ * engine (system-design §4.3), no longer a presentational placeholder:
+ *
+ *   - The whole module is locked ONLY when its level is locked (`unlocked`
+ *     is false). Gating is level-scoped — a single level lock is the only
+ *     thing that locks the lessons inside it. There are NO intra-level locks:
+ *     once a level is unlocked, every lesson in it is accessible.
+ *   - Inside an UNLOCKED level each lesson reflects the learner's `Progress`:
+ *     `completed` (✓) when done, `current` ("Start here") for the first
+ *     not-completed lesson across the level, plain `available` for the rest.
+ *
+ * `lessonStates` is computed by the caller (server-side, from
+ * `getUserProgress` + `getLevelLockState`) and spans the whole level — the
+ * "first not-completed" cue is level-wide, so it can only be decided where
+ * every module's lessons are known. This component never decides access; it
+ * renders the state the server already authorised. The client's idea of
+ * "unlocked" is never trusted (gating stays server-side).
  *
  * The header carries the curriculum code in mono, a serif module title, and a
  * tabular-nums lesson count so a level's modules read with intentional rhythm
@@ -23,17 +38,29 @@ import { LessonRow } from "./lesson-row";
 import { Badge } from "@/components/ui/badge";
 import { DisclosurePanel } from "@/components/ui/disclosure-panel";
 
+/** Honest per-lesson state inside an unlocked level (locked is level-scoped). */
+export type LessonState = "completed" | "current" | "available";
+
 interface ModuleOutlineProps {
   module: Module;
   lessons: readonly Lesson[];
   /** When false, the whole module renders locked (level not yet unlocked). */
   unlocked?: boolean;
+  /**
+   * Per-lesson state keyed by lesson code, computed server-side from real
+   * progress for the WHOLE level (so the single `current` "Start here" cue is
+   * level-wide, not per-module). Any lesson missing from the map defaults to
+   * `available` — inside an unlocked level a lesson is never falsely locked.
+   * Ignored entirely when `unlocked` is false (the level lock wins).
+   */
+  lessonStates?: Readonly<Record<string, LessonState>>;
 }
 
 export function ModuleOutline({
   module,
   lessons,
   unlocked = true,
+  lessonStates,
 }: ModuleOutlineProps) {
   const headingId = `module-${module.code.replace(/\./g, "-")}`;
   const lessonCount = lessons.length;
@@ -41,11 +68,15 @@ export function ModuleOutline({
 
   const lessonList = (
     <ul className="divide-y divide-hairline-soft">
-      {lessons.map((lesson, i) => (
+      {lessons.map((lesson) => (
         <li key={lesson.code}>
           <LessonRow
             lesson={lesson}
-            state={!unlocked ? "locked" : i === 0 ? "available" : "locked"}
+            state={
+              !unlocked
+                ? "locked"
+                : (lessonStates?.[lesson.code] ?? "available")
+            }
           />
         </li>
       ))}

@@ -1,0 +1,293 @@
+---
+code: 1.8.1
+title: Prompt Engineering Mastery
+summary: Master fundamental and advanced prompting techniques
+objectives:
+  - Master fundamental and advanced prompting techniques
+  - Structure prompts using XML tags (Anthropic best practice)
+  - Implement chain-of-thought and ReAct patterns
+  - Build reusable prompt libraries for consistent results
+  - Evaluate and A/B test prompts for production use
+estMinutes: 62
+---
+# Prompt Engineering Mastery
+
+> Module 3 of the AI Mastery interactive course — mapped to the prompt-engineering-system-design track, beginner level.
+
+## Learning Objectives
+
+- Master fundamental and advanced prompting techniques
+- Structure prompts using XML tags (Anthropic best practice)
+- Implement chain-of-thought and ReAct patterns
+- Build reusable prompt libraries for consistent results
+- Evaluate and A/B test prompts for production use
+
+## Key Concepts
+
+- Prompt = instructions given to an LLM
+- The "garbage in, gospel out" problem
+- Clarity, specificity, and structure
+- System prompts vs. user prompts
+- Temperature and creativity control
+- Token economy: Every word costs money
+- Zero-shot
+- Few-shot
+- Chain-of-Thought (CoT)
+- Self-consistency
+- Automatic CoT
+- Assigning a specific role improves output quality
+- Persona design: Creating consistent character profiles
+- Expert-level prompting: "You are a senior X with 20 years of experience..."
+- Tone and style control through persona
+- Multi-persona conversations for diverse perspectives
+
+## Lesson
+
+## 3.1 Prompt Engineering Fundamentals
+
+**Key Concepts:**
+
+- Prompt = instructions given to an LLM
+
+- The "garbage in, gospel out" problem
+
+- Clarity, specificity, and structure
+
+- System prompts vs. user prompts
+
+- Temperature and creativity control
+
+- Token economy: Every word costs money
+
+## 3.2 Zero-Shot, Few-Shot, Chain-of-Thought
+
+**Key Concepts:**
+
+- **Zero-shot**: No examples, just instructions
+
+- **Few-shot**: Provide 2-5 examples to guide the model
+
+- **Chain-of-Thought (CoT)**: Ask the model to "think step by step"
+
+- **Self-consistency**: Generate multiple answers, pick the most common
+
+- **Automatic CoT**: LLM generates its own reasoning steps
+
+### Example: Chain-of-Thought Prompting
+
+```text
+You are a math tutor. Solve the following problem step by step,
+showing your reasoning clearly.
+
+Problem: A train travels 120 km in 2 hours. How far will it travel
+in 5 hours at the same speed?
+
+Let's work through this step by step:
+Step 1: First, I need to find the speed of the train...
+```
+
+## 3.3 Role Prompting & Persona Design
+
+**Key Concepts:**
+
+- Assigning a specific role improves output quality
+
+- Persona design: Creating consistent character profiles
+
+- Expert-level prompting: "You are a senior X with 20 years of experience..."
+
+- Tone and style control through persona
+
+- Multi-persona conversations for diverse perspectives
+
+### Template: Role Prompt
+
+```xml
+<role>
+You are a [expert role] with [X years] of experience in [domain].
+You specialize in [specific area] and are known for [reputation/style].
+</role>
+
+<context>
+[Background information the model needs]
+</context>
+
+<task>
+[Specific thing you want done]
+</task>
+
+<constraints>
+- [Limit 1]
+- [Limit 2]
+- [Format requirement]
+</constraints>
+
+<output_format>
+[Describe exactly how you want the output structured]
+</output_format>
+```
+
+## 3.4 XML Tag Structuring (Anthropic Method)
+
+**Key Concepts:**
+
+- XML tags are Claude's "native language" for structured prompting
+
+- Tags create clear boundaries for different prompt components
+
+- Reduces ambiguity and improves parsing
+
+- Works with other models too (universal pattern)
+
+- Common tags: `<role>`, `<context>`, `<task>`, `<example>`, `<output>`
+
+### Best Practice Example
+
+```xml
+<instructions>
+Analyze the following customer feedback and categorize it.
+</instructions>
+
+<feedback>
+"The app crashed three times today when I tried to upload photos.
+Very frustrating experience. The UI is beautiful though."
+</feedback>
+
+<categories>
+- Bug Report
+- Feature Request
+- Compliment
+- Usability Issue
+</categories>
+
+<output_format>
+Return a JSON array with each sentiment and its category:
+[
+  {"text": "...", "sentiment": "...", "category": "..."}
+]
+</output_format>
+```
+
+## 3.5 ReAct Pattern: Reasoning + Acting
+
+**Key Concepts:**
+
+- ReAct = Reasoning + Acting loop
+
+- The foundation of modern AI agents
+
+- LLM thinks (reasoning) → takes action (tool use) → observes result
+
+- Iterative loop until goal is achieved
+
+- Used by Claude Code, Codex, and most coding agents
+
+### ReAct Loop Pseudocode
+
+```text
+GOAL: "Find the current weather in Tokyo and suggest clothing"
+
+LOOP (max 10 iterations):
+  1. THINK: "I need to find the weather in Tokyo.
+     I have a weather_search tool available."
+  2. ACT: Call weather_search(location="Tokyo")
+  3. OBSERVE: Result = "Sunny, 28C, light breeze"
+  4. THINK: "It's warm and sunny. I should suggest light clothing."
+  5. ACT: Finalize response with clothing suggestions
+  6. DONE
+```
+
+## 3.6 Advanced Techniques
+
+**Tree of Thoughts (ToT):**
+
+- Explore multiple reasoning paths simultaneously
+
+- Like a chess engine evaluating multiple moves
+
+- Best for complex problem-solving
+
+**Graph of Thoughts (GoT):**
+
+- Thoughts form a graph structure (not just a tree)
+
+- Allows merging, revising, and connecting ideas
+
+- Best for creative and research tasks
+
+**Skeleton-of-Thought:**
+
+- Generate outline first, then fill in details
+
+- Faster responses for long-form content
+
+## 3.7 Prompt Evaluation & A/B Testing
+
+**Key Concepts:**
+
+- Prompts are code - they need testing
+
+- A/B testing: Compare two prompt versions
+
+- Evaluation metrics: Accuracy, relevance, format adherence
+
+- Red-teaming: Testing for failure modes
+
+- Prompt versioning: Track changes over time
+
+### Evaluation Framework
+
+```python
+# Simple prompt A/B test
+prompts = {
+    "v1": "Summarize this text in 3 bullet points.",
+    "v2": "<task>\nSummarize the following text concisely.\n</task>\n<format>\n- 3 bullet points\n- Each under 15 words\n- Focus on key insights\n</format>\n<text>\n{input}\n</text>"
+}
+
+# Test both on 5 sample texts, score outputs 1-5
+# Track: accuracy, brevity, format adherence
+# Winner = higher average score
+```
+
+## 3.8 Building Reusable Prompt Libraries
+
+**Key Concepts:**
+
+- Prompt templates save time and ensure consistency
+
+- Organize by use case (email, code, analysis, creative)
+
+- Version control your prompts (Git)
+
+- Share across teams
+
+- Iterate based on results
+
+## Curated Videos
+
+- [Prompting 101 - Code w/ Claude](https://www.youtube.com/watch?v=WsB0B_1U1jI) (22:00) — Official Anthropic course on prompting. Covers the fundamentals of effective prompt design with Claude-specific best practices. 278K views.
+
+## Hands-On Exercises
+
+### Create Your Prompt Library
+
+Create a folder `my-prompts/` with these files:
+
+```text
+my-prompts/
+  email/
+    professional-response.md
+    follow-up.md
+  code/
+    code-review.md
+    refactor.md
+    generate-tests.md
+  analysis/
+    data-summary.md
+    competitor-analysis.md
+  creative/
+    blog-post.md
+    social-media.md
+```
+
+*Expected outcome:* Each file should contain: 1. A role definition 2. Structured XML tags 3. Example input/output 4. Notes on when to use

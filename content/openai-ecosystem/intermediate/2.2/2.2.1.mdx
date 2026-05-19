@@ -1,0 +1,366 @@
+---
+code: 2.2.1
+title: OpenAI Codex - Complete Track
+summary: >-
+  Install and configure OpenAI Codex across all interfaces (Web, CLI, IDE,
+  GitHub)
+objectives:
+  - >-
+    Install and configure OpenAI Codex across all interfaces (Web, CLI, IDE,
+    GitHub)
+  - Understand Codex's security model and sandboxed execution
+  - 'Master Plan Mode, code generation, and review workflows'
+  - Configure AGENTS.md for project-specific behavior
+  - Build a complete application using Codex
+  - Compare Codex vs. Claude Code for different workflows
+estMinutes: 146
+---
+# OpenAI Codex - Complete Track
+
+> Module 7 of the AI Mastery interactive course — mapped to the openai-ecosystem track, intermediate level.
+
+## Learning Objectives
+
+- Install and configure OpenAI Codex across all interfaces (Web, CLI, IDE, GitHub)
+- Understand Codex's security model and sandboxed execution
+- Master Plan Mode, code generation, and review workflows
+- Configure AGENTS.md for project-specific behavior
+- Build a complete application using Codex
+- Compare Codex vs. Claude Code for different workflows
+
+## Key Concepts
+
+- OpenAI Codex is OpenAI's AI coding agent, launched in 2025
+- Four interfaces: Web (chatgpt.com), CLI (terminal), IDE (VS Code extension), GitHub
+- Built on GPT-5.x series models
+- Key differentiator
+- Designed for both developers and non-developers
+- Free tier available with rate limits
+- Codex's Plan Mode: Similar to Claude Code's approach
+- Review the plan before code generation
+- Iterative refinement: Accept, modify, or reject suggestions
+- Full-file and partial-file edits
+- Understanding diff views
+- `/review` command for comprehensive code review
+- Security vulnerability detection
+- Performance analysis
+- Style and best practice suggestions
+- Automated test generation suggestions
+
+## Lesson
+
+## 7.1 Codex 101: Introduction & Onboarding
+
+**Key Concepts:**
+
+- OpenAI Codex is OpenAI's AI coding agent, launched in 2025
+
+- Four interfaces: Web (chatgpt.com), CLI (terminal), IDE (VS Code extension), GitHub
+
+- Built on GPT-5.x series models
+
+- **Key differentiator**: Kernel-level sandboxing for code execution
+
+- Designed for both developers and non-developers
+
+- Free tier available with rate limits
+
+### Getting Started
+
+1. Create an OpenAI account at https://chatgpt.com
+
+2. Navigate to the Codex section
+
+3. For CLI: `npm install -g @openai/codex`
+
+4. Authenticate: `codex login`
+
+## 7.2 Codex Interface: Web, CLI, IDE, GitHub
+
+**Key Concepts:**
+
+### Web Interface (chatgpt.com)
+
+- Browser-based coding environment
+
+- Built-in file explorer and editor
+
+- One-click project creation
+
+- Best for: Quick experiments, learning, collaboration
+
+### CLI (Terminal)
+
+- Full terminal control
+
+- Works with your existing development environment
+
+- Supports all Codex features
+
+- Best for: Professional development, CI/CD integration
+
+```bash
+# Basic CLI usage
+codex                    # Start interactive session
+codex "create a React component"  # One-shot command
+codex --model gpt-5.5    # Use specific model
+codex --sandbox           # Run in sandboxed mode
+```
+
+### IDE Integration (VS Code)
+
+- Inline suggestions and completions
+
+- Chat panel for Q&A
+
+- Code explanation and refactoring
+
+- Best for: Day-to-day coding, quick assistance
+
+### GitHub Integration
+
+- Review pull requests
+
+- Suggest code changes
+
+- Automated code review via Actions
+
+- Best for: Team workflows, code quality
+
+## 7.3 Codex CLI: Installation & Setup
+
+### Detailed Installation
+
+```bash
+# Prerequisites: Node.js 18+ and Git
+
+# Step 1: Install Codex CLI
+npm install -g @openai/codex
+
+# Step 2: Authenticate
+codex login
+# Opens browser for OpenAI authentication
+
+# Step 3: Verify installation
+codex --version
+
+# Step 4: Start your first session
+cd my-project
+codex
+
+# Step 5: Explore help
+codex --help
+```
+
+## 7.4 Plan Mode & Code Generation
+
+**Key Concepts:**
+
+- Codex's Plan Mode: Similar to Claude Code's approach
+
+- Review the plan before code generation
+
+- Iterative refinement: Accept, modify, or reject suggestions
+
+- Full-file and partial-file edits
+
+- Understanding diff views
+
+### Plan Mode Workflow
+
+```bash
+# Start a plan
+/plan "Add user authentication with JWT tokens"
+
+# Review the generated plan
+# Approve or request changes
+
+# Execute the approved plan
+/execute
+
+# Review changes before committing
+```
+
+## 7.5 Code Review with Codex
+
+**Key Concepts:**
+
+- `/review` command for comprehensive code review
+
+- Security vulnerability detection
+
+- Performance analysis
+
+- Style and best practice suggestions
+
+- Automated test generation suggestions
+
+## 7.6 Multi-file Projects
+
+**Key Concepts:**
+
+- Codex understands entire project context
+
+- Cross-file references and dependencies
+
+- Refactoring across multiple files
+
+- Maintaining consistency
+
+## 7.7 AGENTS.md Configuration
+
+**Key Concepts:**
+
+- `AGENTS.md` = Codex's equivalent of `CLAUDE.md`
+
+- Project-level configuration and instructions
+
+- Defines coding standards, architecture, and conventions
+
+- Stored in project root
+
+### AGENTS.md Template
+
+```markdown
+# AGENTS.md — Project Configuration for Codex
+
+## Project Overview
+[Name and description]
+
+## Technology Stack
+- Framework: [e.g., Next.js, Django, etc.]
+- Language: [e.g., TypeScript, Python]
+- Database: [e.g., PostgreSQL]
+
+## Coding Standards
+- Use [specific style guide]
+- Follow [naming conventions]
+- Maximum function length: [X lines]
+
+## Architecture
+- [Describe project structure]
+- [Explain key patterns]
+
+## Commands
+- `npm run dev` — Development
+- `npm test` — Testing
+- `npm run build` — Production build
+
+## Important Notes
+- [Any critical context Codex needs]
+```
+
+## 7.8 Security & Sandboxing
+
+**Key Concepts:**
+
+- **Kernel-level sandboxing**: Code runs in isolated environments
+
+- Automatic dependency detection and installation
+
+- Network access controls
+
+- File system restrictions
+
+- Sandboxing prevents malicious code execution
+
+- Critical for running untrusted code
+
+### Security Features
+
+| Feature | Description |
+
+|---------|-------------|
+
+| Isolated Environment | Each session runs in a fresh container |
+
+| Network Controls | Configurable internet access |
+
+| File Restrictions | Limited to project directory |
+
+| Dependency Scanning | Automatic vulnerability checks |
+
+| Execution Timeout | Prevents runaway processes |
+
+## 7.9 Codex for Non-Developers
+
+**Key Concepts:**
+
+- Codex web interface requires no coding knowledge
+
+- Natural language project creation
+
+- Visual interface for managing projects
+
+- Pre-built templates for common use cases
+
+- Integration with spreadsheet tools
+
+## 7.10 Advanced: CI/CD Integration
+
+**Key Concepts:**
+
+- GitHub Actions integration
+
+- Automated testing with Codex
+
+- Deployment pipeline automation
+
+- Quality gates and checks
+
+### GitHub Actions Example
+
+```yaml
+# .github/workflows/codex-ci.yml
+name: Codex CI
+on: [push, pull_request]
+jobs:
+  codex-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Codex CLI
+        run: npm install -g @openai/codex
+      - name: Run Codex Review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: codex review --fail-on-issues
+```
+
+## Curated Videos
+
+- [OpenAI Codex Full Course 2026 - Simplilearn](https://www.youtube.com/watch?v=PNrDZRkrYg8) — Comprehensive 2026 course covering Codex from scratch - setup, CLI/IDE/web interfaces, debugging, agents, MCP, and a complete project build. Best all-in-one Codex tutorial.
+- [Codex Full Course 2026: The NEW Best AI Coding Tool - Riley Brown](https://www.youtube.com/watch?v=KXIdYEdOPys) (30:48) — Comprehensive beginner's guide covering Codex basics, skills, plugins, automations, and custom skill building with API integration. 125K views. Clones the structure of OpenAI Academy courses.
+- [How to Install And Use OpenAI Codex CLI - hUndefined](https://www.youtube.com/watch?v=Zn8n2U8sTkw) (50:00) — Step-by-step guide covering Node.js installation, API key configuration, environment variables, and getting Codex running on all platforms. 50K views.
+- [Codex for Beginners Tutorial (2026) - James NoCode](https://www.youtube.com/watch?v=baNekEtF9sI) (25:00) — Beginner-focused tutorial showing how to build your first app with Codex in minutes. Covers all interfaces and practical workflows.
+
+## Hands-On Exercises
+
+### Build a Personal Finance Tracker
+
+**Goal:** Build a full-stack personal finance tracking app
+
+```bash
+# Step 1: Create project
+codex "Create a personal finance tracker web app with:
+- React frontend with Tailwind CSS
+- Express backend with SQLite database
+- Add/Edit/Delete transactions
+- Category-based filtering
+- Monthly summary charts using Recharts
+- Responsive design"
+
+# Step 2: Review and refine the generated plan
+
+# Step 3: Run the application
+npm run dev
+
+# Step 4: Ask Codex to add features
+"Add a budget setting feature with alerts when approaching limits"
+"Add data export to CSV"
+"Add dark mode toggle"
+
+# Step 5: Create AGENTS.md for future work
+```
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.

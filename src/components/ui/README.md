@@ -10,6 +10,114 @@ global `prefers-reduced-motion` rule in `globals.css`. Coral stays scarce.
 
 ---
 
+## Responsive layout system (B0 tokens + B1 primitives — wave-1, net-new)
+
+The one shared width / gutter / rhythm / grid system. Every `src/app/**`
+route adopts these in wave-2 to delete the scattered
+`mx-auto max-w-[…] px-6 py-…` strings (5 different max-widths today,
+fixed `px-6` that overflows at 320–375, grids that don't collapse).
+**Server-safe, additive, no color/type/radius/motion** — DESIGN.md trinity
+and WCAG 2.1 AA (muted-soft ≥4.5:1, focus-visible, reduced-motion) untouched.
+
+### B0 tokens — `globals.css @theme` (consumed via Tailwind v4 arbitrary values)
+
+| Token | Value | Use |
+|---|---|---|
+| `--container-page` | `1200px` | Default content cap (DESIGN.md ~1200, signed-off desktop widening) |
+| `--container-narrow` | `760px` | Narrower band (forms, focused detail) |
+| `--container-reading` | `640px` | Reading measure (lessons / quizzes prose) |
+| `--spacing-gutter` | `20px` | Mobile horizontal gutter |
+| `--spacing-gutter-sm` | `24px` | `sm`+ gutter (≥640) |
+| `--spacing-gutter-lg` | `32px` | `lg`+ gutter (≥1024) |
+| `--header-h` | `64px` | Top-nav height (DESIGN.md `top-nav`) |
+| `--sticky-offset` | `88px` | Sticky-element top offset under the header |
+
+Consumed as arbitrary values, e.g. `max-w-[var(--container-page)]`,
+`px-[var(--spacing-gutter)]`, `lg:top-[var(--sticky-offset)]`. No Tailwind
+config exists (v4 CSS-first `@theme`) — arbitrary values are the contract.
+
+### B4 — Breakpoint strategy (the rule every grid/shell follows)
+
+- **`md` (768px) is NAV-ONLY.** It is the DESIGN.md Mobile↔Tablet line where
+  the hamburger ↔ horizontal nav swaps. Content grids must **not** use `md:`.
+- **Content grids use the `sm`/`lg` ladder** (640 / 1024): 1-up mobile →
+  2-up at `sm` (640) → N-up at `lg` (1024).
+- **The 640–768px band is the 2-up tablet view** — grids collapse by
+  *reducing columns*, never by scaling cards down (DESIGN.md Collapsing
+  Strategy). This keeps card legibility at every breakpoint.
+- DESIGN.md breakpoints overall: Mobile <768 / Tablet 768–1024 /
+  Desktop 1024–1440 / Wide >1440 (content caps at 1200).
+
+### `Container` — `container.tsx`
+
+The single content-width + responsive-gutter wrapper. Always emits
+`mx-auto w-full px-[var(--spacing-gutter)] sm:px-[var(--spacing-gutter-sm)]
+lg:px-[var(--spacing-gutter-lg)]` plus the size → `max-w-[var(--container-*)]`.
+`className` is **additive** (appended after the base, never overrides the
+width contract).
+
+```tsx
+import { Container } from "@/components/ui/container";
+
+<Container>…</Container>                               {/* page ≈ 1200px, <div> */}
+<Container size="reading" as="article">…</Container>   {/* lesson prose measure */}
+<Container size="narrow" as="section" className="mt-10">…</Container>
+```
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `size` | `"page" \| "narrow" \| "reading"` | `"page"` | → `--container-page/narrow/reading` |
+| `as` | `"div" \| "section" \| "article" \| "header" \| "main"` | `"div"` | semantic root |
+| `className` | `string` | `""` | additive — merged after base, never replacing |
+
+### `PageShell` — `page-shell.tsx`
+
+`Container` + the DESIGN.md vertical section rhythm. `rhythm="page"` →
+`py-16 lg:py-24` (≈ 64→96px, the 96px section cadence); `rhythm="tight"` →
+`py-12 lg:py-16` for denser detail pages. The route-level shell wave-2
+adopts to replace ad-hoc `mx-auto max-w-[…] px-6 py-…`.
+
+```tsx
+import { PageShell } from "@/components/ui/page-shell";
+
+<PageShell as="main">…</PageShell>                       {/* page width + page rhythm */}
+<PageShell size="narrow" rhythm="tight" as="article">…</PageShell>
+```
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `size` | `"page" \| "narrow"` | `"page"` | forwarded to `Container` |
+| `rhythm` | `"page" \| "tight"` | `"page"` | `page` = `py-16 lg:py-24`, `tight` = `py-12 lg:py-16` |
+| `as` | `"div" \| "article" \| "main"` | `"div"` | semantic root |
+| `className` | `string` | `""` | additive |
+
+### `ResponsiveGrid` — `responsive-grid.tsx`
+
+The shared card grid that collapses by **reducing columns**, never by
+shrinking cards (DESIGN.md Collapsing Strategy). Follows the B4 ladder
+(`sm`/`lg`, no `md`). Defaults to a semantic `<ul>` (a grid of cards is a
+list ⇒ SR announces count/membership); pass `as="div"` for non-list children.
+
+```tsx
+import { ResponsiveGrid } from "@/components/ui/responsive-grid";
+
+<ResponsiveGrid>{cards}</ResponsiveGrid>                {/* 3-up grid of <li> */}
+<ResponsiveGrid cols={4} gap="tight">{tiles}</ResponsiveGrid>
+<ResponsiveGrid cols={2} as="div">{panels}</ResponsiveGrid>
+```
+
+| Prop | Type | Default | Ladder / value |
+|---|---|---|---|
+| `cols` | `2 \| 3 \| 4` | `3` | 2 → `grid-cols-1 sm:grid-cols-2`; 3 → `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`; 4 → `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` |
+| `gap` | `"card" \| "tight"` | `"card"` | `card` = `gap-6`, `tight` = `gap-4` |
+| `as` | `"ul" \| "div"` | `"ul"` | `ul` for card lists, `div` for non-list children |
+| `className` | `string` | `""` | additive |
+
+Mobile is always 1-up; the 640–768 band is the 2-up tablet view.
+Layout-only ⇒ inherently reduced-motion safe. Trinity-neutral (no color).
+
+---
+
 ## `Button` — `button.tsx`
 
 DESIGN.md `button-primary` / `button-secondary` / `button-secondary-on-dark`

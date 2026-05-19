@@ -1,0 +1,397 @@
+---
+code: 3.7.1
+title: MCP - Model Context Protocol
+summary: 'Before MCP, every AI tool integration was custom-built.'
+objectives:
+  - Understand MCP architecture and core primitives
+  - Build custom MCP servers in TypeScript and Python
+  - Implement security best practices for MCP servers
+  - 'Explore the MCP ecosystem of 10,000+ servers'
+  - Deploy and scale MCP servers for production use
+estMinutes: 75
+---
+# MCP - Model Context Protocol
+
+> Module 6 of the AI Mastery interactive course — mapped to the agentic-ai-orchestration track, advanced level.
+
+## Learning Objectives
+
+- Understand MCP architecture and core primitives
+- Build custom MCP servers in TypeScript and Python
+- Implement security best practices for MCP servers
+- Explore the MCP ecosystem of 10,000+ servers
+- Deploy and scale MCP servers for production use
+
+## Key Concepts
+
+- Model Context Protocol (MCP)
+- Created by Anthropic, now an open standard
+- Three core primitives: Tools, Resources, and Prompts
+- Client-server architecture
+- Language-agnostic (works with TypeScript, Python, Go, Rust, etc.)
+- The "USB-C for AI applications"
+- Principle of least privilege
+- Input validation
+- No eval()
+- Authentication
+- Rate limiting
+- Audit logging
+
+## Lesson
+
+## 6.1 What is MCP?
+
+**Key Concepts:**
+
+- **Model Context Protocol (MCP)**: Open protocol for connecting AI assistants to external tools and data
+
+- Created by Anthropic, now an open standard
+
+- Three core primitives: **Tools**, **Resources**, and **Prompts**
+
+- Client-server architecture
+
+- Language-agnostic (works with TypeScript, Python, Go, Rust, etc.)
+
+- The "USB-C for AI applications"
+
+### Why MCP Matters
+
+Before MCP, every AI tool integration was custom-built. MCP standardizes:
+
+- How tools are exposed to AI models
+
+- How resources (files, databases) are accessed
+
+- How prompts are shared and reused
+
+- Security and permission boundaries
+
+## 6.2 MCP Core Primitives
+
+### Tools
+
+- Functions that AI can call to perform actions
+
+- Defined with JSON Schema (name, description, parameters)
+
+- Examples: `read_file`, `search_web`, `send_email`, `query_database`
+
+### Resources
+
+- Read-only data sources that provide context
+
+- Accessed via URI scheme
+
+- Examples: `file://`, `db://`, `api://`, `git://`
+
+### Prompts
+
+- Reusable prompt templates
+
+- Can be parameterized
+
+- Shared between team members
+
+### Server Architecture
+
+```text
+┌─────────────────┐      ┌──────────────────┐
+│   AI Assistant  │◄────►│   MCP Client     │
+│  (Claude Code)  │      │  (Built into CC) │
+└─────────────────┘      └────────┬─────────┘
+                                  │
+                    ┌─────────────┼─────────────┐
+                    ▼             ▼             ▼
+               ┌────────┐  ┌──────────┐  ┌──────────┐
+               │  Tool  │  │ Resource │  │  Prompt  │
+               │ Server │  │  Server  │  │  Server  │
+               └────────┘  └──────────┘  └──────────┘
+```
+
+## 6.3 Building MCP Servers (TypeScript & Python)
+
+### TypeScript MCP Server
+
+```typescript
+// server.ts — A simple MCP server
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+const server = new Server({
+  name: "my-tools",
+  version: "1.0.0",
+}, {
+  capabilities: {
+    tools: {},
+  },
+});
+
+// Define available tools
+server.setRequestHandler("tools/list", async () => {
+  return {
+    tools: [
+      {
+        name: "calculate",
+        description: "Perform a mathematical calculation",
+        inputSchema: {
+          type: "object",
+          properties: {
+            expression: {
+              type: "string",
+              description: "Math expression to evaluate",
+            },
+          },
+          required: ["expression"],
+        },
+      },
+    ],
+  };
+});
+
+// Handle tool execution
+server.setRequestHandler("tools/call", async (request) => {
+  if (request.params.name === "calculate") {
+    const expr = request.params.arguments?.expression;
+    const result = eval(expr); // In production, use a safe math parser!
+    return {
+      content: [{ type: "text", text: String(result) }],
+    };
+  }
+  throw new Error("Unknown tool");
+});
+
+// Start the server
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
+### Python MCP Server
+
+```python
+# server.py — A simple MCP server in Python
+from mcp.server import Server
+from mcp.types import TextContent
+import asyncio
+
+app = Server("my-python-tools")
+
+@app.list_tools()
+async def list_tools():
+    return [
+        {
+            "name": "greet",
+            "description": "Generate a personalized greeting",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "Person's name"},
+                    "language": {"type": "string", "description": "Language code"}
+                },
+                "required": ["name"]
+            }
+        }
+    ]
+
+@app.call_tool()
+async def call_tool(name, arguments):
+    if name == "greet":
+        person_name = arguments.get("name")
+        language = arguments.get("language", "en")
+        greetings = {
+            "en": f"Hello, {person_name}!",
+            "es": f"Hola, {person_name}!",
+            "fr": f"Bonjour, {person_name}!"
+        }
+        return [TextContent(type="text", text=greetings.get(language, greetings["en"]))]
+    raise ValueError(f"Unknown tool: {name}")
+
+if __name__ == "__main__":
+    asyncio.run(app.run_stdio_async())
+```
+
+## 6.4 MCP Security & Sandboxing
+
+**Key Concepts:**
+
+- **Principle of least privilege**: Only expose necessary tools
+
+- **Input validation**: Sanitize all arguments
+
+- **No eval()**: Use safe parsers (e.g., `mathjs` instead of `eval`)
+
+- **Authentication**: For sensitive tools, require auth tokens
+
+- **Rate limiting**: Prevent abuse
+
+- **Audit logging**: Track all tool calls
+
+### Security Checklist
+
+```markdown
+- [ ] Input validation on all tool parameters
+- [ ] No eval() or exec() — use safe parsers
+- [ ] Authentication for sensitive operations
+- [ ] Rate limiting implemented
+- [ ] Audit logging enabled
+- [ ] Error messages don't leak sensitive info
+- [ ] Timeout on all operations
+- [ ] Principle of least privilege for file access
+```
+
+## 6.5 Advanced: Sampling, Transport, Scaling
+
+**Key Concepts:**
+
+### Sampling
+
+- MCP servers can request the AI model to generate content
+
+- Bidirectional communication: Client → Server → Client
+
+- Used for complex workflows requiring AI-generated input
+
+### Transport Options
+
+- **stdio**: Simple, for local tools
+
+- **HTTP/SSE**: For remote services
+
+- **WebSockets**: For real-time bidirectional communication
+
+### Scaling
+
+- Load balancing across multiple MCP server instances
+
+- Connection pooling for database MCP servers
+
+- Caching for frequently accessed resources
+
+- Health checks and automatic failover
+
+## 6.6 MCP Ecosystem: 10,000+ Servers
+
+### Popular MCP Servers
+
+| Category | Server | Description |
+
+|----------|--------|-------------|
+
+| Database | `mcp-server-postgres` | PostgreSQL queries |
+
+| Search | `mcp-server-brave` | Web search via Brave |
+
+| Files | `@modelcontextprotocol/server-filesystem` | File operations |
+
+| GitHub | `@modelcontextprotocol/server-github` | Repo management |
+
+| Browser | `mcp-server-puppeteer` | Browser automation |
+
+| Slack | `mcp-server-slack` | Slack integration |
+
+| Google | `mcp-server-gdrive` | Google Drive access |
+
+### Finding MCP Servers
+
+- [Official MCP Server Registry](https://github.com/modelcontextprotocol/servers)
+
+- [MCP Awesome List](https://github.com/appcypher/awesome-mcp)
+
+- npm search: `mcp-server-*`
+
+## Curated Videos
+
+- [MCP: Clearly explained - Anthropic/Community](https://www.youtube.com/watch?v=7pB7xPpP5pQ) (15:00) — Clear explanation of MCP architecture and why it matters for building extensible AI applications.
+
+## Hands-On Exercises
+
+### Weather MCP Server
+
+Build an MCP server that provides weather information:
+
+```typescript
+// weather-server.ts
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Use a real weather API like OpenWeatherMap
+const API_KEY = process.env.OPENWEATHER_API_KEY;
+
+const server = new Server({
+  name: "weather",
+  version: "1.0.0",
+}, { capabilities: { tools: {} } });
+
+server.setRequestHandler("tools/list", async () => ({
+  tools: [
+    {
+      name: "get_current_weather",
+      description: "Get current weather for a city",
+      inputSchema: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "City name" },
+          units: { type: "string", enum: ["metric", "imperial"], default: "metric" }
+        },
+        required: ["city"]
+      }
+    },
+    {
+      name: "get_forecast",
+      description: "Get 5-day weather forecast",
+      inputSchema: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "City name" }
+        },
+        required: ["city"]
+      }
+    }
+  ]
+}));
+
+server.setRequestHandler("tools/call", async (request) => {
+  const { name, arguments: args } = request.params;
+
+  if (name === "get_current_weather") {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${args.city}&appid=${API_KEY}&units=${args.units}`
+    );
+    const data = await response.json();
+    return {
+      content: [{
+        type: "text",
+        text: `Weather in ${data.name}: ${data.weather[0].description}, ${data.main.temp} degrees`
+      }]
+    };
+  }
+
+  throw new Error("Unknown tool");
+});
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.
+
+### Integrate with Claude Code
+
+Complete the hands-on exercise: Integrate with Claude Code.
+
+```json
+// .claude/mcp.json
+{
+  "mcpServers": {
+    "weather": {
+      "command": "npx",
+      "args": ["tsx", "weather-server.ts"],
+      "env": {
+        "OPENWEATHER_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+*Expected outcome:* Then in Claude Code: ``` "What's the weather in Tokyo? And should I pack a jacket?" ```

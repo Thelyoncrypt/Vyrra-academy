@@ -41,11 +41,13 @@ import {
   parseManifest,
   type Capstone,
   type CurriculumManifest,
+  type Exercise,
   type Lesson,
   type Level,
   type Module,
   type Resource,
   type Track,
+  type VideoResource,
 } from "../src/content/contract";
 
 const MANIFEST_PATH = join(process.cwd(), "content", "manifest.json");
@@ -281,11 +283,72 @@ async function upsertLessons(
     });
 
     activityCount += await upsertLessonActivities(lesson, lessonRow.id);
+    await upsertLessonVideos(lesson, lessonRow.id);
+    await upsertLessonExercises(lesson, lessonRow.id);
   }
   console.info(
     `[seed] lessons: ${lessons.length} (activities: ${activityCount})`,
   );
   return activityCount;
+}
+
+/**
+ * Upsert a lesson's curated videos (Pillar V). Natural key is the contract's
+ * stable slug `id`, so re-seeding reconciles rather than duplicating. The
+ * lesson FK is hard ownership; `moduleCode`/`lessonCode` are denormalised for
+ * cheap UI lookups (Master Video Index page / per-lesson "Watch" surface).
+ */
+async function upsertLessonVideos(
+  lesson: Lesson,
+  lessonId: string,
+): Promise<void> {
+  for (const video of lesson.videos ?? []) {
+    const data = {
+      lessonId,
+      title: video.title,
+      url: video.url,
+      provider: video.provider,
+      durationSec: video.durationSec ?? null,
+      freshness: video.freshness,
+      source: video.source,
+      rationale: video.rationale,
+      moduleCode: video.moduleCode,
+      lessonCode: video.lessonCode ?? null,
+    };
+    await prisma.videoResource.upsert({
+      where: { id: video.id },
+      update: data,
+      create: { id: video.id, ...data },
+    });
+  }
+}
+
+/**
+ * Upsert a lesson's authored hands-on exercises (Pillar V). Natural key is
+ * the contract's stable slug `id`. Code is content-as-code; the body is the
+ * starter/solution strings — never executed by the seed (rendered by the
+ * simulated runner UI; CLAUDE.md "Coding sandbox security").
+ */
+async function upsertLessonExercises(
+  lesson: Lesson,
+  lessonId: string,
+): Promise<void> {
+  for (const ex of lesson.exercises ?? []) {
+    const data = {
+      lessonId,
+      title: ex.title,
+      language: ex.language,
+      instructions: ex.instructions,
+      starterCode: ex.starterCode ?? null,
+      solutionCode: ex.solutionCode ?? null,
+      expectedOutcome: ex.expectedOutcome,
+    };
+    await prisma.exercise.upsert({
+      where: { id: ex.id },
+      update: data,
+      create: { id: ex.id, ...data },
+    });
+  }
 }
 
 /**

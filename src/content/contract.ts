@@ -133,6 +133,68 @@ export const QuizSchema = z.object({
 });
 export type Quiz = z.infer<typeof QuizSchema>;
 
+/**
+ * Curated video resource (Pillar V — "Video Curation"). One row of the
+ * source's Master Video Index, attached to a module and (optionally) a
+ * specific lesson. `freshness`/`source` mirror the source's 🟢🟡🔴 / ✅📺🎓
+ * legends; `rationale` is the source's "Why included" note. The app links
+ * out (rel=noopener) or embeds — it never re-hosts the video.
+ */
+export const VideoProvider = z.enum(["youtube", "vimeo", "other"]);
+
+export const VideoFreshness = z.enum([
+  "fresh", // 🟢 < 3 months / very fresh
+  "recent", // 🟡 3–6 months / fresh
+  "dated", // 🔴 > 6 months but foundational
+]);
+
+export const VideoSource = z.enum([
+  "official", // 🎓 official course content (Anthropic/OpenAI)
+  "channel", // 📺 external high-quality content
+  "academic", // ✅ curated personal-playlist save
+]);
+
+export const VideoResourceSchema = z.object({
+  id: Slug,
+  title: z.string().min(1),
+  url: z.string().url(),
+  provider: VideoProvider,
+  /** Total seconds; omitted when the source lists no parseable duration. */
+  durationSec: z.number().int().positive().optional(),
+  freshness: VideoFreshness,
+  source: VideoSource,
+  rationale: z.string().min(1),
+  /** Module this video belongs to (the source groups videos by module). */
+  moduleCode: Code,
+  /** Set when the video sits under a specific lesson, not just the module. */
+  lessonCode: Code.optional(),
+});
+export type VideoResource = z.infer<typeof VideoResourceSchema>;
+
+/**
+ * A hands-on coding exercise authored in the source (`### Exercise N.x` /
+ * `## Hands-On Exercise`). Rendered by the simulated code-runner UI (no
+ * arbitrary server execution — CLAUDE.md "Coding sandbox security"). The
+ * `language` is taken from the fenced-code info string.
+ */
+export const ExerciseSchema = z.object({
+  id: Slug,
+  title: z.string().min(1),
+  language: z.string().min(1),
+  instructions: z.string().min(1),
+  starterCode: z.string().optional(),
+  solutionCode: z.string().optional(),
+  expectedOutcome: z.string().min(1),
+});
+export type Exercise = z.infer<typeof ExerciseSchema>;
+
+/**
+ * Authoring depth of a lesson's prose. `standard` is fully fleshed from the
+ * source; `stub` is honestly thin (source section was genuinely sparse — no
+ * fabrication; Pillar V7 AI gap-fill is a later optional wave).
+ */
+export const LessonDepth = z.enum(["stub", "standard"]);
+
 export const ActivitySchema = z.object({
   id: Slug,
   type: ActivityType,
@@ -196,6 +258,27 @@ export const LessonSchema = z.object({
   activities: z.array(ActivitySchema).default([]),
   quiz: QuizSchema.optional(),
   resources: z.array(ResourceSchema).default([]),
+  /**
+   * Learning objectives for the lesson (source `## Learning Objectives`).
+   *
+   * BACKWARD-COMPAT: the Pillar-V additions below are `.optional()` (not
+   * `.default([])`) ON PURPOSE. `.default()` in Zod makes a field optional on
+   * INPUT but REQUIRED on the inferred OUTPUT type — which would break the
+   * many existing `CurriculumManifest`-typed test fixtures that construct
+   * lesson literals without these keys (and which this wave must not edit).
+   * `.optional()` keeps both the input AND the inferred output backward-
+   * compatible (legacy manifests parse; legacy typed literals still compile),
+   * while the new parser ALWAYS emits these arrays so live data is complete.
+   * Consumers treat them as "present from the V-parser, possibly absent on
+   * an older manifest" and coalesce with `?? []`.
+   */
+  objectives: z.array(z.string()).optional(),
+  /** Curated videos attached to this lesson (Pillar V). Additive/optional. */
+  videos: z.array(VideoResourceSchema).optional(),
+  /** Authored hands-on exercises (Pillar V). Additive/optional. */
+  exercises: z.array(ExerciseSchema).optional(),
+  /** Honest authoring depth ("stub" only when the source is genuinely thin). */
+  depth: LessonDepth.optional(),
 });
 export type Lesson = z.infer<typeof LessonSchema>;
 
@@ -255,6 +338,16 @@ export const CurriculumManifestSchema = z.object({
   lessons: z.array(LessonSchema).min(1),
   capstones: z.array(CapstoneSchema).default([]),
   resources: z.array(ResourceSchema).default([]),
+  /**
+   * Manifest-scope mirror of every lesson's curated videos (deduped by id),
+   * so the Master Video Index page can render without walking all lessons.
+   * Per-lesson `videos` is the primary attachment point. Additive/optional
+   * (same backward-compat rationale as Lesson.videos) — legacy manifests
+   * omit it and still validate, the V-parser always emits it.
+   */
+  videos: z.array(VideoResourceSchema).optional(),
+  /** Manifest-scope mirror of every lesson's exercises (deduped by id). */
+  exercises: z.array(ExerciseSchema).optional(),
   /** ISO-8601; set by the parser at emit time. */
   generatedAt: IsoDateTime,
   /** Hash of the source DOCX/curriculum.txt — detects source drift. */

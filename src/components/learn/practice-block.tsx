@@ -17,9 +17,18 @@
  * (page H1 → section H2 → these H3s) stays valid. No coral mark here (the
  * sub-blocks read as a quiet pair, not section-level cadence) — same visual
  * + a11y contract as before, the duplicated heading markup is gone.
+ *
+ * Pillar A: the dead `data-slot="quiz-engine"` placeholder is replaced by a
+ * real coral CTA to the built staged-quiz route (`/quizzes/[quizId]`). The
+ * CTA is the lesson's single coral mark (DESIGN.md: coral stays scarce — one
+ * primary action). Defense in depth is unchanged: the quiz route re-evaluates
+ * gating server-side and the submit Server Action re-authorizes, so the CTA
+ * is an affordance, never the access boundary. The activities sub-block stays
+ * a placeholder (Pillar V Wave 2 owns the exercise UI).
  */
 import type { Activity, Quiz } from "@/content/contract";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PanelHeading } from "@/components/ui/panel-heading";
 
 interface PracticeBlockProps {
@@ -97,15 +106,16 @@ export function PracticeBlock({ activities, quiz }: PracticeBlockProps) {
                   </li>
                 ))}
             </ul>
-            {/* Staged-quiz engine mounts here in the Assessment wave. */}
-            <p
-              className="mt-5 font-sans text-[0.875rem] leading-relaxed text-muted"
-              data-slot="quiz-engine"
-            >
-              {quiz.questions.length} question
-              {quiz.questions.length === 1 ? "" : "s"} — the staged quiz
-              runner arrives in the Assessment wave.
-            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-4">
+              <Button href={`/quizzes/${quiz.id}`} withArrow>
+                Take the quiz
+              </Button>
+              <span className="font-sans text-[0.8125rem] text-muted">
+                {quiz.questions.length} question
+                {quiz.questions.length === 1 ? "" : "s"} · server-graded ·
+                retake freely
+              </span>
+            </div>
           </div>
         ) : (
           <p className="mt-4 font-sans text-[0.9375rem] leading-relaxed text-muted">

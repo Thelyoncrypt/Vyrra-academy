@@ -6,9 +6,15 @@
  * owned upstream; this is the visual contract that logic drives.
  *
  * The status node carries the affordance: a filled coral check for completed,
- * a recessed cream lock for locked, an outlined index for available. Available
+ * a recessed cream lock for locked, an outlined index for available, and a
+ * coral-ringed index with a "Start here" cue for the single `current` lesson
+ * (the first not-completed one in an unlocked level). Available + current
  * rows get a designed hover (cream wash + an arrow that advances) so the next
  * step reads as the live one. Motion is transform/opacity only.
+ *
+ * `current` is additive and purely presentational: it is still a live link
+ * (same as `available`), it only carries the "you are here / start here"
+ * emphasis. Gating LOGIC stays upstream — this never weakens access.
  */
 import Link from "next/link";
 import type { Lesson } from "@/content/contract";
@@ -17,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 interface LessonRowProps {
   lesson: Lesson;
   /** Visual state only — driven by real progress/gating upstream. */
-  state: "completed" | "available" | "locked";
+  state: "completed" | "current" | "available" | "locked";
 }
 
 const LockGlyph = () => (
@@ -69,6 +75,7 @@ const CheckGlyph = () => (
 export function LessonRow({ lesson, state }: LessonRowProps) {
   const isLocked = state === "locked";
   const isCompleted = state === "completed";
+  const isCurrent = state === "current";
 
   const inner = (
     <>
@@ -78,7 +85,9 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
             ? "bg-primary text-on-primary"
             : isLocked
               ? "bg-surface-cream-strong text-muted-soft"
-              : "border border-hairline bg-canvas text-muted group-hover:border-primary group-hover:text-primary"
+              : isCurrent
+                ? "border border-primary bg-canvas text-primary"
+                : "border border-hairline bg-canvas text-muted group-hover:border-primary group-hover:text-primary"
         }`}
       >
         {isCompleted ? (
@@ -108,6 +117,7 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
             {lesson.estMinutes} min
           </span>
           {isCompleted ? <Badge tone="neutral">Done</Badge> : null}
+          {isCurrent ? <Badge tone="coral">Start here</Badge> : null}
           {isLocked ? <Badge tone="outline">Locked</Badge> : null}
         </span>
       </span>
@@ -116,11 +126,14 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
           {lesson.estMinutes} min
         </span>
         {isCompleted ? <Badge tone="neutral">Done</Badge> : null}
+        {isCurrent ? <Badge tone="coral">Start here</Badge> : null}
         {isLocked ? <Badge tone="outline">Locked</Badge> : null}
-        {state === "available" ? (
+        {state === "available" || isCurrent ? (
           <span
             aria-hidden="true"
-            className="text-muted-soft transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary"
+            className={`transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary ${
+              isCurrent ? "text-primary" : "text-muted-soft"
+            }`}
           >
             →
           </span>

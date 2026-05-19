@@ -1,0 +1,189 @@
+---
+code: 3.4.1
+title: Kimi Ecosystem & Agent Swarms
+summary: Understand Kimi K2.5/K2.6 architecture and unique capabilities
+objectives:
+  - Understand Kimi K2.5/K2.6 architecture and unique capabilities
+  - Explore Kimi Code CLI and coding workflows
+  - Learn about Kimi's Agent Swarm architecture with PARL training
+  - Understand multi-agent orchestration concepts
+  - Evaluate open-weights models and self-hosting options
+estMinutes: 95
+---
+# Kimi Ecosystem & Agent Swarms
+
+> Module 9 of the AI Mastery interactive course — mapped to the kimi-chinese-ai-ecosystem track, advanced level.
+
+## Learning Objectives
+
+- Understand Kimi K2.5/K2.6 architecture and unique capabilities
+- Explore Kimi Code CLI and coding workflows
+- Learn about Kimi's Agent Swarm architecture with PARL training
+- Understand multi-agent orchestration concepts
+- Evaluate open-weights models and self-hosting options
+
+## Key Concepts
+
+- Moonshot AI
+- Kimi K2.5/K2.6
+- 2M+ token context
+- Agentic capabilities
+- Multilingual
+- Positioning
+- Kimi Code: Terminal-based coding assistant
+- Similar workflow to Claude Code and Codex
+- Integration with Kimi API
+- Supports custom instructions and tool use
+- PARL (PArallel Reinforcement Learning)
+- Agent Swarm
+- Specialized agents
+- Emergent coordination
+- Hierarchical organization
+- Orchestration
+
+## Lesson
+
+## 9.1 Kimi K2.5/K2.6: Architecture & Capabilities
+
+**Key Concepts:**
+
+- **Moonshot AI**: Chinese AI company behind Kimi
+
+- **Kimi K2.5/K2.6**: Flagship models with massive context windows
+
+- **2M+ token context**: Largest in the industry
+
+- **Agentic capabilities**: Built-in tool use and planning
+
+- **Multilingual**: Strong performance in Chinese and English
+
+- **Positioning**: Open alternative for agent builders
+
+### Kimi Strengths
+
+- Document analysis (entire books in one pass)
+
+- Code understanding across large codebases
+
+- Agentic workflows with built-in tools
+
+- Competitive pricing
+
+## 9.2 Kimi Code: CLI & Workflows
+
+**Key Concepts:**
+
+- Kimi Code: Terminal-based coding assistant
+
+- Similar workflow to Claude Code and Codex
+
+- Integration with Kimi API
+
+- Supports custom instructions and tool use
+
+## 9.3 Kimi Agent Swarm: PARL Training
+
+**Key Concepts:**
+
+- **PARL (PArallel Reinforcement Learning)**: Multi-agent training framework
+
+- **Agent Swarm**: Multiple agents collaborating on tasks
+
+- **Specialized agents**: Different agents for different roles
+
+- **Emergent coordination**: Agents learn to work together
+
+- **Hierarchical organization**: Manager agents delegate to worker agents
+
+### Agent Swarm Architecture
+
+```text
+┌─────────────────────────────────┐
+│      Manager Agent               │
+│  (Planning, delegation)          │
+└──────────────┬──────────────────┘
+               │
+    ┌──────────┼──────────┐
+    ▼          ▼          ▼
+┌───────┐ ┌───────┐ ┌───────┐
+│Research│ │ Code  │ │ Test  │
+│ Agent  │ │ Agent │ │ Agent │
+└────┬───┘ └───┬───┘ └───┬───┘
+     │         │         │
+     └─────────┼─────────┘
+               ▼
+        ┌─────────────┐
+        │  Integration │
+        │    Agent     │
+        └─────────────┘
+```
+
+## 9.4 Multi-Agent Orchestration
+
+**Key Concepts:**
+
+- **Orchestration**: Managing multiple agents working together
+
+- **Communication patterns**: Direct, broadcast, hierarchical
+
+- **Conflict resolution**: When agents disagree
+
+- **Shared state**: Common memory and context
+
+- **Error handling**: Recovery when agents fail
+
+- **Scalability**: Adding more agents as needed
+
+### Orchestration Patterns
+
+| Pattern | Description | Use Case |
+
+|---------|-------------|----------|
+
+| Manager-Workers | Central manager delegates | Task distribution |
+
+| Peer-to-Peer | Agents communicate directly | Collaborative problem-solving |
+
+| Pipeline | Sequential agent chain | Data processing |
+
+| Swarm | Emergent behavior | Exploration and search |
+
+| Hierarchical | Multi-level management | Complex organizations |
+
+## 9.5 Open-Weights & Self-Hosting
+
+**Key Concepts:**
+
+- **Open-weights models**: Model parameters available for download
+
+- **Self-hosting**: Running models on your own infrastructure
+
+- **Tools**: Ollama, LM Studio, vLLM, llama.cpp
+
+- **Trade-offs**: Control vs. convenience, cost vs. quality
+
+- **Hardware requirements**: GPU memory for large models
+
+- **Quantization**: Reducing model size for efficiency
+
+### Self-Hosting Options
+
+| Tool | Best For | Hardware |
+
+|------|----------|----------|
+
+| Ollama | Easy local setup | Consumer GPU |
+
+| LM Studio | GUI experimentation | Consumer GPU |
+
+| vLLM | Production serving | Server GPU |
+
+| llama.cpp | Edge devices | CPU/Minimal GPU |
+
+| HuggingFace TGI | Cloud deployment | Cloud GPU |
+
+## Curated Videos
+
+- [300 Tokens vs 10K | Pi Wins Anyway - DIY Smart Code](https://www.youtube.com/watch?v=hV_hnPJ2r6k) (10:30) — Demonstrates how efficient coding agents (like Kimi) can outperform expensive models on token efficiency. 19K views. User's saved video.
+- [My Pi Agent Teams. Claude Code Leak SIGNAL. Harness Engineering - IndyDevDan](https://www.youtube.com/watch?v=RairMJflUSA) (32:27) — Deep dive into multi-agent orchestration with Pi Agent Teams, harness engineering, and agent-to-agent communication patterns. 36K views. User's saved video.
+- [The Next Evolution of AI Coding Is Harnesses - Cole Medin](https://www.youtube.com/watch?v=qMnClynCAmM) (30:48) — Full guide to harness engineering - the system around coding agents that turns manual workflows into automated pipelines. Covers Archon, YAML workflows, and production patterns. 44K views. User's saved video.

@@ -1,0 +1,508 @@
+---
+code: 3.1.1
+title: Claude Code - Developer Track
+summary: 'Install, configure, and master Claude Code for software development'
+objectives:
+  - 'Install, configure, and master Claude Code for software development'
+  - Understand Plan Mode vs. Act Mode workflows
+  - Implement effective context management with CLAUDE.md
+  - Build custom skills (SKILL.md) and slash commands
+  - Integrate MCP servers for extended functionality
+  - 'Apply advanced patterns: subagents, parallel instances, hooks'
+  - Complete a full project build using Claude Code
+estMinutes: 300
+---
+# Claude Code - Developer Track
+
+> Module 5 of the AI Mastery interactive course — mapped to the claude-anthropic-ecosystem track, advanced level.
+
+## Learning Objectives
+
+- Install, configure, and master Claude Code for software development
+- Understand Plan Mode vs. Act Mode workflows
+- Implement effective context management with CLAUDE.md
+- Build custom skills (SKILL.md) and slash commands
+- Integrate MCP servers for extended functionality
+- Apply advanced patterns: subagents, parallel instances, hooks
+- Complete a full project build using Claude Code
+
+## Key Concepts
+
+- Claude Code is a terminal-based AI coding assistant
+- Requirements: Node.js 18+, Git, macOS/Linux/Windows
+- Authentication: OAuth with your Anthropic account
+- Configuration files: `CLAUDE.md`, `.claude/settings.json`
+- Workspace requirements: Must be in a Git repository
+- Context window: The amount of text Claude can "see" at once
+- Token budget: Every file read, every message consumes tokens ($)
+- Efficient context = lower costs + better results
+- CLAUDE.md: Project-level instructions and context
+- `/clear`: Reset context when it gets bloated
+- `/context`: View current token usage
+- Slash commands (`/command`) for quick actions
+- Custom commands defined in `.claude/commands.json`
+- Commands can run shell scripts, open files, or trigger workflows
+- Combine with Git hooks for automation
+- MCP (Model Context Protocol) extends Claude Code's capabilities
+
+## Lesson
+
+## 5.1 Setting Up Claude Code
+
+**Key Concepts:**
+
+- Claude Code is a terminal-based AI coding assistant
+
+- Requirements: Node.js 18+, Git, macOS/Linux/Windows
+
+- Authentication: OAuth with your Anthropic account
+
+- Configuration files: `CLAUDE.md`, `.claude/settings.json`
+
+- Workspace requirements: Must be in a Git repository
+
+### Installation
+
+```bash
+# Install globally
+npm install -g @anthropic-ai/claude-code
+
+# Run in a Git repository
+cd my-project
+claude
+
+# First run will authenticate via browser
+```
+
+## 5.2 Plan Mode vs. Act Mode
+
+**Key Concepts:**
+
+### Plan Mode (`/plan`)
+
+- Claude analyzes the task and creates a step-by-step plan
+
+- You review and approve before any code changes
+
+- Best for: Complex refactors, new features, architectural changes
+
+- Prevents mistakes by adding a review checkpoint
+
+### Act Mode (Default)
+
+- Claude directly implements changes
+
+- Faster for simple, well-defined tasks
+
+- Best for: Bug fixes, small additions, documentation
+
+### Toggling Between Modes
+
+```bash
+/plan     # Switch to plan mode
+/act      # Switch to act mode
+# Or use Shift+Tab to toggle
+```
+
+### Best Practice
+
+> Always start complex work in Plan Mode. Review the plan carefully. Only switch to Act Mode after you understand and agree with the approach.
+
+## 5.3 Context Management Strategies
+
+**Key Concepts:**
+
+- Context window: The amount of text Claude can "see" at once
+
+- Token budget: Every file read, every message consumes tokens ($)
+
+- Efficient context = lower costs + better results
+
+- CLAUDE.md: Project-level instructions and context
+
+- `/clear`: Reset context when it gets bloated
+
+- `/context`: View current token usage
+
+### CLAUDE.md Best Practices
+
+```markdown
+# CLAUDE.md — Project Configuration
+
+## Project Overview
+Brief description of what this project does.
+
+## Tech Stack
+- Language: TypeScript
+- Framework: Next.js 14 (App Router)
+- Database: PostgreSQL with Prisma ORM
+- Styling: Tailwind CSS
+- Testing: Vitest + Playwright
+
+## Architecture Rules
+- All API routes go in app/api/
+- Database queries only in lib/db/
+- Components in components/ (server) or components/client/
+- Never use 'any' type — always define interfaces
+
+## Code Style
+- Use named exports, not default exports
+- Prefer async/await over .then()
+- Error handling: Always wrap external calls in try/catch
+- Use the existing logger in lib/logger.ts
+
+## Commands
+- `npm run dev` — Start development server
+- `npm test` — Run unit tests
+- `npm run e2e` — Run Playwright tests
+- `npm run lint` — Run ESLint
+- `npm run db:generate` — Generate Prisma client
+- `npm run db:migrate` — Run database migrations
+```
+
+## 5.4 Custom Commands & Automation
+
+**Key Concepts:**
+
+- Slash commands (`/command`) for quick actions
+
+- Custom commands defined in `.claude/commands.json`
+
+- Commands can run shell scripts, open files, or trigger workflows
+
+- Combine with Git hooks for automation
+
+### Creating a Custom Command
+
+```json
+// .claude/commands.json
+{
+  "commands": [
+    {
+      "name": "test-changed",
+      "description": "Run tests for changed files only",
+      "command": "npm test -- --changedSince=HEAD~1"
+    },
+    {
+      "name": "lint-fix",
+      "description": "Run linter with auto-fix",
+      "command": "npm run lint -- --fix"
+    }
+  ]
+}
+```
+
+## 5.5 MCP Server Integration
+
+**Key Concepts:**
+
+- MCP (Model Context Protocol) extends Claude Code's capabilities
+
+- 10,000+ community-built MCP servers
+
+- Categories: Databases, APIs, file systems, web scraping, etc.
+
+- Install via `/mcp add <server>` or manual configuration
+
+- Popular MCP servers: PostgreSQL, Supabase, Brave Search, GitHub
+
+### Installing MCP Servers
+
+```bash
+# List available MCP servers
+/mcp
+
+# Add a specific server
+/mcp add mcp-server-postgres
+
+# Configure in .claude/mcp.json
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"]
+    }
+  }
+}
+```
+
+## 5.6 GitHub Workflows
+
+**Key Concepts:**
+
+- Claude Code integrates with GitHub for PR creation and review
+
+- GitHub Actions can trigger Claude for automated code review
+
+- `/github` command for PR operations
+
+- Best practice: Always review Claude's changes before committing
+
+### Claude + GitHub Actions Integration
+
+```yaml
+# .github/workflows/claude-review.yml
+name: Claude Code Review
+on:
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Claude Code Review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude review-pr --pr ${{ github.event.pull_request.number }}
+```
+
+## 5.7 Thinking Mode & Planning Mode
+
+**Key Concepts:**
+
+- **Extended Thinking**: Available for complex reasoning tasks (Opus model)
+
+- **Thinking tags**: `<thinking>` for step-by-step reasoning
+
+- **Plan Mode**: Structured planning before execution
+
+- When to use each: Simple tasks → default, Complex tasks → Thinking/Plan
+
+## 5.8 CLAUDE.md Project Configuration
+
+**Key Concepts:**
+
+- `CLAUDE.md` is the single most important file for Claude Code
+
+- Hierarchical: Project → Directory → Session
+
+- Include: Tech stack, architecture rules, commands, conventions
+
+- Keep it concise but comprehensive
+
+- Commit to Git so the whole team benefits
+
+### Advanced CLAUDE.md Template
+
+```markdown
+# Project: [Name]
+
+## What This Project Does
+[1-2 sentence description]
+
+## Technology Stack
+[List all technologies with versions]
+
+## Directory Structure
+[Explain the organization]
+
+## Coding Conventions
+[Style rules, naming conventions]
+
+## Critical Rules
+[Non-negotiable requirements]
+
+## Available Commands
+[All npm/make/docker commands]
+
+## External Dependencies
+[APIs, services, databases]
+
+## Testing Strategy
+[How to test, what tools]
+
+## Deployment
+[How this gets to production]
+```
+
+## 5.9 Agent Skills (SKILL.md)
+
+**Key Concepts:**
+
+- Skills are reusable prompt + tool combinations
+
+- Stored in `SKILL.md` files in the `.claude/skills/` directory
+
+- Can encode: Workflows, coding patterns, analysis procedures
+
+- Shareable across projects and teams
+
+- Anthropic's Skill Creator tool for building and testing skills
+
+### Skill Structure
+
+```markdown
+# Skill: Code Review
+
+## Description
+Perform comprehensive code review focusing on:
+- Security vulnerabilities
+- Performance bottlenecks
+- Type safety
+- Test coverage
+- Error handling
+
+## Steps
+1. Read the changed files
+2. Check for common security issues (SQL injection, XSS, etc.)
+3. Verify error handling patterns
+4. Check for missing tests
+5. Review type definitions
+6. Provide actionable feedback
+
+## Output Format
+- Summary (2-3 sentences)
+- Critical issues (must fix)
+- Warnings (should fix)
+- Suggestions (nice to have)
+- Code examples where helpful
+```
+
+## 5.10 Subagents & Advanced Patterns
+
+**Key Concepts:**
+
+- **Subagents**: Separate Claude Code instances for isolated tasks
+
+- **Parallel execution**: Run multiple Claude instances simultaneously
+
+- **Git worktrees**: Isolate different feature branches
+
+- **Hooks**: Intercept and modify Claude's behavior
+
+- **PostToolUse hooks**: Auto-format code after file edits
+
+### Running Multiple Claude Instances
+
+```bash
+# Terminal 1: Working on feature A
+claude
+
+# Terminal 2: Working on feature B (different worktree)
+git worktree add ../feature-b feature-branch
+claude
+
+# Terminal 3: Running tests
+claude /test
+
+# Use iTerm split panes for visibility
+```
+
+## 5.11 Best Practices & Common Pitfalls
+
+### Best Practices
+
+1. **Always use Git**: Claude Code requires Git - commit frequently
+
+2. **Keep CLAUDE.md updated**: It's a living document
+
+3. **Use Plan Mode for complex tasks**: Prevents costly mistakes
+
+4. **Monitor token usage**: `/context` shows current spend
+
+5. **Clear context regularly**: `/clear` when switching tasks
+
+6. **Verify all outputs**: Review every change before committing
+
+7. **Use verification commands**: Tell Claude how to verify its work
+
+8. **Start features in Plan Mode**: Always plan before acting
+
+### Common Pitfalls
+
+1. **Context bloat**: Too many files open → poor performance, high cost
+
+2. **Trusting hallucinations**: Always verify code changes
+
+3. **No verification**: Claude can't always test its own code
+
+4. **Outdated CLAUDE.md**: Stale instructions cause confusion
+
+5. **Too many skills**: Focus on 5-10 high-quality skills
+
+6. **Ignoring thinking blocks**: Read Claude's reasoning for better results
+
+## Curated Videos
+
+- [Mastering Claude Code in 30 minutes - Anthropic](https://www.youtube.com/watch?v=AOfogJZ70OQ) (30:00) — Official Anthropic course. Covers installation, setup, core workflows, editing, team tools, context management, and scripting. The definitive starting point. 1.2M views.
+- [Claude Code - Full Tutorial for Beginners](https://www.youtube.com/watch?v=ntDIxaeo3Wg) (34:00) — Comprehensive beginner tutorial covering setup, commands, modes, shortcuts, Git integration, and CLAUDE.md configuration.
+- [Master 95% of Claude Code Skills in 28 Minutes - Nate Herk](https://www.youtube.com/watch?v=zKBPwDpBfhs) (28:00) — Comprehensive walkthrough of Claude Code skills system - what they are, how they work, building from scratch, and testing. 178K views. User's saved video.
+- [Stop Claude From Burning Your Tokens NOW! - J. Gravelle](https://www.youtube.com/watch?v=vzCy44o3JwA) (8:18) — jCodeMunch MCP tool that indexes codebases and retrieves only needed symbols, dramatically reducing token usage. 51K views. Essential for cost-conscious developers. User's saved video.
+- [Claude Code + NotebookLM = CHEAT CODE - Chase AI](https://www.youtube.com/watch?v=usTeU4Uh0iM) (11:08) — Shows how to integrate Claude Code with NotebookLM via MCP/custom tools for research automation. 107K views. Great example of MCP in action. User's saved video.
+- [Claude Code Skills Just Got a MASSIVE Upgrade - Chase AI](https://www.youtube.com/watch?v=UxfeF4bSBYI) (12:19) — Walkthrough of Anthropic's Skill Creator tool for testing, benchmarking, and optimizing skills with A/B testing. 107K views. User's saved video.
+- [I Fed My LinkedIn to Claude Code and What It Found Was Wild - Simply Cyber](https://www.youtube.com/watch?v=8WBcHGb5A8s) (8:31) — Real-world demonstration of Claude Code analyzing LinkedIn data, showing practical data analysis workflows. 69K views. User's saved video.
+- [Claude Code best practices - Anthropic](https://www.youtube.com/watch?v=WsB0B_1U1jI) (35:00) — Official Anthropic best practices course. Covers patterns, anti-patterns, team workflows, and production usage. 454K views.
+- [How I use Claude Code (Meta Staff Engineer Tips) - John Kim](https://www.youtube.com/watch?v=mZzhfPle9QU) (46:02) — 50 practical tips from a Meta Staff Engineer using Claude Code. Covers CLAUDE.md structure, keyboard shortcuts, commands, subagents, hooks, and advanced patterns. 423K views. User's saved video.
+- [6 Months of Claude Code Lessons in 27 Minutes - AI with Avthar](https://www.youtube.com/watch?v=rfDvkSkelhg) (27:00) — 36 specific lessons learned over 6 months. Beginner to master techniques including parallel subagents, Git worktrees, custom commands, MCP servers, and mindset. 305K views. User's saved video.
+- [Build BEAUTIFUL Diagrams with Claude Code - Cole Medin](https://www.youtube.com/watch?v=m3fqyXZ4k4I) (9:53) — Full workflow for generating validated Excalidraw diagrams with Claude Code skills. Shows visual agent capabilities. 88K views. User's saved video.
+- [This One Command Makes Coding Agents Find All Their Mistakes - Cole Medin](https://www.youtube.com/watch?v=YeCHI1dmpZY) (8:22) — End-to-end testing command that makes agents self-validate. Dramatically improves code quality. 24K views. User's saved video.
+- [I Replaced OpenClaw With Claude Code in One Day - Mark Kashef](https://www.youtube.com/watch?v=9Svv-n11Ysk) (34:57) — Detailed walkthrough of building ClaudeClaw - a personal AI assistant on Claude Code with 30+ skills, MCP servers, memory, and multi-platform access. 77K views. User's saved video.
+- [Claude Code Quietly Enabled the Most Powerful Feature Yet - Mark Kashef](https://www.youtube.com/watch?v=KsYCtXeAGBg) (10:29) — Skill chaining - one skill calling other skills. Shows how to build orchestrated workflows. 12K views. User's saved video.
+- [My Easy Claude Code Passive Income AI Automation Setup - All About AI](https://www.youtube.com/watch?v=3hioz8dlTFs) (14:59) — Real-world automation setup using Claude Code for passive income streams. Shows practical business applications. 10K views. User's saved video.
+
+## Hands-On Exercises
+
+### Build a Task Manager API
+
+**Goal:** Build a RESTful task manager API using Claude Code **Tech Stack:** Node.js + Express + SQLite
+
+```bash
+# Step 1: Create project directory and initialize
+mkdir task-manager && cd task-manager
+git init
+
+# Step 2: Create CLAUDE.md
+# [Paste the CLAUDE.md template from section 5.8]
+
+# Step 3: Start Claude Code in Plan Mode
+claude /plan
+
+# Step 4: Give the task
+"Build a RESTful task manager API with these endpoints:
+- GET /tasks (list all, with optional ?status= filter)
+- GET /tasks/:id (get one)
+- POST /tasks (create)
+- PUT /tasks/:id (update)
+- DELETE /tasks/:id (remove)
+- POST /tasks/:id/complete (mark complete)
+
+Use Express.js with an in-memory store (we'll add SQLite later).
+Include input validation, error handling, and basic tests."
+
+# Step 5: Review the plan, approve it
+
+# Step 6: Watch Claude implement, review each change
+
+# Step 7: Run the tests
+npm test
+
+# Step 8: If tests fail, ask Claude to fix
+
+# Step 9: Add a skill for future CRUD APIs
+# Save as .claude/skills/crud-api.md
+```
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.
+
+### Configure MCP Servers
+
+Complete the hands-on exercise: Configure MCP Servers.
+
+```bash
+# Step 1: Add PostgreSQL MCP server
+# (If you have PostgreSQL installed)
+
+# Step 2: Test database queries through Claude
+"Show me all tables in the database"
+"Create a tasks table with title, description, status, created_at"
+
+# Step 3: Add Brave Search MCP
+"Search the web for best practices for REST API design"
+
+# Step 4: Document your MCP setup in CLAUDE.md
+```
+
+*Expected outcome:* Run the code and confirm it produces the described result; reason about why each step works.

@@ -1,0 +1,385 @@
+---
+code: 4.7.1
+title: Agentic AI & Advanced Architectures
+summary: Understand the fundamental components of AI agents
+objectives:
+  - Understand the fundamental components of AI agents
+  - Build agents with OpenAI Agents SDK
+  - Implement state machines and HITL with LangGraph
+  - Create role-based multi-agent systems with CrewAI
+  - Explore enterprise-grade agent governance and safety
+estMinutes: 20
+---
+# Agentic AI & Advanced Architectures
+
+> Module 12 of the AI Mastery interactive course — mapped to the agentic-ai-orchestration track, expert level.
+
+## Learning Objectives
+
+- Understand the fundamental components of AI agents
+- Build agents with OpenAI Agents SDK
+- Implement state machines and HITL with LangGraph
+- Create role-based multi-agent systems with CrewAI
+- Explore enterprise-grade agent governance and safety
+
+## Key Concepts
+
+- Agent
+- Agent loop
+- Memory
+- Tools
+- Planning
+- Reflection
+- Official SDK for building agents with OpenAI models
+- Agent definition with tools and instructions
+- Handoffs between specialized agents
+- Tracing and debugging built-in
+- Guardrails for safety
+- LangGraph
+- State machines
+- HITL (Human-in-the-Loop)
+- Cycles and branching
+- Persistence
+
+## Lesson
+
+## 12.1 Agent Fundamentals: Loops, Memory, Tools
+
+**Key Concepts:**
+
+- **Agent**: An AI system that perceives, reasons, and acts autonomously
+
+- **Agent loop**: Observe → Think → Act → Repeat
+
+- **Memory**: Short-term (session) and long-term (persistent)
+
+- **Tools**: Functions the agent can call (APIs, databases, files)
+
+- **Planning**: Breaking goals into sub-tasks
+
+- **Reflection**: Self-evaluation and error correction
+
+### The Agent Loop
+
+```python
+class Agent:
+    def __init__(self, tools, memory):
+        self.tools = tools
+        self.memory = memory
+
+    def run(self, goal, max_iterations=10):
+        for i in range(max_iterations):
+            # Observe: Gather context
+            context = self.observe()
+
+            # Think: Decide next action
+            thought = self.think(goal, context)
+
+            # Act: Execute the action
+            action = self.decide_action(thought)
+            result = self.execute(action)
+
+            # Remember: Store in memory
+            self.memory.store(action, result)
+
+            # Check if goal achieved
+            if self.goal_achieved(goal, result):
+                return result
+
+        return "Max iterations reached"
+```
+
+## 12.2 OpenAI Agents SDK
+
+**Key Concepts:**
+
+- Official SDK for building agents with OpenAI models
+
+- Agent definition with tools and instructions
+
+- Handoffs between specialized agents
+
+- Tracing and debugging built-in
+
+- Guardrails for safety
+
+### Quick Example
+
+```python
+# pip install openai-agents
+from agents import Agent, Runner
+
+agent = Agent(
+    name="Math Tutor",
+    instructions="You are a helpful math tutor. Explain concepts clearly.",
+    tools=[calculator, graph_plotter]
+)
+
+result = await Runner.run(agent, "What's the derivative of x^3?")
+print(result.final_output)
+```
+
+## 12.3 LangGraph: State Machines & HITL
+
+**Key Concepts:**
+
+- **LangGraph**: Framework for building stateful agent workflows
+
+- **State machines**: Explicit control over agent flow
+
+- **HITL (Human-in-the-Loop)**: Human approval checkpoints
+
+- **Cycles and branching**: Complex decision trees
+
+- **Persistence**: Save and resume agent state
+
+### LangGraph Example
+
+```python
+# pip install langgraph
+from langgraph.graph import StateGraph, END
+
+# Define states
+graph = StateGraph()
+
+# Add nodes (agent actions)
+graph.add_node("research", research_agent)
+graph.add_node("write", write_agent)
+graph.add_node("review", review_agent)
+
+# Add edges (transitions)
+graph.add_edge("research", "write")
+graph.add_conditional_edge(
+    "write",
+    lambda state: "review" if state.word_count > 1000 else "write"
+)
+graph.add_edge("review", END)
+
+# Compile and run
+app = graph.compile()
+result = app.invoke({"topic": "AI Agents"})
+```
+
+## 12.4 CrewAI: Role-Based Agents
+
+**Key Concepts:**
+
+- **CrewAI**: Framework for multi-agent teams
+
+- **Role-based**: Each agent has a specific role (researcher, writer, editor)
+
+- **Crew**: A team of agents working together
+
+- **Tasks**: Assignable units of work
+
+- **Process**: Sequential, hierarchical, or parallel execution
+
+### CrewAI Example
+
+```python
+# pip install crewai
+from crewai import Agent, Task, Crew
+
+researcher = Agent(
+    role='Research Analyst',
+    goal='Gather comprehensive information on topics',
+    backstory='Expert researcher with 10 years of experience',
+    tools=[web_search_tool]
+)
+
+writer = Agent(
+    role='Content Writer',
+    goal='Create engaging content from research',
+    backstory='Professional writer specializing in tech',
+)
+
+task1 = Task(description='Research AI agents', agent=researcher)
+task2 = Task(description='Write a blog post', agent=writer)
+
+crew = Crew(agents=[researcher, writer], tasks=[task1, task2])
+result = crew.kickoff()
+```
+
+## 12.5 Agent Swarms: Kimi, Microsoft Framework
+
+**Key Concepts:**
+
+- **Swarm intelligence**: Multiple agents coordinating emergently
+
+- **Kimi Agent Swarm**: PARL-trained multi-agent system
+
+- **Microsoft AutoGen**: Agent orchestration framework
+
+- **Communication patterns**: Direct message, broadcast, blackboard
+
+- **Emergent behavior**: Complex outcomes from simple agent rules
+
+## 12.6 Goal-Based Systems & Planning
+
+**Key Concepts:**
+
+- **Hierarchical Task Networks (HTN)**: Decompose goals into tasks
+
+- **STRIPS planning**: Classical AI planning
+
+- **ReAct + Planning**: Combine reasoning with action planning
+
+- **Tree search**: Explore possible action sequences
+
+- **Reward shaping**: Guide agents toward desired outcomes
+
+## 12.7 Advanced Memory: SQLite+FTS5, Vector DBs
+
+**Key Concepts:**
+
+- **SQLite + FTS5**: Full-text search for agent memory
+
+- **Vector databases**: Semantic search (Pinecone, Weaviate, Chroma)
+
+- **Memory hierarchy**: Working → Short-term → Long-term
+
+- **Memory retrieval**: Relevance scoring, recency weighting
+
+- **Context compression**: Summarize old memories
+
+### Memory Architecture
+
+```text
+┌─────────────────────────────────────┐
+│         Working Memory               │
+│   (Current conversation)             │
+│   ~100K tokens                       │
+└─────────────┬───────────────────────┘
+              │
+┌─────────────▼───────────────────────┐
+│         Short-term Memory            │
+│   (Recent sessions, SQLite)          │
+│   ~1MB data                          │
+└─────────────┬───────────────────────┘
+              │
+┌─────────────▼───────────────────────┐
+│         Long-term Memory             │
+│   (All history, Vector DB)           │
+│   Unlimited                          │
+└─────────────────────────────────────┘
+```
+
+## 12.8 Safety: OWASP Top 10 for Agents
+
+**Key Concepts:**
+
+- **OWASP Top 10 for LLM Applications**: Security risks specific to LLMs
+
+- **Prompt injection**: Malicious inputs overriding instructions
+
+- **Data leakage**: Sensitive information in outputs
+
+- **Excessive agency**: Agents performing unauthorized actions
+
+- **Insecure plugins**: Vulnerable tool integrations
+
+- **Overreliance**: Trusting AI outputs without verification
+
+### OWASP Top 10 for LLMs (2026)
+
+1. **LLM01**: Prompt Injection
+
+2. **LLM02**: Insecure Output Handling
+
+3. **LLM03**: Training Data Poisoning
+
+4. **LLM04**: Model Denial of Service
+
+5. **LLM05**: Supply Chain Vulnerabilities
+
+6. **LLM06**: Sensitive Information Disclosure
+
+7. **LLM07**: Insecure Plugin Design
+
+8. **LLM08**: Excessive Agency
+
+9. **LLM09**: Overreliance
+
+10. **LLM10**: Model Theft
+
+### Security Best Practices
+
+```python
+# 1. Input sanitization
+def sanitize_input(user_input):
+    # Remove potential injection patterns
+    blocked = ["ignore previous instructions", "system prompt"]
+    for pattern in blocked:
+        user_input = user_input.replace(pattern, "[REDACTED]")
+    return user_input
+
+# 2. Output filtering
+class OutputFilter:
+    def __init__(self):
+        self.blocked_patterns = [
+            r"\b\d{16}\b",  # Credit card numbers
+            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",  # Emails
+        ]
+
+    def filter(self, output):
+        for pattern in self.blocked_patterns:
+            output = re.sub(pattern, "[REDACTED]", output)
+        return output
+
+# 3. Permission boundaries
+class BoundedAgent:
+    def __init__(self, allowed_tools):
+        self.allowed_tools = allowed_tools
+
+    def call_tool(self, tool_name, **kwargs):
+        if tool_name not in self.allowed_tools:
+            raise PermissionError(f"Tool {tool_name} not allowed")
+        return self.allowed_tools[tool_name](**kwargs)
+```
+
+## 12.9 Enterprise Governance
+
+**Key Concepts:**
+
+- **Agent governance**: Policies for agent deployment
+
+- **Audit trails**: Logging all agent actions
+
+- **Compliance**: GDPR, HIPAA, SOC2 considerations
+
+- **Access control**: Role-based permissions
+
+- **Monitoring**: Real-time agent performance tracking
+
+- **Fallback strategies**: What happens when agents fail
+
+### Governance Framework
+
+```markdown
+## Agent Governance Policy Template
+
+### 1. Approval Process
+- All agents must be approved by [team]
+- Security review required for external-facing agents
+- Quarterly audits of all deployed agents
+
+### 2. Data Handling
+- No PII in agent prompts unless approved
+- All outputs logged and reviewable
+- Data retention: [X days]
+
+### 3. Access Control
+- Agent permissions follow least privilege
+- API keys rotated every [X days]
+- Production agents require MFA
+
+### 4. Monitoring
+- All agent actions logged to [system]
+- Alert on error rate > [X%]
+- Monthly performance reviews
+
+### 5. Incident Response
+- Escalation path defined
+- Kill switch for all agents
+- Post-incident review process
+```
