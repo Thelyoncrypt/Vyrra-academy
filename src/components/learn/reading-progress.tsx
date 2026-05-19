@@ -9,18 +9,19 @@
  * stays scarce: this is a single 2px rule, the page's only persistent coral
  * surface, not a decorative fill.
  *
- * Performance: motion is `transform: scaleX()` only (compositor-friendly,
- * DESIGN.md/web-performance) and the scroll listener is passive + rAF-coalesced
- * so it never blocks the main thread. The bar is purely decorative
- * (`aria-hidden`, role separate from the document outline) so it adds no
- * screen-reader noise. The global prefers-reduced-motion rule in globals.css
- * collapses the transition; the fill itself stays correct (it tracks position,
- * it is not an animation), so reduced-motion users still get the at-rest
- * truth without movement easing.
+ * Performance: the scroll position comes from the shared `useReadingRatio`
+ * hook (one passive, rAF-coalesced listener for every reading affordance —
+ * no duplicate scroll work). Motion is `transform: scaleX()` only
+ * (compositor-friendly, DESIGN.md/web-performance). The bar is purely
+ * decorative (`aria-hidden`, separate from the document outline) so it adds
+ * no screen-reader noise. The global prefers-reduced-motion rule in
+ * globals.css collapses the transition; the fill itself stays correct (it
+ * tracks position, it is not an animation), so reduced-motion users still
+ * get the at-rest truth without movement easing.
  */
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useReadingRatio } from "@/components/learn/use-reading-ratio";
 
 interface ReadingProgressProps {
   /** id of the element whose scroll-through this bar tracks. */
@@ -28,46 +29,7 @@ interface ReadingProgressProps {
 }
 
 export function ReadingProgress({ targetId }: ReadingProgressProps) {
-  const [ratio, setRatio] = useState(0);
-  const frame = useRef<number | null>(null);
-
-  useEffect(() => {
-    const target = document.getElementById(targetId);
-    if (!target) return;
-
-    function measure() {
-      frame.current = null;
-      const el = document.getElementById(targetId);
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const viewport = window.innerHeight;
-      // Distance scrolled into the body, clamped to [0, total scrollable].
-      const scrolled = -rect.top;
-      const scrollable = rect.height - viewport;
-      if (scrollable <= 0) {
-        setRatio(rect.top <= 0 ? 1 : 0);
-        return;
-      }
-      const next = Math.min(1, Math.max(0, scrolled / scrollable));
-      setRatio(next);
-    }
-
-    function onScroll() {
-      if (frame.current !== null) return;
-      frame.current = window.requestAnimationFrame(measure);
-    }
-
-    measure();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (frame.current !== null) {
-        window.cancelAnimationFrame(frame.current);
-      }
-    };
-  }, [targetId]);
+  const ratio = useReadingRatio(targetId);
 
   return (
     <div

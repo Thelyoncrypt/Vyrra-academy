@@ -24,11 +24,22 @@ interface CopyButtonProps {
   label: string;
   /** Surface the button sits on. Defaults to the cream chrome. */
   tone?: "cream" | "dark";
+  /**
+   * Optional: fired AFTER a successful clipboard write. Additive and
+   * side-effect-free here — lets a host show its own transient confirmation
+   * (e.g. the tutor "copied" chip) without duplicating clipboard logic.
+   */
+  onCopied?: () => void;
 }
 
 const RESET_MS = 2000;
 
-export function CopyButton({ value, label, tone = "cream" }: CopyButtonProps) {
+export function CopyButton({
+  value,
+  label,
+  tone = "cream",
+  onCopied,
+}: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -42,6 +53,7 @@ export function CopyButton({ value, label, tone = "cream" }: CopyButtonProps) {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
+      onCopied?.();
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setCopied(false), RESET_MS);
     } catch {
@@ -49,7 +61,7 @@ export function CopyButton({ value, label, tone = "cream" }: CopyButtonProps) {
       // Degrade silently — copy is an affordance, never the only path to the
       // content, which stays fully visible and selectable on the page.
     }
-  }, [value]);
+  }, [value, onCopied]);
 
   const palette =
     tone === "dark"

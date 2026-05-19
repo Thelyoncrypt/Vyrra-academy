@@ -8,12 +8,22 @@
  * back-to-module CTA, so the affordance is honest rather than a dead end.
  *
  * DESIGN.md: a calm continuation card. The forward step is the single coral
- * primary CTA (`button-primary`, coral kept scarce — only this action);
- * the back-to-module path is a quiet text link. The next-lesson title runs
- * the serif display voice so "what's next" reads as an editorial signpost,
- * not a toolbar. No fourth surface introduced.
+ * primary CTA (shared `Button` → `button-primary`, coral kept scarce — only
+ * this action); the back-to-module path is a quiet text-link `Button`. The
+ * next-lesson title runs the serif display voice so "what's next" reads as
+ * an editorial signpost, not a toolbar. No fourth surface introduced.
+ *
+ * Wave 3: hand-rolled CTA class strings replaced with the shared `Button`
+ * primitive. The forward route is warmed via `router.prefetch` on
+ * hover/focus/touch so continuing to the next lesson feels instant — a
+ * navigation-only enhancement (no layout or logic change, and it does not
+ * fight the shared `Button` API surface).
  */
-import Link from "next/link";
+"use client";
+
+import { useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export interface NextStep {
   /** Next lesson in the same module, if one exists in content order. */
@@ -29,22 +39,37 @@ interface NextLessonCueProps {
 }
 
 export function NextLessonCue({ step }: NextLessonCueProps) {
-  if (step.next) {
+  const router = useRouter();
+  const next = step.next;
+  // Idle by default: warm the next route only once the learner shows
+  // forward intent (hover/focus/touch on the CTA), and only once — never
+  // speculatively for readers who don't engage the cue.
+  const armed = useRef(false);
+  const arm = useCallback(() => {
+    if (armed.current || !next) return;
+    armed.current = true;
+    router.prefetch(`/lessons/${next.code}`);
+  }, [router, next]);
+
+  if (next) {
     return (
       <div className="mt-6 border-t border-hairline-soft pt-5">
         <p className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
           Continue
         </p>
         <p className="mt-2 font-display text-[1.25rem] font-normal leading-[1.25] tracking-[-0.3px] text-ink">
-          {step.next.title}
+          {next.title}
         </p>
-        <Link
-          href={`/lessons/${step.next.code}`}
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 font-sans text-[0.875rem] font-medium text-on-primary transition-colors hover:bg-primary-active"
+        <Button
+          href={`/lessons/${next.code}`}
+          withArrow
+          className="mt-4 w-full"
+          onMouseEnter={arm}
+          onFocus={arm}
+          onTouchStart={arm}
         >
           Next lesson
-          <span aria-hidden="true">→</span>
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -61,13 +86,14 @@ export function NextLessonCue({ step }: NextLessonCueProps) {
         Review the module to pick what to revisit or move on.
       </p>
       {step.trackSlug ? (
-        <Link
+        <Button
           href={`/tracks/${step.trackSlug}`}
-          className="mt-4 inline-flex items-center gap-1.5 font-sans text-[0.875rem] font-medium text-primary transition-colors hover:text-primary-active"
+          variant="text-link"
+          className="mt-4 gap-1.5"
         >
           <span aria-hidden="true">←</span>
           Back to {step.trackTitle ?? "the track"}
-        </Link>
+        </Button>
       ) : null}
     </div>
   );

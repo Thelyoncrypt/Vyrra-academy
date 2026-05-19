@@ -6,8 +6,8 @@
  * a quiet track-progress rail, tabular-nums meta, and a single coral CTA
  * (coral stays scarce). Hover/active are transform/opacity only.
  */
-import Link from "next/link";
 import type { Lesson } from "@/content/contract";
+import { Button } from "@/components/ui/button";
 
 interface NextLessonCardProps {
   lesson: Lesson;
@@ -74,18 +74,9 @@ export function NextLessonCard({
       ) : null}
 
       <div className="mt-8 flex flex-wrap items-center gap-5">
-        <Link
-          href={`/lessons/${lesson.code}`}
-          className="group inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors duration-200 hover:bg-primary-active active:bg-primary-active"
-        >
+        <Button href={`/lessons/${lesson.code}`} withArrow>
           Resume lesson
-          <span
-            aria-hidden="true"
-            className="transition-transform duration-200 group-hover:translate-x-0.5"
-          >
-            →
-          </span>
-        </Link>
+        </Button>
         <span className="tabular-nums font-sans text-[0.8125rem] text-on-dark-soft">
           {lesson.estMinutes} min · {lesson.keyConcepts.length} key concepts
         </span>

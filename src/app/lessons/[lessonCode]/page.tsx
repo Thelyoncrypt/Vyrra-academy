@@ -21,8 +21,8 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
+import { Alert } from "@/components/ui/alert";
 import { LessonSection } from "@/components/learn/lesson-section";
-import { Expandable } from "@/components/learn/expandable";
 import { ConceptList } from "@/components/learn/concept-list";
 import { ResourcePanel } from "@/components/learn/resource-panel";
 import { PracticeBlock } from "@/components/learn/practice-block";
@@ -30,7 +30,6 @@ import { CompletionForm } from "@/components/learn/completion-form";
 import { LessonBodySlot, LESSON_BODY_ID } from "@/components/learn/lesson-body-slot";
 import { LessonToc } from "@/components/learn/lesson-toc";
 import type { NextStep } from "@/components/learn/next-lesson-cue";
-import { SpikeMark } from "@/components/brand/spike-mark";
 import { TutorPanelLazy } from "@/components/tutor/tutor-panel-lazy";
 import {
   getLesson,
@@ -137,14 +136,8 @@ export default async function LessonPage({ params }: LessonPageProps) {
       </div>
 
       {!access.allowed ? (
-        <div className="mt-8 flex items-start gap-3.5 rounded-lg border border-hairline bg-surface-soft px-6 py-5">
-          <span aria-hidden="true" className="mt-0.5 text-primary">
-            <SpikeMark size={15} />
-          </span>
-          <p className="font-sans text-[0.9375rem] leading-[1.6] text-muted">
-            <span className="font-medium text-body-strong">
-              Preview reading.
-            </span>{" "}
+        <div className="mt-8">
+          <Alert tone="info" title="Preview reading">
             {access.reason === "not enrolled"
               ? "Enrol in this track and level to track progress and mark this lesson complete — the full reading stays open below."
               : access.unmetPrerequisite
@@ -154,7 +147,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
                       : ""
                   } first. You can still read the lesson below.`
                 : "This lesson is locked, but the full reading stays open below."}
-          </p>
+          </Alert>
         </div>
       ) : null}
 
@@ -214,22 +207,14 @@ export default async function LessonPage({ params }: LessonPageProps) {
               the vocabulary you should be able to use unprompted by the end.
             </p>
             {/* The primary reading flows open as a magazine column (DESIGN.md
-                Whitespace Philosophy) — it is not boxed in a disclosure card,
-                only genuinely-optional depth collapses. */}
+                Whitespace Philosophy) — it is not boxed in a disclosure card.
+                Worked examples and edge cases are authored inline in the MDX
+                body, so there is no hollow "going deeper" disclosure here:
+                a dead-end affordance reads as filler, not editorial care. */}
             <div className="mt-9">
-              <LessonBodySlot>{body}</LessonBodySlot>
-            </div>
-            <div className="mt-10">
-              <Expandable
-                summary="Going deeper"
-                hint="Optional — worked examples and edge cases"
-              >
-                <p>
-                  Optional depth, worked examples, and edge cases are authored
-                  in the MDX body above; the core explanation is the full
-                  treatment for this lesson.
-                </p>
-              </Expandable>
+              <LessonBodySlot estMinutes={lesson.estMinutes}>
+                {body}
+              </LessonBodySlot>
             </div>
           </LessonSection>
 

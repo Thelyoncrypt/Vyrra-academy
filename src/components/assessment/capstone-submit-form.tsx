@@ -10,9 +10,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 
 import { submitCapstoneAction } from "@/lib/assessment/capstone-actions";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface CapstoneSubmitFormProps {
   capstoneId: string;
@@ -48,32 +49,22 @@ export function CapstoneSubmitForm({
 
   if (submittedId) {
     return (
-      <div
-        className="rounded-xl border border-success/40 bg-success/5 p-6"
-        role="status"
-      >
-        <span
-          aria-hidden="true"
-          className="flex h-9 w-9 items-center justify-center rounded-pill bg-success/15 font-sans text-[1rem] font-medium text-success"
-        >
-          ✓
-        </span>
-        <h3 className="mt-4 text-[1.25rem] tracking-[-0.2px] text-ink">
-          Submission received
-        </h3>
-        <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-body">
+      <Alert tone="success" title="Submission received">
+        <p>
           Your capstone is queued for assessment. An instructor reviews it
           against the rubric — optionally with an AI draft they must confirm —
           before it can unlock the next level. AI never auto-passes a gate.
         </p>
-        <Link
+        <Button
           href={`/assessments/${submittedId}`}
-          className="mt-5 inline-flex items-center gap-2 rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-body-strong transition-colors hover:text-ink"
+          variant="secondary"
+          size="sm"
+          withArrow
+          className="mt-4"
         >
           Track assessment status
-          <span aria-hidden="true">→</span>
-        </Link>
-      </div>
+        </Button>
+      </Alert>
     );
   }
 
@@ -86,9 +77,15 @@ export function CapstoneSubmitForm({
         Submit your capstone
       </h3>
       <p className="mt-2 font-sans text-[0.8125rem] leading-relaxed text-muted">
-        Link your work and tell the grader how it meets each requirement. You
-        can resubmit if it isn&rsquo;t passed.
+        Link your work and tell the grader how it meets each requirement.
       </p>
+      {canSubmit ? (
+        <Alert tone="info" className="mt-4">
+          Submitting again replaces nothing already confirmed — if a prior
+          attempt didn&rsquo;t pass, a fresh submission starts a new review.
+          There is no penalty for resubmitting.
+        </Alert>
+      ) : null}
       <fieldset disabled={!canSubmit || isPending} className="mt-5 space-y-5">
         <div>
           <label
@@ -127,26 +124,26 @@ export function CapstoneSubmitForm({
             className="mt-2 w-full rounded-md border border-hairline bg-canvas px-4 py-3 font-sans text-[0.9375rem] leading-relaxed text-body placeholder:text-muted-soft disabled:opacity-60"
           />
         </div>
-        <button
-          type="button"
+        <Button
           onClick={submit}
-          disabled={!canSubmit || isPending || artifactUrl.trim() === ""}
-          aria-busy={isPending}
-          className="w-full rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
+          disabled={!canSubmit || artifactUrl.trim() === ""}
+          loading={isPending}
+          loadingLabel="Submitting…"
+          className="w-full"
         >
-          {isPending ? "Submitting…" : "Submit capstone"}
-        </button>
+          Submit capstone
+        </Button>
       </fieldset>
       {!canSubmit ? (
-        <p className="mt-4 font-sans text-[0.8125rem] text-muted">
+        <Alert tone="info" className="mt-4">
           Enrol and unlock this level to submit. The brief and rubric are
           previewable above.
-        </p>
+        </Alert>
       ) : null}
       {error ? (
-        <p role="alert" className="mt-4 font-sans text-[0.8125rem] text-error">
+        <Alert tone="error" className="mt-4">
           {error}
-        </p>
+        </Alert>
       ) : null}
     </div>
   );

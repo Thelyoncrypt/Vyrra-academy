@@ -24,6 +24,8 @@ import type { ReactNode } from "react";
 
 import { compileMDX } from "next-mdx-remote/rsc";
 
+import { Alert } from "@/components/ui/alert";
+
 /**
  * DESIGN.md component map (visual map only — parsing, security and the
  * no-rehype-raw / no-dangerouslySetInnerHTML posture above are unchanged).
@@ -155,23 +157,31 @@ const mdxComponents = {
   ),
 };
 
-/** Typed "content unavailable" node — honest, styled, never a throw. */
+/**
+ * Typed "content unavailable" node — honest, styled, never a throw. The
+ * recovery copy now lives in the shared `Alert` (info tone, status role) so
+ * the lesson-page degradation reads in the same voice as the other recovery
+ * surfaces. Visual-only: the resilience contract (this is returned, never
+ * thrown) and the no-rehype-raw / no-dangerouslySetInnerHTML posture are
+ * unchanged — `Alert` only renders the already-static recovery message.
+ */
 function unavailable(bodyPath: string): ReactNode {
   return (
     <div
       data-slot="lesson-mdx-body"
       data-body-state="unavailable"
       data-body-path={bodyPath}
-      className="rounded-lg border border-dashed border-hairline bg-surface-soft px-8 py-12 text-center"
     >
-      <p className="font-display text-[1.375rem] font-normal tracking-[-0.2px] text-body-strong">
-        This lesson&rsquo;s reading is being prepared
-      </p>
-      <p className="mx-auto mt-3 max-w-md font-sans text-[0.9375rem] leading-[1.7] text-muted">
-        The authored content couldn&rsquo;t be loaded right now. The rest of
-        the lesson — objectives, practice, and resources — is still available
-        below, so you can keep moving.
-      </p>
+      <Alert tone="info" title="Reading being prepared">
+        <span className="block font-display text-[1.25rem] font-normal tracking-[-0.2px] text-body-strong">
+          This lesson&rsquo;s reading is being prepared
+        </span>
+        <span className="mt-2 block leading-[1.7] text-muted">
+          The authored content couldn&rsquo;t be loaded right now. The rest of
+          the lesson — objectives, practice, and resources — is still
+          available below, so you can keep moving.
+        </span>
+      </Alert>
     </div>
   );
 }

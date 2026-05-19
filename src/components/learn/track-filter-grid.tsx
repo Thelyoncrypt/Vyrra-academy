@@ -15,6 +15,8 @@ import { useMemo, useState } from "react";
 import type { Track } from "@/content/contract";
 import { TrackCard } from "./track-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FacetPill } from "@/components/ui/facet-pill";
+import { Button } from "@/components/ui/button";
 import { levelDifficultyLabel } from "@/content/fixtures";
 
 export interface TrackGridItem {
@@ -98,13 +100,9 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
           <span className="tabular-nums">{items.length}</span> tracks
         </p>
         {filtered ? (
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded-md font-sans text-[0.8125rem] font-medium text-primary transition-colors duration-200 hover:text-primary-active"
-          >
+          <Button variant="text-link" size="sm" onClick={reset}>
             Clear filters
-          </button>
+          </Button>
         ) : null}
       </div>
 
@@ -128,13 +126,9 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
             title="No tracks match those filters"
             description="Try widening the skill level or ecosystem to see more of the programme."
             action={
-              <button
-                type="button"
-                onClick={reset}
-                className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors duration-200 hover:bg-surface-soft"
-              >
+              <Button variant="secondary" onClick={reset}>
                 Clear filters
-              </button>
+              </Button>
             }
           />
         </div>
@@ -157,24 +151,15 @@ function FilterRow({ legend, options, active, onSelect }: FilterRowProps) {
         {legend}
       </legend>
       <div className="flex flex-wrap gap-2">
-        {options.map((opt) => {
-          const isActive = opt.value === active;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => onSelect(opt.value)}
-              className={`rounded-md px-3.5 py-2 font-sans text-sm font-medium transition-colors duration-200 ${
-                isActive
-                  ? "bg-surface-card text-ink"
-                  : "text-muted hover:bg-surface-soft hover:text-ink"
-              }`}
-            >
-              {opt.label}
-            </button>
-          );
-        })}
+        {options.map((opt) => (
+          <FacetPill
+            key={opt.value}
+            active={opt.value === active}
+            onClick={() => onSelect(opt.value)}
+          >
+            {opt.label}
+          </FacetPill>
+        ))}
       </div>
     </fieldset>
   );

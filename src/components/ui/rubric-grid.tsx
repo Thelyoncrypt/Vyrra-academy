@@ -65,12 +65,16 @@ export function RubricGrid({
         </figcaption>
       ) : null}
       {/* Focusable, labelled scroll region — mobile keeps code-window-style
-          horizontal scroll instead of wrapping the dense matrix. */}
+          horizontal scroll instead of wrapping the dense matrix. Keyboard
+          users land here to scroll the dense matrix, so it must keep a
+          visible focus indicator (WCAG 2.4.7). The default :focus-visible
+          ring (coral, 2px offset) reads cleanly on the cream-card surface;
+          inset it slightly so the ring is not clipped by overflow-x-auto. */}
       <div
         role="region"
         aria-label={caption}
         tabIndex={0}
-        className="overflow-x-auto rounded-lg focus-visible:outline-none"
+        className="overflow-x-auto rounded-lg focus-visible:outline-offset-[-2px]"
       >
         <table className="w-full min-w-[44rem] border-collapse text-left">
           {!captionVisible ? (

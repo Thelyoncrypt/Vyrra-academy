@@ -5,9 +5,11 @@
  *
  * DESIGN.md `code-window-card`: dark navy surface (`surface-dark`), inner
  * code block (`surface-dark-soft`), JetBrains-mono code type, 12px radius.
- * Polished to read like a premium IDE-lite: a title-bar with macOS-style
- * window dots + a filename pill, a static line-number gutter rail, and a
- * status footer. Built on `react-simple-code-editor` with Prism
+ * The title bar carries a rich filename pill (teal status dot) + a live
+ * CopyButton, so it keeps its bespoke bar (the shared string-only
+ * `WindowChrome` slots can't host an interactive copy affordance) — but the
+ * traffic-light dot strip is the shared `WindowDots` primitive, so no chrome
+ * markup is duplicated. Built on `react-simple-code-editor` with Prism
  * highlighting. This is a controlled input only — it NEVER executes the
  * code (CLAUDE.md §7); the value is graded by the deterministic Server
  * Action.
@@ -93,9 +95,11 @@ export function CodeEditor({
       </label>
 
       <div className="flex bg-surface-dark-soft">
+        {/* Gutter rail: a soft active-tint band (visual only — no caret or
+            value logic; the global :focus-visible ring stays the focus cue). */}
         <div
           aria-hidden="true"
-          className="select-none border-r border-white/[0.05] bg-surface-dark/40 py-6 pl-5 pr-3.5 text-right font-mono text-[0.875rem] leading-[1.6] tabular-nums text-on-dark-soft/40"
+          className="select-none border-r border-white/[0.05] bg-gradient-to-r from-primary/[0.05] to-surface-dark/40 py-6 pl-5 pr-3.5 text-right font-mono text-[0.875rem] leading-[1.6] tabular-nums text-on-dark-soft/40"
         >
           {Array.from({ length: lineCount }, (_, i) => (
             <div key={i}>{i + 1}</div>

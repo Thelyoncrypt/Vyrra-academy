@@ -7,6 +7,7 @@
  * rather than a dead button.
  */
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import {
   NextLessonCue,
   type NextStep,
@@ -78,15 +79,14 @@ export function CompletionAffordance({
         <NextLessonCue step={nextStep} />
       ) : (
         <>
-          <button
-            type="button"
+          <Button
             disabled
             aria-disabled="true"
             title="Available once progress tracking is enabled"
-            className="mt-6 w-full cursor-not-allowed rounded-md bg-primary-disabled px-5 py-2.5 font-sans text-[0.875rem] font-medium text-muted"
+            className="mt-6 w-full"
           >
             Mark complete
-          </button>
+          </Button>
           <p className="mt-2.5 font-sans text-[0.75rem] leading-relaxed text-muted-soft">
             Enabled once accounts and progress tracking are wired up.
           </p>

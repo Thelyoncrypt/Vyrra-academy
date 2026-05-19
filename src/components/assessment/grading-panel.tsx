@@ -22,6 +22,8 @@ import {
 } from "@/lib/assessment/capstone-actions";
 import { CriterionScorer } from "@/components/assessment/criterion-scorer";
 import { Badge } from "@/components/ui/badge";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export interface GradingCriterion {
   id: string;
@@ -183,23 +185,12 @@ export function GradingPanel({
           (CLAUDE.md §3 / system-design §4.3). Dashed, warning-toned, never
           mistakable for a confirmed outcome. */}
       {isUnconfirmedDraft && !isDone ? (
-        <div
-          className="rounded-lg border border-dashed border-warning/60 bg-warning/5 px-5 py-4"
-          role="status"
-        >
-          <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-warning">
-            AI draft · unconfirmed
-          </p>
-          <p className="mt-1.5 font-sans text-[0.875rem] leading-relaxed text-body">
-            These scores were drafted by AI and are{" "}
-            <span className="font-medium text-body-strong">
-              not final
-            </span>
-            . Review every criterion, adjust as needed, then confirm — the
-            confirm action is the only thing that satisfies the progression
-            gate.
-          </p>
-        </div>
+        <Alert tone="provisional" title="AI draft · unconfirmed">
+          These scores were drafted by AI and are{" "}
+          <span className="font-medium text-body-strong">not final</span>.
+          Review every criterion, adjust as needed, then confirm — the confirm
+          action is the only thing that satisfies the progression gate.
+        </Alert>
       ) : null}
 
       <div className="space-y-4">
@@ -227,63 +218,40 @@ export function GradingPanel({
 
       {!isDone ? (
         <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={saveGrade}
-            disabled={isPending}
-            aria-busy={isPending}
-            className="rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
-          >
-            {isPending ? "Working…" : "Save human grade"}
-          </button>
-          <button
-            type="button"
+          <Button onClick={saveGrade} loading={isPending}>
+            Save human grade
+          </Button>
+          <Button
+            variant="secondary"
             onClick={requestDraft}
             disabled={isPending}
-            className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-body-strong transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-60"
           >
             Request AI draft
-          </button>
+          </Button>
           {isUnconfirmedDraft ? (
-            <button
-              type="button"
+            <Button
               onClick={confirmDraft}
-              disabled={isPending}
-              className="rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
+              loading={isPending}
+              loadingLabel="Confirming…"
             >
-              {isPending ? "Confirming…" : "Confirm assessment — satisfies gate"}
-            </button>
+              Confirm assessment — satisfies gate
+            </Button>
           ) : null}
         </div>
       ) : (
-        <div
-          className="rounded-lg border border-success/40 bg-success/5 px-5 py-4"
-          role="status"
-        >
-          <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-success">
-            Assessment final
-          </p>
-          <p className="mt-1.5 font-sans text-[0.875rem] leading-relaxed text-body">
-            This grade is confirmed and locked. A passing outcome lets the
-            gating service unlock the next level for the learner once their
-            other prerequisites are met.
-          </p>
-        </div>
+        <Alert tone="success" title="Assessment final">
+          This grade is confirmed and locked. A passing outcome lets the
+          gating service unlock the next level for the learner once their
+          other prerequisites are met.
+        </Alert>
       )}
 
       {message ? (
-        <p
-          className="font-sans text-[0.8125rem] text-body-strong"
-          aria-live="polite"
-        >
+        <Alert tone="success" role="status">
           {message}
-        </p>
+        </Alert>
       ) : null}
-      {error ? (
-        <p role="alert" className="font-sans text-[0.8125rem] text-error">
-          {error}
-        </p>
-      ) : null}
+      {error ? <Alert tone="error">{error}</Alert> : null}
     </div>
   );
 }

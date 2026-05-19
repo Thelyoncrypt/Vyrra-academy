@@ -10,7 +10,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
 import { ModuleOutline } from "@/components/learn/module-outline";
 import { EnrollPanel } from "@/components/quiz/enroll-panel";
 import {
@@ -130,18 +131,20 @@ export default async function LevelPage({ params }: LevelPageProps) {
         } in this level`}
       >
         {!levelUnlocked ? (
-          <p className="mb-5 rounded-lg border border-hairline bg-surface-soft px-4 py-3 font-sans text-[0.875rem] text-muted">
-            {lock?.reason === "not enrolled"
-              ? "This level is locked — enrol in this track and level to begin."
-              : lock?.unmetPrerequisite
-                ? `This level is locked until level ${lock.unmetPrerequisite.levelOrder}${
-                    lock.unmetPrerequisite.needsCapstone
-                      ? " and its capstone"
-                      : ""
-                  } is complete.`
-                : "This level is locked until the previous level is complete."}{" "}
-            The full outline is previewable so you can see what's ahead.
-          </p>
+          <div className="mb-5">
+            <Alert tone="info">
+              {lock?.reason === "not enrolled"
+                ? "This level is locked — enrol in this track and level to begin."
+                : lock?.unmetPrerequisite
+                  ? `This level is locked until level ${lock.unmetPrerequisite.levelOrder}${
+                      lock.unmetPrerequisite.needsCapstone
+                        ? " and its capstone"
+                        : ""
+                    } is complete.`
+                  : "This level is locked until the previous level is complete."}{" "}
+              The full outline is previewable so you can see what's ahead.
+            </Alert>
+          </div>
         ) : null}
 
         {modules.length > 0 ? (
@@ -198,18 +201,13 @@ export default async function LevelPage({ params }: LevelPageProps) {
               </div>
             </div>
             <div className="mt-8">
-              <Link
+              <Button
                 href={`/capstones/${capstone.id}`}
-                className="group inline-flex items-center gap-2 rounded-md bg-surface-dark-elevated px-5 py-2.5 font-sans text-sm font-medium text-on-dark transition-colors duration-200 hover:bg-primary hover:text-on-primary"
+                variant="on-dark"
+                withArrow
               >
                 Open capstone &amp; submit
-                <span
-                  aria-hidden="true"
-                  className="transition-transform duration-200 group-hover:translate-x-0.5"
-                >
-                  →
-                </span>
-              </Link>
+              </Button>
             </div>
           </div>
         </Section>

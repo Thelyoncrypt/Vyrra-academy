@@ -11,14 +11,21 @@
  * rather than a no-op toggle. Coral stays scarce — only the active CTA.
  *
  * a11y: status is announced via aria-live; the busy state sets aria-busy;
- * errors render in role="alert". Motion is limited to colour transitions,
- * which the global prefers-reduced-motion rule neutralises.
+ * errors render in an Alert role="alert". Motion is limited to colour
+ * transitions, which the global prefers-reduced-motion rule neutralises.
+ *
+ * Wave 3: the hand-rolled CTA class string is replaced with the shared
+ * `Button` primitive and the inline error line with the shared `Alert`.
+ * The Server Action wiring (`markLessonProgressAction` via `useTransition`)
+ * and the a11y contract are preserved exactly — only the markup changes.
  */
 "use client";
 
 import { useState, useTransition } from "react";
 
 import { markLessonProgressAction } from "@/lib/progress/actions";
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
 import {
   NextLessonCue,
   type NextStep,
@@ -107,23 +114,18 @@ export function CompletionForm({
         )}
       </p>
 
-      <button
-        type="button"
+      <Button
         onClick={() => submit(isCompleted ? "in_progress" : "completed")}
-        disabled={isPending}
-        aria-busy={isPending}
-        className="mt-6 w-full rounded-md bg-primary px-5 py-2.5 font-sans text-[0.875rem] font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
+        loading={isPending}
+        loadingLabel="Saving…"
+        className="mt-6 w-full"
       >
-        {isPending
-          ? "Saving…"
-          : isCompleted
-            ? "Mark as in progress"
-            : "Mark complete"}
-      </button>
+        {isCompleted ? "Mark as in progress" : "Mark complete"}
+      </Button>
       {error ? (
-        <p role="alert" className="mt-3 font-sans text-[0.8125rem] text-error">
+        <Alert tone="error" className="mt-3">
           {error}
-        </p>
+        </Alert>
       ) : null}
 
       {isCompleted ? <NextLessonCue step={nextStep} /> : null}

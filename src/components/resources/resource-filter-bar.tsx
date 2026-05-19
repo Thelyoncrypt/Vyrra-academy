@@ -8,12 +8,16 @@
  * Server Component re-queries `listResources` with the parsed filter. This
  * keeps filtering server-side (one source of truth) and the island tiny.
  *
- * DESIGN.md `category-tab` / `category-tab-active` for facet pills,
- * `text-input` for the free-text search. WCAG 2.1 AA: labelled fieldsets,
- * a labelled search input, aria-pressed on toggles, aria-live result count.
+ * Facet pills are the shared `FacetPill` primitive (DESIGN.md `category-tab`
+ * / `category-tab-active`); `text-input` for the free-text search; the
+ * clear-all CTA is the shared `Button`. WCAG 2.1 AA: labelled fieldsets, a
+ * labelled search input, aria-pressed on toggles, aria-live result count.
  */
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { FacetPill } from "@/components/ui/facet-pill";
+import { Button } from "@/components/ui/button";
 
 export interface FacetOption {
   readonly value: string;
@@ -197,19 +201,21 @@ export function ResourceFilterBar({
           </legend>
           <div className="flex flex-wrap gap-1.5">
             <FacetPill
-              label="Comfortable"
               active={!compact}
               onClick={() => {
                 if (compact) toggleDensity();
               }}
-            />
+            >
+              Comfortable
+            </FacetPill>
             <FacetPill
-              label="Compact"
               active={compact}
               onClick={() => {
                 if (!compact) toggleDensity();
               }}
-            />
+            >
+              Compact
+            </FacetPill>
           </div>
         </fieldset>
 
@@ -222,13 +228,9 @@ export function ResourceFilterBar({
             of {totalCount} resources
           </p>
           {hasActiveFilter ? (
-            <button
-              type="button"
-              onClick={clearAll}
-              className="rounded-md border border-hairline bg-canvas px-4 py-2 font-sans text-[0.8125rem] font-medium text-ink transition-colors hover:bg-surface-soft"
-            >
+            <Button variant="secondary" size="sm" onClick={clearAll}>
               Clear all
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>
@@ -260,46 +262,23 @@ function FacetRow({
       </legend>
       <div className="flex flex-wrap gap-1.5">
         <FacetPill
-          label="All"
           active={current === ""}
           onClick={() => onSelect(param, "")}
-        />
+        >
+          All
+        </FacetPill>
         {options.map((opt) => (
           <FacetPill
             key={opt.value}
-            label={opt.label}
             active={current === opt.value}
             onClick={() =>
               onSelect(param, current === opt.value ? "" : opt.value)
             }
-          />
+          >
+            {opt.label}
+          </FacetPill>
         ))}
       </div>
     </fieldset>
-  );
-}
-
-function FacetPill({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={`rounded-md px-3 py-1.5 font-sans text-[0.8125rem] font-medium transition-colors ${
-        active
-          ? "bg-canvas text-ink shadow-[0_1px_3px_rgba(20,20,19,0.08)]"
-          : "text-muted hover:bg-canvas/60 hover:text-ink"
-      }`}
-    >
-      {label}
-    </button>
   );
 }

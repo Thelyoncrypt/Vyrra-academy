@@ -15,11 +15,11 @@
  * Next.js 16: `searchParams` is a Promise.
  */
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { PageHeader } from "@/components/ui/page-header";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { ResourceCard } from "@/components/resources/resource-card";
 import {
   ResourceFilterBar,
@@ -210,12 +210,9 @@ export default async function ResourcesPage({
               title="No resources match those filters"
               description="Nothing in the library matches every active facet. Widen or clear a filter to see more of the collection."
               action={
-                <Link
-                  href="/resources"
-                  className="inline-block rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors hover:bg-surface-soft"
-                >
+                <Button variant="secondary" href="/resources">
                   Clear all filters
-                </Link>
+                </Button>
               }
             />
           )}

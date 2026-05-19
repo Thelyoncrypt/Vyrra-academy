@@ -23,6 +23,8 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { TutorMessageList } from "./tutor-message-list";
 import { TutorComposer } from "./tutor-composer";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface TutorPanelProps {
   /**
@@ -124,21 +126,9 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
         </p>
 
         {isUnavailable ? (
-          <div
-            role="status"
-            className="rounded-lg border border-hairline bg-canvas px-5 py-5"
-          >
-            <p className="flex items-center gap-2 font-sans text-[0.875rem] font-medium text-body-strong">
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full bg-warning"
-              />
-              Tutor unavailable
-            </p>
-            <p className="mt-1.5 font-sans text-[0.8125rem] leading-relaxed text-muted">
-              {UNAVAILABLE_COPY}
-            </p>
-          </div>
+          <Alert tone="warning" title="Tutor unavailable">
+            {UNAVAILABLE_COPY}
+          </Alert>
         ) : messages.length > 0 ? (
           <div
             ref={scrollRef}
@@ -162,13 +152,9 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
         )}
 
         {isStreaming ? (
-          <button
-            type="button"
-            onClick={() => stop()}
-            className="rounded-md border border-hairline bg-canvas px-4 py-2 font-sans text-[0.8125rem] font-medium text-ink transition-colors hover:bg-surface-soft"
-          >
+          <Button variant="secondary" size="sm" onClick={() => stop()}>
             Stop generating
-          </button>
+          </Button>
         ) : null}
 
         {!isUnavailable ? (
@@ -176,6 +162,8 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
             value={draft}
             onChange={setDraft}
             onSubmit={handleSend}
+            onStop={stop}
+            isStreaming={isStreaming}
             disabled={isStreaming}
           />
         ) : null}

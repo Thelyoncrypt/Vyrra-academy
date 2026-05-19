@@ -12,8 +12,12 @@
  * detail leakage); `digest` is the only safe correlation handle and is
  * shown small and muted for support. Client component per Next.js
  * error-boundary contract.
+ *
+ * Wave 3: the hand-rolled CTA class strings are replaced with the shared
+ * `Button` primitive (primary retry + text-link back). `reset` wiring and
+ * the no-detail-leak posture are unchanged — only the markup changes.
  */
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface LessonErrorProps {
   error: Error & { digest?: string };
@@ -35,19 +39,16 @@ export default function LessonError({ error, reset }: LessonErrorProps) {
           try again, or head back to the tracks and pick it up from there.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <button
-            type="button"
-            onClick={reset}
-            className="w-full rounded-md bg-primary px-5 py-2.5 font-sans text-[0.875rem] font-medium text-on-primary transition-colors hover:bg-primary-active sm:w-auto"
-          >
+          <Button onClick={reset} className="w-full sm:w-auto">
             Try again
-          </button>
-          <Link
+          </Button>
+          <Button
             href="/tracks"
-            className="w-full rounded-md px-5 py-2.5 font-sans text-[0.875rem] font-medium text-primary transition-colors hover:text-primary-active sm:w-auto"
+            variant="text-link"
+            className="w-full sm:w-auto"
           >
             Back to tracks
-          </Link>
+          </Button>
         </div>
         {error.digest ? (
           <p className="mt-8 font-mono text-[0.6875rem] text-muted-soft">

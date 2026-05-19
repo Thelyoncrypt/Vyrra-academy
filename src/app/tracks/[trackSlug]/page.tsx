@@ -6,11 +6,12 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
 import { ModuleOutline } from "@/components/learn/module-outline";
 import {
   getTrack,
@@ -116,33 +117,30 @@ export default async function TrackPage({ params }: TrackPageProps) {
             title={level.title}
             description={`${level.estHoursMin}–${level.estHoursMax} hours`}
             action={
-              <Link
+              <Button
                 href={`/tracks/${track.slug}/${level.slug}`}
-                className="group inline-flex items-center gap-1.5 rounded-md font-sans text-sm font-medium text-primary transition-colors duration-200 hover:text-primary-active"
+                variant="text-link"
+                withArrow
               >
                 Open level
-                <span
-                  aria-hidden="true"
-                  className="transition-transform duration-200 group-hover:translate-x-0.5"
-                >
-                  →
-                </span>
-              </Link>
+              </Button>
             }
           >
             {!levelUnlocked ? (
-              <p className="mb-5 rounded-lg border border-hairline bg-surface-soft px-4 py-3 font-sans text-[0.875rem] text-muted">
-                {lock?.reason === "not enrolled"
-                  ? "Locked — enrol in this track and level to unlock these modules."
-                  : lock?.unmetPrerequisite
-                    ? `Locked — complete level ${lock.unmetPrerequisite.levelOrder}${
-                        lock.unmetPrerequisite.needsCapstone
-                          ? " and its capstone"
-                          : ""
-                      } to unlock these modules.`
-                    : "Locked — complete the previous level to unlock these modules."}{" "}
-                You can still preview the outline below.
-              </p>
+              <div className="mb-5">
+                <Alert tone="info">
+                  {lock?.reason === "not enrolled"
+                    ? "Locked — enrol in this track and level to unlock these modules."
+                    : lock?.unmetPrerequisite
+                      ? `Locked — complete level ${lock.unmetPrerequisite.levelOrder}${
+                          lock.unmetPrerequisite.needsCapstone
+                            ? " and its capstone"
+                            : ""
+                        } to unlock these modules.`
+                      : "Locked — complete the previous level to unlock these modules."}{" "}
+                  You can still preview the outline below.
+                </Alert>
+              </div>
             ) : null}
 
             {modules.length > 0 ? (
@@ -188,18 +186,13 @@ export default async function TrackPage({ params }: TrackPageProps) {
                   ))}
                 </ul>
                 <div className="mt-7">
-                  <Link
+                  <Button
                     href={`/capstones/${capstone.id}`}
-                    className="group inline-flex items-center gap-2 rounded-md bg-surface-dark-elevated px-5 py-2.5 font-sans text-sm font-medium text-on-dark transition-colors duration-200 hover:bg-primary hover:text-on-primary"
+                    variant="on-dark"
+                    withArrow
                   >
                     Open capstone
-                    <span
-                      aria-hidden="true"
-                      className="transition-transform duration-200 group-hover:translate-x-0.5"
-                    >
-                      →
-                    </span>
-                  </Link>
+                  </Button>
                 </div>
               </div>
             ) : null}

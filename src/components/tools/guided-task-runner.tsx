@@ -6,7 +6,8 @@
  * Collects the task's prompt fields and calls `runToolTaskAction` (a PURE
  * SIMULATION — no live external call, no destructive action). Owns the four
  * baseline states: idle, running, success, error. DESIGN.md trinity only
- * (cream panels, coral CTA, dark output block) — no inline hex.
+ * (cream panels, shared `Button` CTA, dark output block via the shared
+ * `WindowDots` chrome primitive) — no inline hex.
  */
 import { useState, useTransition } from "react";
 
@@ -14,6 +15,7 @@ import { runToolTaskAction } from "@/lib/tools/actions";
 import type { SimulationResult } from "@/lib/tools/types";
 import { CopyButton } from "@/components/code/copy-button";
 import { WindowDots } from "@/components/code/window-dots";
+import { Button } from "@/components/ui/button";
 
 interface GuidedTaskRunnerProps {
   toolSlug: string;
@@ -82,15 +84,9 @@ export function GuidedTaskRunner({
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={run}
-        disabled={isPending}
-        aria-busy={isPending}
-        className="rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
-      >
-        {state === "running" ? "Simulating…" : "Run simulation"}
-      </button>
+      <Button onClick={run} loading={isPending} loadingLabel="Simulating…">
+        Run simulation
+      </Button>
 
       <ResultPanel
         state={state}

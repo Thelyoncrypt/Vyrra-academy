@@ -12,11 +12,13 @@
  * doesn't collide with the disclosure summary above it — all type rhythm
  * lives in the MDX component map. No prose colour/size overrides here so
  * the map stays the single source of truth. ReadingProgress is a thin coral
- * scroll rule (the page's only persistent coral); both islands are
+ * scroll rule (the page's only persistent coral); ReadingAffordances is the
+ * tail-end back-to-top + time-remaining companion. All islands are
  * decorative/navigational chrome and add no document-outline headings.
  */
 import type { ReactNode } from "react";
 import { ReadingProgress } from "@/components/learn/reading-progress";
+import { ReadingAffordances } from "@/components/learn/reading-affordances";
 
 /** Stable anchor shared by the progress bar + TOC islands. */
 export const LESSON_BODY_ID = "lesson-mdx-body-root";
@@ -24,15 +26,29 @@ export const LESSON_BODY_ID = "lesson-mdx-body-root";
 interface LessonBodySlotProps {
   /** Server-rendered MDX nodes from `renderLessonBody(lesson.bodyPath)`. */
   children: ReactNode;
+  /**
+   * Authored whole-lesson reading estimate (minutes) for the tail
+   * time-remaining hint. Optional: contexts without an authored estimate
+   * (e.g. the capstone brief) omit it — the back-to-top control still
+   * works, the decorative hint just doesn't render.
+   */
+  estMinutes?: number;
 }
 
-export function LessonBodySlot({ children }: LessonBodySlotProps) {
+export function LessonBodySlot({
+  children,
+  estMinutes = 0,
+}: LessonBodySlotProps) {
   return (
     <>
       <ReadingProgress targetId={LESSON_BODY_ID} />
       <div id={LESSON_BODY_ID} className="lesson-body max-w-[640px]">
         {children}
       </div>
+      <ReadingAffordances
+        targetId={LESSON_BODY_ID}
+        estMinutes={estMinutes}
+      />
     </>
   );
 }

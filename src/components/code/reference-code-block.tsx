@@ -9,8 +9,10 @@
  * Visual-only: it renders the passed string as plain text inside a <pre>
  * (no markup parsing, no execution) and copies that exact string. DESIGN.md
  * `code-window-card`: surface-dark chrome + surface-dark-soft body, token
- * driven, no inline hex. WCAG 2.1 AA: chrome is decorative (via WindowDots),
- * the copy button carries its own label + live region.
+ * driven, no inline hex. The traffic-light dot strip is the shared
+ * `WindowDots` primitive (one source of truth — no duplicated chrome markup).
+ * WCAG 2.1 AA: chrome is decorative (via WindowDots), the copy button carries
+ * its own label + live region.
  */
 import { CopyButton } from "./copy-button";
 import { WindowDots } from "./window-dots";

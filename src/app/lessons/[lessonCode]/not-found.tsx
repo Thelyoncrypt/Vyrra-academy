@@ -8,8 +8,11 @@
  * a single coral primary CTA back to the tracks. Server component (no
  * interactivity needed). No raw input echoed back (security: avoids
  * reflecting an arbitrary `lessonCode` into the page).
+ *
+ * Wave 3: the hand-rolled CTA class string is replaced with the shared
+ * `Button` primitive (`href` → renders `next/link`). No copy or logic change.
  */
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function LessonNotFound() {
   return (
@@ -26,12 +29,7 @@ export default function LessonNotFound() {
           curriculum yet. Browse the tracks to find where you left off.
         </p>
         <div className="mt-8">
-          <Link
-            href="/tracks"
-            className="inline-flex rounded-md bg-primary px-5 py-2.5 font-sans text-[0.875rem] font-medium text-on-primary transition-colors hover:bg-primary-active"
-          >
-            Browse tracks
-          </Link>
+          <Button href="/tracks">Browse tracks</Button>
         </div>
       </div>
     </div>

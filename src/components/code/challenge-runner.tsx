@@ -9,14 +9,16 @@
  * passed, failed — plus progressive hint reveal on failure.
  *
  * Visual language is DESIGN.md trinity only (cream / coral / dark navy):
- * dark editor card, cream result panels, coral primary CTA, semantic
- * success/error dots. No inline hex, no fourth surface tone.
+ * dark editor card (shared `WindowChrome`), cream result panels, shared
+ * `Button` CTAs, semantic success/error dots. No inline hex, no fourth
+ * surface tone.
  */
 import { useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 
 import { submitChallengeAction } from "@/lib/sandbox/actions";
-import { WindowDots } from "./window-dots";
+import { WindowChrome } from "@/components/ui/window-chrome";
+import { Button } from "@/components/ui/button";
 import type {
   ChallengeLanguage,
   CriterionResult,
@@ -35,25 +37,19 @@ const CodeEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="overflow-hidden rounded-lg border border-white/[0.06] bg-surface-dark">
-        <div
-          aria-hidden="true"
-          className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-3"
-        >
-          <WindowDots />
-          <span className="rounded-md bg-white/[0.06] px-2.5 py-1 font-mono text-[0.75rem] text-on-dark-soft">
-            loading editor…
-          </span>
-        </div>
+      <WindowChrome filename="loading editor…">
         <div
           role="status"
           aria-label="Loading code editor"
           className="flex min-h-64 items-center gap-2 bg-surface-dark-soft px-6 py-6 font-mono text-[0.875rem] text-on-dark-soft"
         >
-          <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 animate-pulse rounded-full bg-primary"
+          />
           Preparing the editor…
         </div>
-      </div>
+      </WindowChrome>
     ),
   },
 );
@@ -120,31 +116,23 @@ export function ChallengeRunner({
       />
 
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
+        <Button
           onClick={submit}
-          disabled={isPending}
-          aria-busy={isPending}
-          className="rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
+          loading={isPending}
+          loadingLabel="Checking…"
         >
-          {state === "evaluating" ? "Checking…" : "Check solution"}
-        </button>
-        <button
-          type="button"
-          onClick={reset}
-          disabled={isPending}
-          className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors hover:bg-surface-soft disabled:cursor-not-allowed"
-        >
+          Check solution
+        </Button>
+        <Button variant="secondary" onClick={reset} disabled={isPending}>
           Reset
-        </button>
+        </Button>
         {hints.length > 0 && hintsShown < hints.length ? (
-          <button
-            type="button"
+          <Button
+            variant="secondary"
             onClick={() => setHintsShown((n) => n + 1)}
-            className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-muted transition-colors hover:text-ink"
           >
             Show a hint ({hintsShown}/{hints.length})
-          </button>
+          </Button>
         ) : null}
       </div>
 

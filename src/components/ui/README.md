@@ -156,3 +156,31 @@ Internal motion moved from `width` → `transform: scaleX` (compositor-only,
 no layout/paint). Visual result identical. **Public API + a11y attributes
 unchanged** (`value`, `label`, `showValue?`; `role="progressbar"` + clamped
 `aria-valuenow`).
+
+`RubricGrid` (wave-3): no API change. The focusable horizontal-scroll region
+no longer suppresses its focus ring (`focus-visible:outline-none` →
+`outline-offset:-2px`), so keyboard users get a visible inset coral indicator
+when they tab to scroll the matrix (WCAG 2.4.7). Visual at-rest state
+unchanged.
+
+---
+
+## Global utility: `.scrollbar-dark` (wave-3, additive — for the team)
+
+`globals.css` now ships an **opt-in** scrollbar utility for scrollable
+content sitting on a dark surface (tutor log, code `<pre>`, dark cards).
+Add the class **`scrollbar-dark`** to the *scrolling element itself* (the
+one with `overflow-y/x:auto`):
+
+```tsx
+<div className="overflow-y-auto scrollbar-dark"> … dark log … </div>
+```
+
+- Thin, low-contrast: white-alpha thumb (`rgba(250,249,245,0.18)` → `0.32`
+  on hover) on a transparent track over `surface-dark`. Affordance stays
+  clearly visible without becoming an ink line. Trinity-safe (no 4th tone).
+- Scoped — it never restyles the cream UI; only elements that opt in change.
+- Firefox: `scrollbar-width:thin` + `scrollbar-color`. WebKit/Blink:
+  `::-webkit-scrollbar*`. Motion-irrelevant; contrast/affordance unharmed.
+- Do **not** apply to cream surfaces — the white-alpha thumb is invisible on
+  cream. Cream scroll areas keep the native scrollbar.

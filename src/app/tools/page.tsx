@@ -6,7 +6,12 @@
  * (CLAUDE.md "Tool system security"). Also surfaces the agent-workflow
  * training entry point.
  *
+ * Layout density is a view preference (not a content filter) persisted in the
+ * `density` URL param so it is shareable and survives back/forward — the same
+ * URL-as-state mechanism /resources uses. Default = comfortable.
+ *
  * Heading order: one page H1 (PageHeader) → filter grid.
+ * Next.js 16: `searchParams` is a Promise.
  */
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -22,8 +27,22 @@ export const metadata: Metadata = {
     "A curated, simulated toolkit for hands-on AI engineering practice — safe by design.",
 };
 
-export default function ToolsPage() {
+interface ToolsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+/** First value if a param arrived repeated; safe string otherwise. */
+function one(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return value ?? "";
+}
+
+export default async function ToolsPage({ searchParams }: ToolsPageProps) {
+  const params = await searchParams;
   const tools = listTools();
+
+  // View preference, not a content filter — same URL-as-state as /resources.
+  const compact = one(params.density) === "compact";
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-16">
@@ -87,7 +106,11 @@ export default function ToolsPage() {
       </Link>
 
       <div className="mt-12">
-        <ToolFilterGrid tools={tools} categories={TOOL_CATEGORIES} />
+        <ToolFilterGrid
+          tools={tools}
+          categories={TOOL_CATEGORIES}
+          compact={compact}
+        />
       </div>
     </div>
   );

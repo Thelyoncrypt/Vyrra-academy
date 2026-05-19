@@ -3,16 +3,26 @@
 /**
  * ToolFilterGrid — the only client component on /tools. Holds category +
  * skill-level filter facets in local state and renders matching ToolCards.
- * DESIGN.md `category-tab` / `category-tab-active` for the facet pills.
- * Filtering is pure derivation from props (no server state duplicated).
+ * The facet pills are the shared `FacetPill` primitive (DESIGN.md
+ * `category-tab` / `category-tab-active`). Filtering is pure derivation from
+ * props (no server state duplicated) — that contract is unchanged.
+ *
+ * Layout density mirrors /resources: a view preference (not a content filter)
+ * persisted in the `density` URL param so it is shareable and survives
+ * back/forward. The server parses it and passes `compact` down; the toggle
+ * here only writes the param (parent owns the truth) — the local category /
+ * level filter state is untouched.
  *
  * Baseline states: populated (cards) and empty (no match → EmptyState).
  * Loading/error are owned by the server route (data is synchronous here).
  */
 import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ToolCard } from "./tool-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FacetPill } from "@/components/ui/facet-pill";
+import { Button } from "@/components/ui/button";
 import type {
   ToolCategory,
   ToolDefinition,
@@ -22,7 +32,11 @@ import type {
 interface ToolFilterGridProps {
   tools: readonly ToolDefinition[];
   categories: readonly ToolCategory[];
+  /** Current layout density (server-parsed from the `density` URL param). */
+  compact: boolean;
 }
+
+const DENSITY_PARAM = "density";
 
 const LEVELS: readonly ToolSkillLevel[] = [
   "beginner",
@@ -38,9 +52,17 @@ const LEVELS: readonly ToolSkillLevel[] = [
  */
 const STAGGER = ["", "delay-1", "delay-2"] as const;
 
-export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
+export function ToolFilterGrid({
+  tools,
+  categories,
+  compact,
+}: ToolFilterGridProps) {
   const [category, setCategory] = useState<string>("all");
   const [level, setLevel] = useState<string>("all");
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const visible = useMemo(
     () =>
@@ -55,6 +77,16 @@ export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
   const reset = () => {
     setCategory("all");
     setLevel("all");
+  };
+
+  /** Density rides the URL (shareable / back-forward) — same mechanism as
+   *  /resources. Empty value clears the param (= comfortable default). */
+  const setDensity = (next: "compact" | "") => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next) params.set(DENSITY_PARAM, next);
+    else params.delete(DENSITY_PARAM);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
   return (
@@ -78,6 +110,29 @@ export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
           active={level}
           onSelect={setLevel}
         />
+        <fieldset>
+          <legend className="mb-3 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+            Layout
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            <FacetPill
+              active={!compact}
+              onClick={() => {
+                if (compact) setDensity("");
+              }}
+            >
+              Comfortable
+            </FacetPill>
+            <FacetPill
+              active={compact}
+              onClick={() => {
+                if (!compact) setDensity("compact");
+              }}
+            >
+              Compact
+            </FacetPill>
+          </div>
+        </fieldset>
       </div>
 
       <p
@@ -88,7 +143,11 @@ export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
       </p>
 
       {visible.length > 0 ? (
-        <ul className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul
+          className={`mt-4 grid md:grid-cols-2 lg:grid-cols-3 ${
+            compact ? "gap-3" : "gap-6"
+          }`}
+        >
           {visible.map((tool, i) => (
             <li
               // Key includes the active facets so a filter change remounts the
@@ -97,7 +156,7 @@ export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
               key={`${category}-${level}-${tool.slug}`}
               className={`animate-rise-in ${STAGGER[i % STAGGER.length]}`}
             >
-              <ToolCard tool={tool} />
+              <ToolCard tool={tool} compact={compact} />
             </li>
           ))}
         </ul>
@@ -107,13 +166,9 @@ export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
             title="No tools match those filters"
             description="Try widening the category or skill level to see more of the toolkit."
             action={
-              <button
-                type="button"
-                onClick={reset}
-                className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors hover:bg-surface-soft"
-              >
+              <Button variant="secondary" onClick={reset}>
                 Clear filters
-              </button>
+              </Button>
             }
           />
         </div>
@@ -136,24 +191,15 @@ function FilterRow({ legend, options, active, onSelect }: FilterRowProps) {
         {legend}
       </legend>
       <div className="flex flex-wrap gap-2">
-        {options.map((opt) => {
-          const isActive = opt.value === active;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => onSelect(opt.value)}
-              className={`rounded-md px-3.5 py-2 font-sans text-sm font-medium capitalize transition-colors ${
-                isActive
-                  ? "bg-surface-card text-ink"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              {opt.label}
-            </button>
-          );
-        })}
+        {options.map((opt) => (
+          <FacetPill
+            key={opt.value}
+            active={opt.value === active}
+            onClick={() => onSelect(opt.value)}
+          >
+            <span className="capitalize">{opt.label}</span>
+          </FacetPill>
+        ))}
       </div>
     </fieldset>
   );

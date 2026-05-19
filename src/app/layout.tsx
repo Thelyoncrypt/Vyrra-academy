@@ -39,7 +39,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${cormorant.variable} ${inter.variable} ${jetbrainsMono.variable} h-full`}
-      style={{ fontFamily: "var(--font-cormorant)", colorScheme: "light" }}
+      style={{ colorScheme: "light" }}
     >
       <body className="flex min-h-full flex-col bg-canvas text-body">
         <a

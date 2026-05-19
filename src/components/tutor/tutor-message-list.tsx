@@ -11,12 +11,17 @@
  *
  * Each completed assistant turn carries a CopyButton (clipboard affordance) —
  * visual-only, it copies the already-rendered plain text and runs no logic.
- * A trailing sentinel ref lets the panel keep the latest token in view as the
- * stream grows.
+ * On a successful copy a brief aria-hidden "Copied" chip flashes beside it
+ * (a visual echo of CopyButton's own already-announced success — no extra
+ * clipboard logic, no duplicate screen-reader announcement). A trailing
+ * sentinel ref lets the panel keep the latest token in view as the stream
+ * grows.
  */
-import { type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import type { UIMessage } from "ai";
 import { CopyButton } from "@/components/code/copy-button";
+
+const COPIED_CHIP_MS = 1800;
 
 interface TutorMessageListProps {
   messages: readonly UIMessage[];
@@ -42,6 +47,25 @@ export function TutorMessageList({
   const visible = messages.filter(
     (m) => m.role === "user" || m.role === "assistant",
   );
+
+  // Brief inline "Copied" confirmation chip, keyed by the message id. Purely
+  // a visual echo of CopyButton's own (already-announced) success — it adds
+  // no clipboard logic and self-clears so a screen reader hears CopyButton's
+  // single announcement, not a loop (the chip itself is aria-hidden).
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const chipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (chipTimer.current) clearTimeout(chipTimer.current);
+    };
+  }, []);
+
+  const flashCopied = (id: string) => {
+    setCopiedId(id);
+    if (chipTimer.current) clearTimeout(chipTimer.current);
+    chipTimer.current = setTimeout(() => setCopiedId(null), COPIED_CHIP_MS);
+  };
 
   return (
     <div
@@ -87,7 +111,35 @@ export function TutorMessageList({
                   {isUser ? "You" : "Tutor"}
                 </p>
                 {showCopy ? (
-                  <CopyButton value={text} label="tutor reply" />
+                  <span className="flex items-center gap-2">
+                    {copiedId === m.id ? (
+                      <span
+                        aria-hidden="true"
+                        className="inline-flex items-center gap-1 rounded-pill bg-success/15 px-2 py-0.5 font-sans text-[0.625rem] font-medium uppercase tracking-[1px] text-success"
+                      >
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="m5 13 4 4L19 7"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        Copied
+                      </span>
+                    ) : null}
+                    <CopyButton
+                      value={text}
+                      label="tutor reply"
+                      onCopied={() => flashCopied(m.id)}
+                    />
+                  </span>
                 ) : null}
               </div>
               <p className="whitespace-pre-wrap break-words">{text}</p>
