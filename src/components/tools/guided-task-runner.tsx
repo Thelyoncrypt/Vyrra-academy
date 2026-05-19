@@ -6,15 +6,14 @@
  * Collects the task's prompt fields and calls `runToolTaskAction` (a PURE
  * SIMULATION — no live external call, no destructive action). Owns the four
  * baseline states: idle, running, success, error. DESIGN.md trinity only
- * (cream panels, shared `Button` CTA, dark output block via the shared
- * `WindowDots` chrome primitive) — no inline hex.
+ * (cream panels, shared `Button` CTA, dark output via the shared
+ * `DarkOutputPanel` primitive) — no inline hex.
  */
 import { useState, useTransition } from "react";
 
 import { runToolTaskAction } from "@/lib/tools/actions";
 import type { SimulationResult } from "@/lib/tools/types";
-import { CopyButton } from "@/components/code/copy-button";
-import { WindowDots } from "@/components/code/window-dots";
+import { DarkOutputPanel } from "@/components/code/dark-output-panel";
 import { Button } from "@/components/ui/button";
 
 interface GuidedTaskRunnerProps {
@@ -172,30 +171,13 @@ function ResultPanel({
         </span>
       </div>
       {result ? (
-        <div className="bg-canvas">
-          <div className="flex items-center justify-between gap-3 border-b border-hairline-soft bg-surface-dark px-4 py-2">
-            <span className="flex items-center gap-2">
-              <WindowDots size="sm" />
-              <span
-                aria-hidden="true"
-                className="font-mono text-[0.625rem] uppercase tracking-[1.5px] text-on-dark-soft"
-              >
-                output
-              </span>
-            </span>
-            <CopyButton
-              value={result.output}
-              label="simulation output"
-              tone="dark"
-            />
-          </div>
-          <pre className="overflow-x-auto bg-surface-dark-soft px-4 py-3.5 font-mono text-[0.8125rem] leading-relaxed text-on-dark">
-            {result.output}
-          </pre>
-          <p className="px-5 py-3.5 font-sans text-[0.8125rem] leading-relaxed text-muted">
-            {result.note}
-          </p>
-        </div>
+        <DarkOutputPanel
+          content={result.output}
+          label="output"
+          copyLabel="simulation output"
+          note={result.note}
+          className="rounded-none border-0 border-t border-hairline-soft"
+        />
       ) : null}
     </div>
   );

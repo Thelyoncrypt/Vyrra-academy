@@ -48,9 +48,22 @@ type AsButton = CommonProps & {
 type AsLink = CommonProps & {
   /** When set the button renders as a next/link <Link>. */
   href: string;
+  /**
+   * Additive: forwarded to the underlying next/link <Link>. Lets a CTA opt
+   * out of (or into) route prefetching — e.g. the lesson next-cue, which
+   * warms the forward route on intent rather than eagerly. `undefined` keeps
+   * Next's default behaviour (unchanged for every existing caller).
+   */
+  prefetch?: boolean;
+  /**
+   * Additive: forwarded to the underlying next/link <Link>. `false` keeps
+   * the scroll position on navigation (e.g. in-page step CTAs). Omitted =
+   * Next's default scroll-to-top (unchanged for every existing caller).
+   */
+  scroll?: boolean;
 } & Omit<
     AnchorHTMLAttributes<HTMLAnchorElement>,
-    keyof CommonProps | "href"
+    keyof CommonProps | "href" | "prefetch"
   >;
 
 type ButtonProps = AsButton | AsLink;
@@ -141,6 +154,9 @@ export function Button(props: ButtonProps) {
   if (props.href !== undefined) {
     const {
       href,
+      // forwarded explicitly to <Link> (additive next/link nav props)
+      prefetch,
+      scroll,
       // strip the shared props so the rest spreads safely onto the anchor
       children: _c,
       variant: _v,
@@ -154,6 +170,8 @@ export function Button(props: ButtonProps) {
     return (
       <Link
         href={href}
+        prefetch={prefetch}
+        scroll={scroll}
         className={composed}
         aria-disabled={loading || undefined}
         {...anchorRest}

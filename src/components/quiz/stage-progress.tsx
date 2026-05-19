@@ -58,9 +58,15 @@ export function StageProgress({
         </span>
       </p>
 
+      {/* Narrow screens: the four fixed nodes scroll horizontally instead of
+          crushing into illegible truncation (DESIGN.md fixed-content strategy
+          — same as code-window / rubric). At sm+ they snap to equal columns,
+          so the desktop appearance is unchanged. The rail stays aria-hidden:
+          the live caption above + the QuizRunner stage H2s carry position to
+          assistive tech, so scroll vs. fit is purely visual. */}
       <ol
         aria-hidden="true"
-        className="flex items-stretch gap-0 overflow-hidden rounded-lg border border-hairline bg-surface-card"
+        className="flex items-stretch gap-0 overflow-x-auto rounded-lg border border-hairline bg-surface-card sm:overflow-hidden"
       >
         {stages.map((stage, i) => {
           const meta = STAGE_META[stage];
@@ -74,7 +80,7 @@ export function StageProgress({
           return (
             <li
               key={stage}
-              className={`flex-1 px-4 py-3 transition-colors duration-normal ease-standard ${
+              className={`min-w-[8.5rem] flex-1 px-4 py-3 transition-colors duration-normal ease-standard sm:min-w-0 ${
                 i > 0 ? "border-l border-hairline" : ""
               } ${isCurrent ? "bg-canvas" : ""}`}
             >

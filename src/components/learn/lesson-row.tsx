@@ -100,8 +100,18 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
         <span className="mt-0.5 block font-sans text-[0.8125rem] leading-relaxed text-muted">
           {lesson.summary}
         </span>
+        {/* Meta restacks under the title below sm so the row never overflows
+            or crushes the title at 320/375 (DESIGN.md collapsing strategy:
+            restack rather than scale down). It rejoins the row at sm. */}
+        <span className="mt-2 flex items-center gap-2.5 sm:hidden">
+          <span className="tabular-nums font-sans text-[0.8125rem] text-muted-soft">
+            {lesson.estMinutes} min
+          </span>
+          {isCompleted ? <Badge tone="neutral">Done</Badge> : null}
+          {isLocked ? <Badge tone="outline">Locked</Badge> : null}
+        </span>
       </span>
-      <span className="flex shrink-0 items-center gap-3 self-start">
+      <span className="hidden shrink-0 items-center gap-3 self-start sm:flex">
         <span className="tabular-nums font-sans text-[0.8125rem] text-muted-soft">
           {lesson.estMinutes} min
         </span>

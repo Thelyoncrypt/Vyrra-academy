@@ -105,7 +105,7 @@ export function CodeEditor({
             <div key={i}>{i + 1}</div>
           ))}
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="scrollbar-dark min-w-0 flex-1 overflow-x-auto">
           <Editor
             textareaId={editorId}
             value={value}

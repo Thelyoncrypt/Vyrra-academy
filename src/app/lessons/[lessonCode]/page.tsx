@@ -151,9 +151,12 @@ export default async function LessonPage({ params }: LessonPageProps) {
         </div>
       ) : null}
 
-      <div className="mt-16 grid gap-x-16 gap-y-16 lg:grid-cols-[minmax(0,640px)_minmax(0,1fr)] lg:items-start">
-        {/* Reading column — magazine measure (~640px) */}
-        <div className="min-w-0 space-y-20 lg:space-y-24">
+      <div className="mt-16 grid gap-y-16 lg:grid-cols-[minmax(0,640px)_minmax(0,1fr)] lg:items-start lg:gap-x-16">
+        {/* Reading column — magazine measure (~640px). Below lg the layout
+            is single-column, so the measure is capped here; at lg+ the
+            640px grid track governs and the cap releases. Keeps the
+            long-form magazine measure at 320/375/768 (DESIGN.md). */}
+        <div className="min-w-0 max-w-[680px] space-y-20 lg:max-w-none lg:space-y-24">
           <LessonSection
             title="What you'll learn"
             id="lesson-outcomes"

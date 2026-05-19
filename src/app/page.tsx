@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SpikeMark } from "@/components/brand/spike-mark";
+import { Button } from "@/components/ui/button";
 
 /**
  * Landing page — DESIGN.md `hero-band` (cream canvas, 6/6 split: serif display
@@ -70,18 +71,10 @@ export default function HomePage() {
             first principles to multi-agent enterprise architecture.
           </p>
           <div className="animate-rise-in delay-3 mt-9 flex flex-wrap items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="inline-flex h-10 items-center rounded-md bg-primary px-5 font-sans text-sm font-medium text-on-primary transition-colors duration-fast ease-standard hover:bg-primary-active active:bg-primary-active"
-            >
-              Start learning
-            </Link>
-            <Link
-              href="/tracks"
-              className="inline-flex h-10 items-center rounded-md border border-hairline bg-canvas px-5 font-sans text-sm font-medium text-ink transition-colors duration-fast ease-standard hover:border-muted-soft hover:bg-surface-soft active:bg-surface-card"
-            >
+            <Button href="/dashboard">Start learning</Button>
+            <Button href="/tracks" variant="secondary">
               Explore tracks
-            </Link>
+            </Button>
           </div>
 
           {/* Curriculum scale — a designed stat row, hairline-separated rhythm */}

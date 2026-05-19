@@ -146,8 +146,10 @@ interface FilterRowProps {
 
 function FilterRow({ legend, options, active, onSelect }: FilterRowProps) {
   return (
-    <fieldset className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
-      <legend className="float-left mb-3 w-32 shrink-0 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted sm:mb-0">
+    <fieldset className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:gap-5">
+      {/* Plain block legend — no float (a float inside a flex column breaks
+          spacing at 320/375). Fixed-width rail only kicks in at sm. */}
+      <legend className="mb-1 p-0 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted sm:mb-0 sm:w-32 sm:shrink-0 sm:pt-2">
         {legend}
       </legend>
       <div className="flex flex-wrap gap-2">

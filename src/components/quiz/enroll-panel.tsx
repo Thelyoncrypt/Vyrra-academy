@@ -18,6 +18,8 @@ import {
   devEnrollAllAction,
   enrollAction,
 } from "@/lib/enrollment/actions";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 type LevelOrder = 1 | 2 | 3 | 4;
 
@@ -90,27 +92,25 @@ export function EnrollPanel({
       </p>
 
       {!enrolled ? (
-        <button
-          type="button"
+        <Button
           onClick={doEnroll}
-          disabled={isPending}
-          aria-busy={isPending}
-          className="mt-5 w-full rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
+          loading={isPending}
+          loadingLabel="Enrolling…"
+          className="mt-5 w-full"
         >
-          {isPending ? "Enrolling…" : "Enrol at this level"}
-        </button>
+          Enrol at this level
+        </Button>
       ) : null}
 
       {showDevControl ? (
-        <button
-          type="button"
+        <Button
+          variant="secondary"
           onClick={doDevEnrollAll}
-          disabled={isPending}
-          aria-busy={isPending}
-          className="mt-3 w-full rounded-md border border-hairline bg-canvas px-5 py-2 font-sans text-[0.8125rem] font-medium text-muted transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-60"
+          loading={isPending}
+          className="mt-3 w-full"
         >
-          {isPending ? "Working…" : "Dev: enrol in every track & level"}
-        </button>
+          Dev: enrol in every track &amp; level
+        </Button>
       ) : null}
 
       {note ? (
@@ -119,9 +119,9 @@ export function EnrollPanel({
         </p>
       ) : null}
       {error ? (
-        <p role="alert" className="mt-3 font-sans text-[0.75rem] text-error">
+        <Alert tone="error" className="mt-3">
           {error}
-        </p>
+        </Alert>
       ) : null}
     </div>
   );

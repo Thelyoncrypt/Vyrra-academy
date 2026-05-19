@@ -12,7 +12,7 @@
  * text; `digest` is the only safe correlation handle. Client component per
  * Next.js error-boundary contract.
  */
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface AssessmentErrorProps {
   error: Error & { digest?: string };
@@ -38,19 +38,16 @@ export default function AssessmentError({
           later.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <button
-            type="button"
-            onClick={reset}
-            className="w-full rounded-md bg-primary px-5 py-2.5 font-sans text-[0.875rem] font-medium text-on-primary transition-colors hover:bg-primary-active sm:w-auto"
-          >
+          <Button onClick={reset} className="w-full sm:w-auto">
             Try again
-          </button>
-          <Link
+          </Button>
+          <Button
             href="/dashboard"
-            className="w-full rounded-md px-5 py-2.5 font-sans text-[0.875rem] font-medium text-primary transition-colors hover:text-primary-active sm:w-auto"
+            variant="text-link"
+            className="w-full sm:w-auto"
           >
             Back to dashboard
-          </Link>
+          </Button>
         </div>
         {error.digest ? (
           <p className="mt-8 font-mono text-[0.6875rem] text-muted-soft">

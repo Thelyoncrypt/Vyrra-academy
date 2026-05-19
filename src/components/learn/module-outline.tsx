@@ -94,18 +94,19 @@ export function ModuleOutline({
         <div className="mt-5">{lessonList}</div>
       ) : (
         <details className="group/preview mt-5">
-          <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-lg border border-hairline bg-surface-soft px-4 py-3 font-sans text-[0.875rem] font-medium text-body-strong transition-colors duration-200 hover:bg-surface-cream-strong [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-2.5 gap-y-1 rounded-lg border border-hairline bg-surface-soft px-4 py-3 font-sans text-[0.875rem] font-medium text-body-strong transition-colors duration-200 hover:bg-surface-cream-strong [&::-webkit-details-marker]:hidden">
             <span
               aria-hidden="true"
-              className="text-muted-soft transition-transform duration-200 group-open/preview:rotate-90"
+              className="shrink-0 text-muted-soft transition-transform duration-200 group-open/preview:rotate-90"
             >
               ▸
             </span>
-            <span className="flex-1">
+            <span className="flex-1 basis-40">
               Preview the {lessonCount} lesson
               {lessonCount === 1 ? "" : "s"} ahead
             </span>
-            <span className="tabular-nums font-sans text-[0.8125rem] font-normal text-muted">
+            {/* Wraps under the label below sm rather than crushing it. */}
+            <span className="tabular-nums w-full font-sans text-[0.8125rem] font-normal text-muted sm:w-auto">
               Locked until prerequisites are met
             </span>
           </summary>

@@ -29,6 +29,8 @@ import {
 import { QuizResults } from "@/components/quiz/quiz-results";
 import { StageProgress } from "@/components/quiz/stage-progress";
 import { STAGE_META, type StageOrder } from "@/components/quiz/stage-meta";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface QuizRunnerProps {
   quiz: Quiz;
@@ -218,26 +220,18 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
         );
       })}
 
-      {error ? (
-        <p
-          role="alert"
-          className="rounded-lg border border-error/40 bg-surface-card px-5 py-4 font-sans text-[0.875rem] text-error"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <Alert tone="error">{error}</Alert> : null}
 
       {canSubmit ? (
         <div className="flex flex-wrap items-center gap-4 border-t border-hairline pt-6">
-          <button
-            type="button"
+          <Button
             onClick={submit}
-            disabled={busy || answeredCount === 0}
-            aria-busy={busy}
-            className="rounded-md bg-primary px-6 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
+            disabled={answeredCount === 0}
+            loading={busy}
+            loadingLabel="Grading…"
           >
-            {busy ? "Grading…" : "Submit for grading"}
-          </button>
+            Submit for grading
+          </Button>
           <span className="font-sans text-[0.8125rem] text-muted">
             <span className="font-medium text-body-strong">
               {answeredCount}
@@ -251,10 +245,10 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
           </span>
         </div>
       ) : (
-        <p className="rounded-lg border border-hairline bg-surface-soft px-5 py-4 font-sans text-[0.875rem] text-muted">
+        <Alert tone="info">
           This quiz is in preview — enrol and unlock the lesson to submit it
           for grading.
-        </p>
+        </Alert>
       )}
     </div>
   );

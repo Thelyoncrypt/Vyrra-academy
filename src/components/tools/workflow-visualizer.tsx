@@ -32,7 +32,7 @@ export function WorkflowVisualizer({ steps }: WorkflowVisualizerProps) {
 
   return (
     <WindowChrome filename="agent trace" meta="no execution">
-      <div className="px-5 py-5">
+      <div className="px-4 py-5 sm:px-5">
         <ol className="relative space-y-3" aria-live="polite">
           {steps.slice(0, revealed).map((step, i) => {
             const isLast = i === revealed - 1;
@@ -93,7 +93,7 @@ export function WorkflowVisualizer({ steps }: WorkflowVisualizerProps) {
             Restart
           </Button>
           <div
-            className="ml-auto flex items-center gap-3"
+            className="flex items-center gap-3 sm:ml-auto"
             aria-live="polite"
           >
             <span className="font-sans text-[0.8125rem] text-on-dark-soft">
@@ -101,7 +101,7 @@ export function WorkflowVisualizer({ steps }: WorkflowVisualizerProps) {
             </span>
             <span
               aria-hidden="true"
-              className="flex gap-1"
+              className="flex flex-wrap gap-1"
             >
               {steps.map((s, i) => (
                 <span

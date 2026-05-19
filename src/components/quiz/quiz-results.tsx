@@ -22,6 +22,7 @@ import { useMemo } from "react";
 
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { QuizResult } from "@/lib/assessment/quiz-scoring";
 import { STAGE_META, type StageOrder } from "@/components/quiz/stage-meta";
 import { useCountUp } from "@/components/quiz/use-count-up";
@@ -265,13 +266,9 @@ export function QuizResults({
       </ol>
 
       <div className="flex flex-wrap items-center gap-4 border-t border-hairline pt-6">
-        <button
-          type="button"
-          onClick={onRetake}
-          className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-body-strong transition-colors hover:text-ink"
-        >
+        <Button variant="secondary" onClick={onRetake}>
           Retake quiz
-        </button>
+        </Button>
         <span className="font-sans text-[0.8125rem] text-muted">
           Retaking resets your answers. Your highest score is kept.
         </span>

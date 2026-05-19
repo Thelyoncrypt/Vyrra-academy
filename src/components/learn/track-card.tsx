@@ -116,8 +116,8 @@ export function TrackCard({ track, lessonCount, progress }: TrackCardProps) {
 
       {pct !== null ? (
         <div className="mt-6">
-          <div className="mb-2 flex items-center justify-between font-sans text-[0.8125rem] text-muted">
-            <span>
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 font-sans text-[0.8125rem] text-muted">
+            <span className="min-w-0">
               {started ? "In progress" : "Not started"}
               <span aria-hidden="true" className="mx-1.5 text-muted-soft">
                 ·

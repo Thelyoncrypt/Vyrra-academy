@@ -17,8 +17,18 @@
  *
  * Visual language is DESIGN.md trinity only (cream-card surface, hairline
  * grid, ink/body type, scarce coral on the weight chip). No fourth tone.
+ *
+ * Additive (wave-4): `highlightBand` emphasises the awarded band per row in
+ * the grading/confirmed views. Emphasis is NOT colour-only — the awarded
+ * cell carries `aria-current="true"`, an sr-only "Awarded band" phrase, a
+ * coral inset rule + medium ink text, so it survives greyscale and screen
+ * readers (WCAG 1.4.1 Use of Color, 2.1 AA). Omitted ⇒ byte-identical to
+ * the prior render for every existing caller.
  */
 import type { ReactNode } from "react";
+
+/** A 1–4 band index — the curriculum's fixed 4-point rubric scale. */
+export type RubricBand = 1 | 2 | 3 | 4;
 
 export interface RubricCriterion {
   readonly id: string;
@@ -38,6 +48,13 @@ interface RubricGridProps {
   bandLabels?: readonly [string, string, string, string];
   /** Optional right-aligned slot in the caption row. */
   action?: ReactNode;
+  /**
+   * Additive: per-criterion awarded band. Keyed by `RubricCriterion.id`;
+   * the matching band cell (1–4) is emphasised non-colour-only. Criteria
+   * absent from the map render with no emphasis. Out-of-range / unknown
+   * keys are ignored. Omitted ⇒ no highlighting (prior behaviour).
+   */
+  highlightBand?: Readonly<Record<string, RubricBand>>;
 }
 
 const DEFAULT_BANDS = [
@@ -53,6 +70,7 @@ export function RubricGrid({
   captionVisible = false,
   bandLabels = DEFAULT_BANDS,
   action,
+  highlightBand,
 }: RubricGridProps) {
   return (
     <figure className="rounded-lg border border-hairline bg-surface-card">
@@ -100,34 +118,54 @@ export function RubricGrid({
             </tr>
           </thead>
           <tbody>
-            {criteria.map((c, rowIndex) => (
-              <tr
-                key={c.id}
-                className={
-                  rowIndex % 2 === 1 ? "bg-canvas/50" : undefined
-                }
-              >
-                <th
-                  scope="row"
-                  className="border-t border-hairline-soft px-5 py-4 align-top font-sans text-[0.875rem] font-medium text-body-strong"
+            {criteria.map((c, rowIndex) => {
+              const awarded = highlightBand?.[c.id];
+              return (
+                <tr
+                  key={c.id}
+                  className={
+                    rowIndex % 2 === 1 ? "bg-canvas/50" : undefined
+                  }
                 >
-                  {c.name}
-                  {c.weight && c.weight > 1 ? (
-                    <span className="mt-1.5 block font-sans text-[0.6875rem] font-normal lowercase tracking-normal text-primary">
-                      weight ×{c.weight}
-                    </span>
-                  ) : null}
-                </th>
-                {c.descriptors.map((desc, i) => (
-                  <td
-                    key={i}
-                    className="border-t border-hairline-soft px-5 py-4 align-top font-sans text-[0.8125rem] leading-relaxed text-body"
+                  <th
+                    scope="row"
+                    className="border-t border-hairline-soft px-5 py-4 align-top font-sans text-[0.875rem] font-medium text-body-strong"
                   >
-                    {desc}
-                  </td>
-                ))}
-              </tr>
-            ))}
+                    {c.name}
+                    {c.weight && c.weight > 1 ? (
+                      <span className="mt-1.5 block font-sans text-[0.6875rem] font-normal lowercase tracking-normal text-primary">
+                        weight ×{c.weight}
+                      </span>
+                    ) : null}
+                  </th>
+                  {c.descriptors.map((desc, i) => {
+                    const isAwarded = awarded === i + 1;
+                    return (
+                      <td
+                        key={i}
+                        // aria-current marks the awarded band cell for
+                        // assistive tech; emphasis is NOT colour-only — a
+                        // coral inset rule + medium ink text + the sr-only
+                        // phrase carry it under greyscale / SR (WCAG 1.4.1).
+                        aria-current={isAwarded ? "true" : undefined}
+                        className={`border-t border-hairline-soft px-5 py-4 align-top font-sans text-[0.8125rem] leading-relaxed ${
+                          isAwarded
+                            ? "border-l-2 border-l-primary bg-surface-cream-strong/60 font-medium text-ink"
+                            : "text-body"
+                        }`}
+                      >
+                        {isAwarded ? (
+                          <span className="sr-only">
+                            Awarded band — {c.name}:{" "}
+                          </span>
+                        ) : null}
+                        {desc}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

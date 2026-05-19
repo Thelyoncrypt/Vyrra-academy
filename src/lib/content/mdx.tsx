@@ -117,9 +117,14 @@ const mdxComponents = {
   // DESIGN.md `code-window-card`: dark surface, JetBrains Mono, rounded-lg,
   // 24px (spacing.lg) padding, horizontal scroll on overflow (never wrap).
   // Inner <code> resets the inline-token styling so block code reads on dark.
+  // `scrollbar-dark` is the shipped opt-in utility for a scrolling element on
+  // a dark surface — applied to the <pre> itself (the overflow-x element) so
+  // the horizontal-scroll affordance is a quiet white-alpha pill, not a
+  // bright native bar on the navy code window. Visual-only: the MDX parse /
+  // security posture (no rehype-raw, no dangerouslySetInnerHTML) is unchanged.
   pre: (props: { children?: ReactNode }) => (
     <pre
-      className="mt-7 overflow-x-auto rounded-lg bg-surface-dark p-6 font-mono text-[0.8125rem] leading-[1.6] text-on-dark [&>code]:bg-transparent [&>code]:px-0 [&>code]:py-0 [&>code]:text-[length:inherit] [&>code]:text-on-dark"
+      className="scrollbar-dark mt-7 overflow-x-auto rounded-lg bg-surface-dark p-6 font-mono text-[0.8125rem] leading-[1.6] text-on-dark [&>code]:bg-transparent [&>code]:px-0 [&>code]:py-0 [&>code]:text-[length:inherit] [&>code]:text-on-dark"
       {...props}
     />
   ),

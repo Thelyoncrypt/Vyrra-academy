@@ -23,10 +23,21 @@
  * an uppercase tracked label over a hairline-quiet list, the active item
  * marked with the scarce coral spike-mark, never a loud filled nav. Motion
  * is opacity/colour only; the global reduced-motion rule neutralises it.
+ *
+ * Scroll-spy unification: the active heading is NOT computed by a private
+ * IntersectionObserver any more — it comes from `useActiveHeadingId`, the
+ * same single rAF-coalesced scroll source that drives `ReadingProgress`
+ * and the time-remaining hint. So the TOC marker, the progress rule and
+ * the reading-time tell one consistent reading-position story (no second
+ * listener, no competing observer). Reduced-motion safe (positional truth,
+ * not animation); the `aria-hidden` anchor "#" decoration and keyboard
+ * focus order are unchanged.
  */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { useActiveHeadingId } from "@/components/learn/use-reading-ratio";
 
 interface TocEntry {
   id: string;
@@ -60,7 +71,6 @@ function slugify(text: string, used: Set<string>): string {
 
 export function LessonToc({ bodyId }: LessonTocProps) {
   const [entries, setEntries] = useState<TocEntry[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
     const root = document.getElementById(bodyId);
@@ -97,22 +107,13 @@ export function LessonToc({ bodyId }: LessonTocProps) {
     }
 
     setEntries(collected);
-    if (collected.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (records) => {
-        const visible = records
-          .filter((r) => r.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]?.target.id) {
-          setActiveId(visible[0].target.id);
-        }
-      },
-      { rootMargin: "-96px 0px -65% 0px" },
-    );
-    for (const h of headings) observer.observe(h);
-    return () => observer.disconnect();
   }, [bodyId]);
+
+  // Active heading comes from the shared reading-scroll source (same single
+  // rAF listener as ReadingProgress) — not a private observer — so the TOC
+  // marker stays in lockstep with the progress rule and reading-time.
+  const headingIds = useMemo(() => entries.map((e) => e.id), [entries]);
+  const activeId = useActiveHeadingId(headingIds);
 
   if (entries.length < 2) return null;
 
