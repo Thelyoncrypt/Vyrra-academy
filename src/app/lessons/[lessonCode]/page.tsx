@@ -80,6 +80,8 @@ function toCompletionState(status: string | undefined): CompletionState {
   return "not-started";
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function LessonPage({ params }: LessonPageProps) {
   const { lessonCode } = await params;
   const lesson = getLesson(lessonCode);

@@ -46,6 +46,8 @@ export async function generateMetadata({
   };
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function LevelPage({ params }: LevelPageProps) {
   const { trackSlug, levelSlug } = await params;
   const track = getTrack(trackSlug);

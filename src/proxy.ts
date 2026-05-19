@@ -35,10 +35,16 @@ function buildCsp(nonce: string): string {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.clerk.accounts.dev https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://img.clerk.com",
+    // Video thumbnails: YouTube (i.ytimg.com / *.ytimg.com) + Vimeo
+    // (i.vimeocdn.com) for the in-app embed facade (Pillar V5).
+    "img-src 'self' data: blob: https://img.clerk.com https://i.ytimg.com https://*.ytimg.com https://i.vimeocdn.com",
     "font-src 'self' data:",
     "connect-src 'self' https://gateway.ai.vercel.app https://*.clerk.accounts.dev https://clerk-telemetry.com",
-    "frame-src 'none'",
+    // In-app video players: privacy-nocookie YouTube + Vimeo. Was
+    // `frame-src 'none'` — embedding the curated videos IN-APP (not a
+    // link-out) requires allowlisting these player origins. Everything
+    // else stays locked (object-src none, frame-ancestors none, etc.).
+    "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
     "worker-src 'self' blob:",
     "frame-ancestors 'none'",
     "object-src 'none'",

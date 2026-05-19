@@ -64,6 +64,8 @@ function sampleLessonForLevel(levelOrder: number): string | null {
   return null;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function CapstonePage({ params }: CapstonePageProps) {
   const { capstoneId } = await params;
   const contract = getCapstone(capstoneId);

@@ -2,25 +2,28 @@
  * VideoCard — one curated video as a DESIGN.md dark `product-mockup-card`.
  *
  * Pillar V5. Renders a single `VideoResource` (the source's Master Video
- * Index row) as a dark navy media block: title, duration (mm:ss), a
- * freshness badge, a source badge, the "why included" rationale, and a
- * link-out. There is intentionally NO iframe embed this wave — the app
- * links out (`target=_blank rel="noopener noreferrer"`, sr-only "opens in
- * new tab") and never re-hosts the video (plan §Risks: rights/CSP).
+ * Index row) as a dark navy media block: an IN-APP embed facade (a 16:9
+ * thumbnail + Vyrra-mark play button that swaps to an inline player on
+ * click — `<VideoEmbed/>`), then the title, duration (mm:ss), a freshness
+ * badge, a source badge, and the "why included" rationale. The video plays
+ * INSIDE the app (privacy-nocookie iframe) — it is not a "watch on YouTube"
+ * link-out. Off-platform/unresolvable URLs degrade to a tasteful in-card
+ * fallback link inside the facade.
  *
  * DESIGN.md law: the media chrome sits on `surface-dark` (the product/
  * code surface) with `on-dark` type — trinity only, coral kept scarce
- * (one coral spike-mark beside the title, never a coral fill). The two
- * status badges are NOT colour-only: each carries a shape/dot AND a text
- * label so the freshness/source signal survives greyscale + a screen
- * reader (WCAG 1.4.1 / 2.1 AA). All motion is the global compositor-only
- * hover; reduced-motion is neutralised in globals.css.
+ * (one coral spike-mark beside the title; the play button is the Vyrra
+ * mark, never a coral fill). The two status badges are NOT colour-only:
+ * each carries a shape/dot AND a text label so the freshness/source signal
+ * survives greyscale + a screen reader (WCAG 1.4.1 / 2.1 AA). All motion
+ * is compositor-only; reduced-motion is neutralised in globals.css.
  *
- * Server component (no client state) — pure presentation of validated
- * contract data.
+ * The facade owns the only client state (the one-way play flip); the card
+ * itself stays pure presentation of validated contract data.
  */
 import type { VideoResource } from "@/content/contract";
 import { SpikeMark } from "@/components/brand/spike-mark";
+import { VideoEmbed } from "./youtube-embed";
 
 interface VideoCardProps {
   video: VideoResource;
@@ -116,6 +119,9 @@ export function VideoCard({ video }: VideoCardProps) {
         </span>
       </div>
 
+      {/* In-app embed facade: thumbnail + Vyrra play → inline player. */}
+      <VideoEmbed video={video} />
+
       <div className="flex flex-1 flex-col gap-4 p-6">
         <div className="flex items-start gap-2.5">
           <span aria-hidden="true" className="mt-1 shrink-0 text-primary">
@@ -154,23 +160,10 @@ export function VideoCard({ video }: VideoCardProps) {
           </li>
         </ul>
 
-        <p className="font-sans text-[0.875rem] leading-relaxed text-on-dark-soft">
+        <p className="mt-auto font-sans text-[0.875rem] leading-relaxed text-on-dark-soft">
           <span className="font-medium text-on-dark">Why included: </span>
           {video.rationale}
         </p>
-
-        <div className="mt-auto pt-2">
-          <a
-            href={video.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-md bg-white/[0.08] px-4 py-2 font-sans text-[0.875rem] font-medium text-on-dark transition-colors duration-fast ease-standard hover:bg-white/[0.14] focus-visible:outline-none focus-visible:[box-shadow:0_0_0_2px_var(--color-primary)]"
-          >
-            Watch on {PROVIDER_LABEL[video.provider]}
-            <span aria-hidden="true">↗</span>
-            <span className="sr-only">(opens in a new tab)</span>
-          </a>
-        </div>
       </div>
     </article>
   );

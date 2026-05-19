@@ -43,6 +43,8 @@ export async function generateMetadata({
   };
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function QuizPage({ params }: QuizPageProps) {
   const { quizId } = await params;
   const resolved = resolveQuiz(quizId);

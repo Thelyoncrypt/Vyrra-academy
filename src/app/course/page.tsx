@@ -48,6 +48,8 @@ interface CoursePageProps {
   searchParams: Promise<{ path?: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function CoursePage({ searchParams }: CoursePageProps) {
   const { path: pathParam } = await searchParams;
   const path = resolveCoursePath(pathParam);

@@ -44,6 +44,8 @@ export async function generateMetadata({
   };
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function TrackPage({ params }: TrackPageProps) {
   const { trackSlug } = await params;
   const track = getTrack(trackSlug);

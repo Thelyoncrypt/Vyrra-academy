@@ -37,7 +37,7 @@ import {
 export const metadata: Metadata = {
   title: "Curated Video Index — AI Course App",
   description:
-    "Every hand-picked video across the curriculum — graded for freshness and source, filterable by module. Links open on the source platform; nothing is embedded or autoplayed.",
+    "Every hand-picked video across the curriculum — graded for freshness and source, filterable by module. Each video plays inline, in the app.",
 };
 
 /**
@@ -81,7 +81,7 @@ export default function VideosPage() {
           eyebrow="Curated video index"
           title="Every curated video"
           titleId="videos-heading"
-          lead="A hand-picked, graded video library spanning the whole curriculum. Each card shows freshness and source so you know what you're getting — filter by module, then watch on the source platform (opens in a new tab; nothing is embedded or autoplayed here)."
+          lead="A hand-picked, graded video library spanning the whole curriculum. Each card shows freshness and source so you know what you're getting — filter by module, then press the play button to watch inline, right here in the app."
         />
       </div>
 

@@ -54,6 +54,8 @@ const STATS: readonly { value: string; label: string }[] = [
   { value: "Beginner→Expert", label: "Progression" },
 ] as const;
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const principal = await getCurrentPrincipal();
   const nextAction = await recommendNextAction(principal);

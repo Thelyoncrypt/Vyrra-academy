@@ -30,6 +30,8 @@ export const metadata: Metadata = {
     "Every track in the AI Development Ecosystems programme, filterable by skill level and ecosystem.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function TracksPage() {
   const tracks = listTracks();
   const items: TrackGridItem[] = tracks.map((track) => ({

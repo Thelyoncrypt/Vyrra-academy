@@ -47,6 +47,8 @@ export const metadata: Metadata = {
     "Your tracks, skill progression, recommended next lesson, and next actions.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const principal = await getCurrentPrincipal();
 
