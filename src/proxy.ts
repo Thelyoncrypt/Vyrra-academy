@@ -49,17 +49,20 @@ function buildCsp(nonce: string): string {
     // (i.vimeocdn.com) for the in-app embed facade (Pillar V5).
     "img-src 'self' data: blob: https://img.clerk.com https://i.ytimg.com https://*.ytimg.com https://i.vimeocdn.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://gateway.ai.vercel.app https://*.clerk.accounts.dev https://*.clerk.com https://clerk-telemetry.com",
-    // In-app video players: privacy-nocookie YouTube + Vimeo. Was
-    // `frame-src 'none'` — embedding the curated videos IN-APP (not a
-    // link-out) requires allowlisting these player origins. Everything
-    // else stays locked (object-src none, frame-ancestors none, etc.).
-    "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
+    "connect-src 'self' https://gateway.ai.vercel.app https://*.clerk.accounts.dev https://*.clerk.com https://clerk-telemetry.com https://challenges.cloudflare.com",
+    // Frames: (1) in-app video players (YouTube/Vimeo facade, Pillar V5);
+    // (2) Clerk auth — its session-handshake / account-portal iframe AND the
+    // Cloudflare Turnstile bot-check iframe Clerk renders during sign-in;
+    // (3) Google OAuth. Without 2+3 the sign-in silently HANGS (the Turnstile
+    // challenge can't paint). Everything else stays locked.
+    "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com https://accounts.google.com",
     "worker-src 'self' blob:",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
+    // OAuth completes by submitting/redirecting to Clerk FAPI + the identity
+    // provider (Google); `form-action 'self'` alone blocks that hand-off.
+    "form-action 'self' https://*.clerk.accounts.dev https://*.clerk.com https://accounts.google.com",
     "upgrade-insecure-requests",
   ].join("; ");
 }
