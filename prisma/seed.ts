@@ -49,6 +49,7 @@ import {
   type Track,
   type VideoResource,
 } from "../src/content/contract";
+import { getAcademyCatalog } from "../src/content/anthropic-academy";
 
 const MANIFEST_PATH = join(process.cwd(), "content", "manifest.json");
 
@@ -534,14 +535,53 @@ async function upsertResources(
   return resources.length;
 }
 
+/**
+ * Upsert the Anthropic Academy mirror catalog rows from the static,
+ * Zod-validated `content/anthropic-academy.json` (loaded + validated by
+ * `src/content/anthropic-academy.ts` — fails loud on drift). Idempotent by the
+ * contract's stable `slug`, so re-running reconciles rather than duplicating.
+ * Independent of the curriculum manifest (a different content source); runs
+ * even when the manifest is absent so the mirror always has its 23 courses.
+ */
+async function upsertAcademyCatalog(): Promise<number> {
+  const catalog = getAcademyCatalog();
+  for (const course of catalog.courses) {
+    const data = {
+      title: course.title,
+      description: course.description,
+      category: course.category,
+      level: course.level,
+      provider: catalog.provider,
+      url: course.url,
+      order: course.order,
+    };
+    await prisma.externalCourse.upsert({
+      where: { slug: course.slug },
+      update: data,
+      create: { slug: course.slug, ...data },
+    });
+  }
+  console.info(`[seed] academy courses: ${catalog.courses.length}`);
+  return catalog.courses.length;
+}
+
 async function main(): Promise<void> {
   const manifest = loadManifest();
-  if (!manifest) {
-    return; // missing manifest is a clean no-op, not a failure
-  }
 
-  // Manifest is present → we will write. Only now do we require a DB.
+  // The Anthropic Academy mirror catalog is an independent content source
+  // (static JSON, not the curriculum manifest). It must seed even when the
+  // manifest has not been generated yet — so a DB is required as soon as
+  // EITHER content source is present to write.
   prisma = createPrisma();
+
+  // Always seed the Academy mirror (idempotent; independent of manifest).
+  await upsertAcademyCatalog();
+
+  if (!manifest) {
+    // No curriculum manifest yet — the Academy mirror is still seeded above.
+    console.info("[seed] no curriculum manifest — academy-only seed done.");
+    return;
+  }
 
   console.info(
     `[seed] manifest OK (generatedAt=${manifest.generatedAt}, ` +

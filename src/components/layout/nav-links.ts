@@ -14,6 +14,7 @@ export interface NavLink {
 export const PRIMARY_NAV_LINKS: readonly NavLink[] = [
   { label: "Course", href: "/course" },
   { label: "Dashboard", href: "/dashboard" },
+  { label: "Academy", href: "/academy" },
   { label: "Resources", href: "/resources" },
   { label: "Tools", href: "/tools" },
   { label: "Practice", href: "/code-challenges" },

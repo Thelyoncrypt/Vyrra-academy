@@ -146,6 +146,15 @@ enum VideoSource {
   academic
 }
 
+/// Local completion state for a mirrored Anthropic Academy course. The course
+/// itself is taken on Anthropic (we deep-link OUT); only the learner's
+/// progress is tracked here (Anthropic Academy mirror).
+enum ExternalCourseStatus {
+  not_started
+  in_progress
+  completed
+}
+
 // ---------------------------------------------------------------------------
 // Identity
 // ---------------------------------------------------------------------------
@@ -165,9 +174,10 @@ model User {
   attempts          Attempt[]
   certificates      Certificate[]
   conversations     TutorConversation[]
+  externalProgress  ExternalCourseProgress[]
   /// Assessments this user authored as the human grader (graderId may also be
   /// the literal "system" sentinel for AI drafts — see Assessment.graderId).
-  gradedAssessments Assessment[]        @relation("AssessmentGrader")
+  gradedAssessments Assessment[]             @relation("AssessmentGrader")
   rateBucket        TutorRateBucket?
 }
 
@@ -362,6 +372,60 @@ model Resource {
   @@index([trackId])
   @@index([type])
   @@index([difficulty])
+}
+
+// ---------------------------------------------------------------------------
+// Anthropic Academy mirror — catalog rows + local completion tracking
+// ---------------------------------------------------------------------------
+
+/// A mirrored Anthropic Academy course. The catalog source of truth is the
+/// static `content/anthropic-academy.json` (Zod-validated by
+/// `src/content/anthropic-academy.ts`); these rows are an idempotently-seeded
+/// projection of it keyed by the contract's stable `slug`, so the recommend-
+/// next + completion services can join progress without re-reading the JSON.
+/// `url` is the EXACT Anthropic deep link the learner opens to take the course
+/// — the app NEVER re-hosts Anthropic course content, it links OUT and tracks
+/// completion back here.
+model ExternalCourse {
+  id          String @id @default(cuid())
+  slug        String @unique
+  title       String
+  description String
+  /// Catalog category slug (e.g. "foundations") — ordering via the JSON.
+  category    String
+  /// "beginner" | "intermediate" | "advanced" (catalog level).
+  level       String
+  /// Catalog provider, e.g. "anthropic-academy".
+  provider    String
+  /// Exact Anthropic Skilljar / anthropics/courses deep link.
+  url         String
+  /// Within-category display + recommend-next ordering.
+  order       Int
+
+  progress ExternalCourseProgress[]
+
+  @@index([category])
+}
+
+/// Per-user local completion state for one mirrored Academy course. Idempotent
+/// upsert keyed by `(userId, courseSlug)` so repeated client toggles never
+/// duplicate. `courseSlug` is the catalog natural key (not a hard FK) so a
+/// catalog re-seed never orphans a learner's progress. `startedAt` is set on
+/// first non-not_started transition; `completedAt` on entering `completed`.
+model ExternalCourseProgress {
+  id          String               @id @default(cuid())
+  userId      String
+  courseSlug  String
+  status      ExternalCourseStatus @default(not_started)
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course ExternalCourse @relation(fields: [courseSlug], references: [slug], onDelete: Cascade)
+
+  @@unique([userId, courseSlug])
+  @@index([userId])
+  @@index([courseSlug])
 }
 
 // ---------------------------------------------------------------------------

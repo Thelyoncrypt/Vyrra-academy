@@ -40,6 +40,13 @@ import {
   getWeakAreas,
 } from "@/lib/journey";
 import type { NextAction } from "@/lib/journey";
+import {
+  recommendNextCourse,
+  getAcademyProgress,
+  totalCourseCount,
+} from "@/lib/academy";
+import type { AcademyNextCourse } from "@/lib/academy";
+import { ProgressBar } from "@/components/ui/progress-bar";
 
 export const metadata: Metadata = {
   title: "Dashboard — AI Course App",
@@ -52,12 +59,30 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const principal = await getCurrentPrincipal();
 
-  const [next, stats, trackProgress, weakAreas] = await Promise.all([
+  const [
+    next,
+    stats,
+    trackProgress,
+    weakAreas,
+    academyNext,
+    academyProgress,
+  ] = await Promise.all([
     recommendNextAction(principal),
     getProgrammeStats(principal),
     getEnrolledTrackProgress(principal),
     getWeakAreas(principal),
+    recommendNextCourse(principal.userId),
+    getAcademyProgress(principal.userId),
   ]);
+
+  const academyTotal = totalCourseCount();
+  const academyCompleted = [...academyProgress.values()].filter(
+    (p) => p.status === "completed",
+  ).length;
+  const academyPct =
+    academyTotal === 0
+      ? 0
+      : Math.round((academyCompleted / academyTotal) * 100);
 
   const enrolled = trackProgress.length > 0;
   const progressBySlug = new Map(
@@ -189,6 +214,24 @@ export default async function DashboardPage() {
         )}
       </Section>
 
+      <Section
+        id="dashboard-academy"
+        title="Anthropic Academy"
+        description="Anthropic's official courses, mirrored in-app — take them on Anthropic, tracked here."
+        action={
+          <Button href="/academy" variant="text-link" withArrow>
+            Open the mirror
+          </Button>
+        }
+      >
+        <AcademyContinueCard
+          next={academyNext}
+          completed={academyCompleted}
+          total={academyTotal}
+          pct={academyPct}
+        />
+      </Section>
+
       {enrolled ? (
         <Section
           id="dashboard-insights"
@@ -311,5 +354,65 @@ function CapstoneCta({
         </Button>
       </div>
     </article>
+  );
+}
+
+/* --- Compact Anthropic Academy "continue" card (additive) ---------------- */
+
+/**
+ * One compact cream card: the next mirrored Academy course (deep-link OUT to
+ * Anthropic, new tab + sr-only note) plus the local completion %. Additive to
+ * the dashboard — it never touches the de-mocked journey content. The deep
+ * link is the one scarce-coral CTA; the "Open the mirror" section action is a
+ * quiet text-link (in-app). Honest empty state when all courses are done.
+ */
+function AcademyContinueCard({
+  next,
+  completed,
+  total,
+  pct,
+}: {
+  next: AcademyNextCourse | null;
+  completed: number;
+  total: number;
+  pct: number;
+}) {
+  return (
+    <div className="rounded-xl border border-hairline bg-surface-card p-7">
+      <div className="max-w-md">
+        <ProgressBar
+          value={pct}
+          label={`Academy completion — ${completed} of ${total} courses`}
+        />
+      </div>
+      {next ? (
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
+              {next.status === "in_progress"
+                ? "Continue next"
+                : "Start next"}
+            </p>
+            <p className="mt-1.5 font-display text-[1.125rem] font-normal leading-snug tracking-[-0.3px] text-ink">
+              {next.course.title}
+            </p>
+          </div>
+          <a
+            href={next.course.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-10 w-fit shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-5 font-sans text-sm font-medium text-on-primary transition-colors duration-fast ease-standard hover:bg-primary-active active:bg-primary-active focus-visible:outline-none"
+          >
+            Continue on Anthropic
+            <span aria-hidden="true">↗</span>
+            <span className="sr-only">(opens Anthropic in a new tab)</span>
+          </a>
+        </div>
+      ) : (
+        <p className="mt-5 font-sans text-[0.9375rem] leading-relaxed text-body">
+          You&rsquo;ve marked every mirrored Anthropic Academy course complete.
+        </p>
+      )}
+    </div>
   );
 }

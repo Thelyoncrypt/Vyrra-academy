@@ -16,6 +16,7 @@ const ROUTES = [
   "/course/1",
   "/videos",
   "/dashboard",
+  "/academy",
   "/tracks",
   "/lessons/1.1.1",
   "/quizzes/m0-quiz",
