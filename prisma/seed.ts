@@ -60,15 +60,29 @@ const MANIFEST_PATH = join(process.cwd(), "content", "manifest.json");
  * The adapter connects lazily at first query, so building/type-checking does
  * not need a reachable database (only an actual seed run does).
  */
+/**
+ * Mirror src/lib/db.ts `normalizeDbSsl`: force `sslmode=no-verify` on remote
+ * (Supabase) hosts — node-pg honours the URL param over a separate ssl object,
+ * so this is the deterministic fix for the managed cert chain. Still
+ * TLS-encrypted; localhost (no TLS) is left untouched.
+ */
+function normalizeDbSsl(url: string): string {
+  if (/(?:localhost|127\.0\.0\.1)/.test(url)) return url;
+  if (/[?&]sslmode=/.test(url)) {
+    return url.replace(/([?&])sslmode=[^&]*/, "$1sslmode=no-verify");
+  }
+  return `${url}${url.includes("?") ? "&" : "?"}sslmode=no-verify`;
+}
+
 function createPrisma(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
+  const rawUrl = process.env.DATABASE_URL;
+  if (!rawUrl) {
     throw new Error(
       "[seed] DATABASE_URL is not set. It is required to seed (set it in " +
         ".env / .env.local — never commit it; see prisma/README.md §2).",
     );
   }
-  const adapter = new PrismaPg({ connectionString });
+  const adapter = new PrismaPg({ connectionString: normalizeDbSsl(rawUrl) });
   return new PrismaClient({ adapter });
 }
 

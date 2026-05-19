@@ -16,14 +16,40 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 import { PrismaClient } from "@/generated/prisma/client";
 
+/**
+ * Supabase presents a managed TLS cert chain that node-postgres rejects by
+ * default ("self-signed certificate in certificate chain") — every query from
+ * the deployed app would fail. node-pg honours the `sslmode` URL param over a
+ * separately-passed `ssl` object, so the deterministic fix is to force
+ * `sslmode=no-verify` on remote hosts: the connection stays TLS-ENCRYPTED in
+ * transit, only chain validation is skipped (the standard Supabase +
+ * node-postgres serverless configuration). Local Postgres has no TLS, so
+ * localhost is left untouched (plain connection).
+ */
+function normalizeDbSsl(url: string): string {
+  if (/(?:localhost|127\.0\.0\.1)/.test(url)) return url;
+  if (/[?&]sslmode=/.test(url)) {
+    return url.replace(/([?&])sslmode=[^&]*/, "$1sslmode=no-verify");
+  }
+  return `${url}${url.includes("?") ? "&" : "?"}sslmode=no-verify`;
+}
+
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
+  // The Supabase Vercel integration injects `POSTGRES_URL_NON_POOLING` /
+  // `POSTGRES_PRISMA_URL`, NOT `DATABASE_URL`. Prefer an explicit
+  // `DATABASE_URL` (manual/other providers), then fall back to the
+  // Supabase-provided URLs so the deployed app runs with the auto-synced env.
+  const rawUrl =
+    process.env.DATABASE_URL ??
+    process.env.POSTGRES_URL_NON_POOLING ??
+    process.env.POSTGRES_PRISMA_URL;
+  if (!rawUrl) {
     throw new Error(
-      "[db] DATABASE_URL is not set. It is required for all database access " +
-        "(set it in .env / .env.local — never commit it; see prisma/README.md §2).",
+      "[db] No database URL. Set DATABASE_URL, or connect Supabase " +
+        "(POSTGRES_URL_NON_POOLING) — never commit it; see prisma/README.md §2.",
     );
   }
+  const connectionString = normalizeDbSsl(rawUrl);
   const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({ adapter });
 }

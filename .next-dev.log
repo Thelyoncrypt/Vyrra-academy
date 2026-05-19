@@ -1,0 +1,19 @@
+
+> ai-course-app@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://100.86.67.91:3000
+- Environments: .env.local, .env
+✓ Ready in 437ms
+
+○ Compiling /tracks/[trackSlug] ...
+ GET /parts 404 in 3.5s (next.js: 2.9s, proxy.ts: 15ms, application-code: 557ms)
+ GET /tracks/claude-anthropic-ecosystem 200 in 5.6s (next.js: 5.0s, proxy.ts: 212ms, application-code: 388ms)
+ GET /lessons/1.1.1 200 in 3.4s (next.js: 2.8s, proxy.ts: 12ms, application-code: 516ms)
+[browser] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview (file://E:/AI course App/.next/dev/static/chunks/node_modules_next_dist_115brz8._.js:2477:13)
+ GET /sign-in 200 in 1104ms (next.js: 960ms, proxy.ts: 8ms, application-code: 136ms)
+ GET /sign-in 200 in 102ms (next.js: 20ms, proxy.ts: 10ms, application-code: 72ms)
+ GET /sign-in/SignIn_clerk_catchall_check_1779180533968 200 in 207ms (next.js: 23ms, proxy.ts: 12ms, application-code: 172ms)
+ GET /sign-in/SignIn_clerk_catchall_check_1779180534221 200 in 99ms (next.js: 8ms, proxy.ts: 11ms, application-code: 79ms)

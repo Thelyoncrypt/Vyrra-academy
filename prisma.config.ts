@@ -14,8 +14,26 @@
  *     DATABASE_URL (a later wave; no DB is provisioned yet).
  */
 
-import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig } from "prisma/config";
+
+// Load `.env.local` (Vercel-integration output: Supabase POSTGRES_* + Clerk)
+// FIRST, then `.env` for anything it doesn't define. `config()` never
+// overwrites an already-set var, so .env.local wins for shared keys.
+config({ path: ".env.local" });
+config();
+
+/**
+ * The Supabase Vercel integration provisions `POSTGRES_URL_NON_POOLING`
+ * (direct 5432 — correct for migrations) and `POSTGRES_PRISMA_URL` (pooled),
+ * NOT `DATABASE_URL`. Accept the explicit `DATABASE_URL` first (prod/manual),
+ * then fall back to the Supabase-provided direct URL so `prisma migrate` /
+ * `db push` work against the connected database with no secret copy-paste.
+ */
+const databaseUrl =
+  process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL_NON_POOLING ??
+  process.env.POSTGRES_PRISMA_URL;
 
 export default defineConfig({
   experimental: { extensions: true },
@@ -25,6 +43,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env.DATABASE_URL,
+    url: databaseUrl,
   },
 });
