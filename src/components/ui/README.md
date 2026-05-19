@@ -67,7 +67,126 @@ import { Alert } from "@/components/ui/alert";
 | `tone` | `"info" \| "success" \| "warning" \| "error" \| "provisional"` | `"info"` | `provisional` = the dashed AI-draft pattern |
 | `title` | `string` | — | uppercase tracked tone-coloured eyebrow |
 | `role` | `"alert" \| "status"` | inferred | `error` → `alert`; else `status` |
+| `density` | `"comfortable" \| "compact"` | `"comfortable"` | **wave-5.** `compact` = tighter pad/type for inline/list use (quiz per-answer feedback). Omitted ⇒ byte-identical to today. Tone + role inference + eyebrow + dashed `provisional` unchanged at either density |
 | `className` | `string` | `""` | additive |
+
+`density` (wave-5, additive): `comfortable` is `px-5 py-4` + 14px body
+(the prior render, unchanged for every caller). `compact` is `px-3.5
+py-2.5` + 13px body + tighter eyebrow→body gap — for per-item feedback in
+a dense list (the staged-quiz per-answer line) where the comfortable box
+is too heavy. Same radius / border / semantic tint / role inference.
+
+```tsx
+<Alert tone="success" density="compact">Correct — well reasoned.</Alert>
+<Alert tone="error" density="compact" title="Not quite">
+  The agent loop needs a stop condition.
+</Alert>
+```
+
+---
+
+## `MetaRow` — `meta-row.tsx` (wave-5, net-new)
+
+The repeated "stat · badge · trailing" meta cluster beside/under a list-row
+or card title. Consolidates the hand-rolled cluster in `lesson-row`,
+`track-card` and `module-outline`. Critically, it renders the cluster
+**once**: the hand-rolled `lesson-row` version emitted it TWICE (a
+`sm:hidden` copy under the title + a `hidden sm:flex` inline copy) — a
+screen-reader double-announce hazard. MetaRow's restack (under the title
+below `sm`, rejoined inline at `sm`+, per DESIGN.md "restack rather than
+scale down") is pure CSS `flex-wrap` over a single DOM subtree, so a
+screen reader meets each item exactly once at any viewport. Numeric stats
+opt into `tabular-nums`; items are middot-separated by an `aria-hidden`
+glyph (read-out stays clean). `trailing` is non-interactive only (arrow /
+status phrase) so the row keeps its single tab stop (WCAG 2.4.3 / 4.1.2).
+Layout-only ⇒ inherently reduced-motion safe. Trinity only.
+
+```tsx
+import { MetaRow, type MetaItem } from "@/components/ui/meta-row";
+
+<MetaRow
+  aria-label="Lesson meta"
+  items={[
+    { id: "mins", content: `${lesson.estMinutes} min`, numeric: true },
+    { id: "state", content: <Badge tone="outline">Locked</Badge> },
+  ]}
+  trailing={
+    <span aria-hidden="true" className="text-muted-soft">→</span>
+  }
+/>
+```
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `items` | `readonly MetaItem[]` | — | `{ id: string; content: ReactNode; numeric?: boolean }`. `numeric` ⇒ `tabular-nums` on that item |
+| `trailing` | `ReactNode?` | — | non-interactive end affordance (arrow / status phrase). NEVER a control |
+| `aria-label` | `string?` | — | names the cluster (`<ul aria-label>`); the cluster is one list, announced once |
+| `className` | `string` | `""` | additive |
+
+Renders `null` when `items` is empty and no `trailing`. Exported type:
+`MetaItem`. Adopt to delete the duplicated `sm:hidden` / `hidden sm:flex`
+meta blocks in `lesson-row` (the double-announce fix lands with adoption).
+
+---
+
+## `RecoveryCard` — `recovery-card.tsx` (wave-5, net-new)
+
+The shared calm-editorial error-recovery shell. The six route boundaries
+(`dashboard`, `tracks`, `lessons`, `quizzes`, `assessments`, `capstones`
+`error.tsx`) each hand-rolled the SAME ~50-line markup; this is it once.
+DESIGN.md calm recovery — cream-card surface, serif display headline
+(weight 400, negative tracking), scarce-coral primary retry, quiet
+text-link back. Trinity only; no semantic-error wash (reassurance, not
+validation failure). **Security:** the component has no `error`/stack/
+message channel — it renders only the props given; `reference` is for the
+Next.js `error.digest` (the only safe correlation handle). No internal
+detail can leak by construction. a11y: headline is the route `h1`
+(`as="h2"` if nested); polite `role="status"` region (the failure is past
+— calm redirect, not assertive interrupt); retry is a real `<button>`
+(single tab stop with the back link). Reduced-motion safe.
+
+```tsx
+import { RecoveryCard } from "@/components/ui/recovery-card";
+
+export default function DashboardError({
+  error,
+  reset,
+}: { error: Error & { digest?: string }; reset: () => void }) {
+  return (
+    <RecoveryCard
+      eyebrow="Dashboard"
+      title="Your dashboard didn't load"
+      description="Something went wrong building this view. Your progress is safe — try again, or jump into the tracks and pick up where you left off."
+      onRetry={reset}
+      backHref="/tracks"
+      backLabel="Go to tracks"
+      reference={error.digest}
+      maxWidthClassName="max-w-[1200px]"
+    />
+  );
+}
+```
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `eyebrow` | `string` | — | uppercase tracked surface label |
+| `title` | `ReactNode` | — | serif display headline (the route H1 by default) |
+| `description` | `ReactNode` | — | measured reassuring recovery copy |
+| `onRetry` | `() => void` | — | wire to the Next.js boundary `reset()` |
+| `retryLabel` | `string` | `"Try again"` | primary CTA label |
+| `backHref` | `string` | — | quiet text-link destination |
+| `backLabel` | `string` | — | quiet text-link label |
+| `reference` | `string?` | — | `error.digest` only — NEVER a stack/message |
+| `as` | `"h1" \| "h2"` | `"h1"` | headline level (route boundary ⇒ `h1`) |
+| `maxWidthClassName` | `string` | `"max-w-[1200px]"` | outer width (routes vary 900–1200px) |
+| `className` | `string` | `""` | additive on the outer wrapper |
+
+Net-new + additive: each `error.tsx` adopts it next tick to delete its
+duplicated shell with zero behaviour change (same markup, same no-detail-
+leak posture, same `reset` wiring). Per-route widths map to
+`maxWidthClassName`: dashboard/tracks `max-w-[1200px]`, lessons
+`max-w-[1180px]`, capstones `max-w-[1100px]`, assessments `max-w-[1000px]`,
+quizzes `max-w-[900px]`.
 
 ---
 
@@ -330,3 +449,24 @@ one with `overflow-y/x:auto`):
   `::-webkit-scrollbar*`. Motion-irrelevant; contrast/affordance unharmed.
 - Do **not** apply to cream surfaces — the white-alpha thumb is invisible on
   cream. Cream scroll areas keep the native scrollbar.
+
+---
+
+## Wave-5 decision: `on-coral` Button variant — **SKIPPED** (deliberate)
+
+The brief gated an `on-coral` Button variant (cream button on a coral
+callout, DESIGN.md `callout-card-coral`) on finding **≥2 real cream-on-coral
+CTA sites**. Audit of every `bg-primary` full-bleed surface found only **one**
+real cream-on-coral CTA: the landing pre-footer band
+(`src/app/page.tsx`, the `bg-canvas text-ink` "Open your dashboard" link on
+`bg-primary`). The other two coral surfaces —
+`src/components/quiz/quiz-results.tsx` (passed-quiz callout) and
+`src/app/assessments/[assessmentId]/page.tsx` (capstone-passed callout) —
+are **informational callouts with no button inside** (pill stats / copy
+only). One site does not justify a system variant (DESIGN.md: coral is
+scarce; YAGNI). Revisit if a second genuine cream-on-coral CTA appears —
+the natural shape would be `Button variant="on-coral"` →
+`bg-canvas text-ink hover:bg-surface-soft active:bg-surface-card`, which
+already matches the lone hand-rolled site exactly and inherits the
+existing `.bg-primary :focus-visible` cream-ring rule in `globals.css`
+(so it is a clean future drop-in, not a refactor).

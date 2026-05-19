@@ -9,17 +9,19 @@
  * rather than as a flat stack.
  *
  * A LOCKED module keeps the path visible but defers it: the lesson outline is
- * wrapped in a native <details> (collapsed by default) with a motivating
- * "Preview the N lessons ahead" summary — disclosure for motivation
- * (system-design §4.1 UX) without 403-ing the learner out of the structure.
- * An UNLOCKED module renders the outline directly (always visible — it is the
- * live work). Native <details> gives correct keyboard + screen-reader
- * semantics for free; the gating decision still comes entirely from `unlocked`
- * upstream and every LessonRow keeps its locked aria-disabled semantics.
+ * wrapped in the shared <DisclosurePanel variant="inline"> (collapsed by
+ * default) with a motivating "Preview the N lessons ahead" summary —
+ * disclosure for motivation (system-design §4.1 UX) without 403-ing the
+ * learner out of the structure. An UNLOCKED module renders the outline
+ * directly (always visible — it is the live work). The panel wraps a native
+ * <details> so it keeps correct keyboard + screen-reader semantics for free;
+ * the gating decision still comes entirely from `unlocked` upstream and every
+ * LessonRow keeps its locked aria-disabled semantics.
  */
 import type { Lesson, Module } from "@/content/contract";
 import { LessonRow } from "./lesson-row";
 import { Badge } from "@/components/ui/badge";
+import { DisclosurePanel } from "@/components/ui/disclosure-panel";
 
 interface ModuleOutlineProps {
   module: Module;
@@ -93,25 +95,16 @@ export function ModuleOutline({
       ) : unlocked ? (
         <div className="mt-5">{lessonList}</div>
       ) : (
-        <details className="group/preview mt-5">
-          <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-2.5 gap-y-1 rounded-lg border border-hairline bg-surface-soft px-4 py-3 font-sans text-[0.875rem] font-medium text-body-strong transition-colors duration-200 hover:bg-surface-cream-strong [&::-webkit-details-marker]:hidden">
-            <span
-              aria-hidden="true"
-              className="shrink-0 text-muted-soft transition-transform duration-200 group-open/preview:rotate-90"
-            >
-              ▸
-            </span>
-            <span className="flex-1 basis-40">
-              Preview the {lessonCount} lesson
-              {lessonCount === 1 ? "" : "s"} ahead
-            </span>
-            {/* Wraps under the label below sm rather than crushing it. */}
-            <span className="tabular-nums w-full font-sans text-[0.8125rem] font-normal text-muted sm:w-auto">
-              Locked until prerequisites are met
-            </span>
-          </summary>
-          <div className="mt-4">{lessonList}</div>
-        </details>
+        <DisclosurePanel
+          variant="inline"
+          className="mt-5"
+          summary={`Preview the ${lessonCount} lesson${
+            lessonCount === 1 ? "" : "s"
+          } ahead`}
+          trailing="Locked until prerequisites are met"
+        >
+          {lessonList}
+        </DisclosurePanel>
       )}
     </section>
   );

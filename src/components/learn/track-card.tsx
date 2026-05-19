@@ -19,26 +19,8 @@
 import Link from "next/link";
 import type { Track } from "@/content/contract";
 import { Badge } from "@/components/ui/badge";
+import { TrackGlyph } from "@/components/ui/track-glyph";
 import { levelDifficultyLabel } from "@/content/fixtures";
-
-/**
- * Two-letter monogram from a track title — first letters of the first two
- * meaningful words, falling back to the first two characters. Deterministic
- * (same title → same monogram) and presentational only.
- */
-function trackMonogram(title: string): string {
-  const words = title
-    .split(/[\s—–-]+/)
-    .map((w) => w.replace(/[^A-Za-z0-9]/g, ""))
-    .filter(Boolean);
-  if (words.length >= 2) {
-    return (words[0]![0]! + words[1]![0]!).toUpperCase();
-  }
-  if (words.length === 1) {
-    return words[0]!.slice(0, 2).toUpperCase();
-  }
-  return title.slice(0, 2).toUpperCase();
-}
 
 export interface TrackProgress {
   /** 0–100. */
@@ -61,17 +43,14 @@ function clampPct(value: number): number {
 export function TrackCard({ track, lessonCount, progress }: TrackCardProps) {
   const pct = progress ? clampPct(progress.percentComplete) : null;
   const started = pct !== null && pct > 0;
-  const monogram = trackMonogram(track.title);
 
   return (
     <article className="group relative flex h-full flex-col rounded-lg border border-transparent bg-surface-card p-8 transition-[transform,border-color] duration-200 hover:-translate-y-1 hover:border-hairline">
       <div className="flex items-start gap-4">
-        <span
-          aria-hidden="true"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-surface-cream-strong font-sans text-[0.9375rem] font-medium tracking-[0.5px] text-body-strong transition-colors duration-200 group-hover:text-primary"
-        >
-          {monogram}
-        </span>
+        <TrackGlyph
+          title={track.title}
+          className="transition-colors duration-200 group-hover:text-primary"
+        />
         <div className="flex flex-wrap items-center gap-2 pt-0.5">
           <Badge tone="outline">{track.focusEcosystem}</Badge>
           <Badge tone="level">

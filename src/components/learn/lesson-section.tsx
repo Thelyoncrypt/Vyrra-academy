@@ -11,9 +11,15 @@
  * coral mark is the system's scarce accent (one small glyph per section,
  * never a coral fill). Heading stays a real <h2> under the page's single H1
  * so the document outline is correct (WCAG 2.1 AA).
+ *
+ * Wave 5: the hand-rolled spike-mark eyebrow + serif <h2> are replaced by
+ * the shared `PanelHeading` primitive (`as="h2"` keeps the H1→H2→H3 order;
+ * `id` lands on the heading so the section's `aria-labelledby` still wires;
+ * `withMark` keeps the scarce coral content-marker). Same visual + a11y
+ * contract, the duplicated eyebrow markup is gone.
  */
 import type { ReactNode } from "react";
-import { SpikeMark } from "@/components/brand/spike-mark";
+import { PanelHeading } from "@/components/ui/panel-heading";
 
 interface LessonSectionProps {
   title: string;
@@ -31,20 +37,13 @@ export function LessonSection({
 }: LessonSectionProps) {
   return (
     <section aria-labelledby={id} className="scroll-mt-28">
-      <div className="flex items-center gap-2.5">
-        <span aria-hidden="true" className="text-primary">
-          <SpikeMark size={13} />
-        </span>
-        <span className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
-          {eyebrow ?? title}
-        </span>
-      </div>
-      <h2
+      <PanelHeading
+        eyebrow={eyebrow ?? title}
+        title={title}
+        as="h2"
         id={id}
-        className="mt-3 font-display text-[clamp(1.625rem,1.25rem+1.4vw,2rem)] font-normal leading-[1.2] tracking-[-0.4px] text-ink"
-      >
-        {title}
-      </h2>
+        withMark
+      />
       <div className="mt-6">{children}</div>
     </section>
   );

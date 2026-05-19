@@ -17,6 +17,7 @@ import { StatTile } from "@/components/learn/stat-tile";
 import { NextLessonCard } from "@/components/learn/next-lesson-card";
 import { TrackCard } from "@/components/learn/track-card";
 import { InsightList } from "@/components/learn/insight-list";
+import { PanelHeading } from "@/components/ui/panel-heading";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   listTracks,

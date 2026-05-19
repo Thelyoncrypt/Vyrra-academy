@@ -14,6 +14,7 @@ import { useState, useTransition } from "react";
 import { submitCapstoneAction } from "@/lib/assessment/capstone-actions";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { PanelHeading } from "@/components/ui/panel-heading";
 
 interface CapstoneSubmitFormProps {
   capstoneId: string;
@@ -70,15 +71,12 @@ export function CapstoneSubmitForm({
 
   return (
     <div className="rounded-xl border border-hairline bg-surface-card p-6">
-      <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted">
-        {canSubmit ? "Ready to submit" : "Submission"}
-      </p>
-      <h3 className="mt-2 text-[1.25rem] tracking-[-0.2px] text-ink">
-        Submit your capstone
-      </h3>
-      <p className="mt-2 font-sans text-[0.8125rem] leading-relaxed text-muted">
-        Link your work and tell the grader how it meets each requirement.
-      </p>
+      <PanelHeading
+        eyebrow={canSubmit ? "Ready to submit" : "Submission"}
+        title="Submit your capstone"
+        as="h3"
+        description="Link your work and tell the grader how it meets each requirement."
+      />
       {canSubmit ? (
         <Alert tone="info" className="mt-4">
           Submitting again replaces nothing already confirmed — if a prior

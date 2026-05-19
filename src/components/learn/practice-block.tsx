@@ -11,9 +11,16 @@
  * Cards stay calm cream-on-canvas; the staged-quiz badges use the
  * cream `level` tone (no fourth surface, coral kept scarce). H3s under the
  * section H2 preserve the heading order (WCAG 2.1 AA).
+ *
+ * Wave 5: the local `SubHead` (a duplicated eyebrow + serif h3) is replaced
+ * by the shared `PanelHeading` primitive with `as="h3"` so the heading order
+ * (page H1 → section H2 → these H3s) stays valid. No coral mark here (the
+ * sub-blocks read as a quiet pair, not section-level cadence) — same visual
+ * + a11y contract as before, the duplicated heading markup is gone.
  */
 import type { Activity, Quiz } from "@/content/contract";
 import { Badge } from "@/components/ui/badge";
+import { PanelHeading } from "@/components/ui/panel-heading";
 
 interface PracticeBlockProps {
   activities: readonly Activity[];
@@ -27,29 +34,11 @@ const STAGE_LABEL: Record<number, string> = {
   4: "Mastery Challenge",
 };
 
-interface SubHeadProps {
-  eyebrow: string;
-  title: string;
-}
-
-function SubHead({ eyebrow, title }: SubHeadProps) {
-  return (
-    <>
-      <span className="block font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
-        {eyebrow}
-      </span>
-      <h3 className="mt-2 font-display text-[1.375rem] font-normal leading-[1.25] tracking-[-0.3px] text-ink">
-        {title}
-      </h3>
-    </>
-  );
-}
-
 export function PracticeBlock({ activities, quiz }: PracticeBlockProps) {
   return (
     <div className="space-y-10">
       <div>
-        <SubHead eyebrow="Step 4 · Practise" title="Apply it" />
+        <PanelHeading as="h3" eyebrow="Step 4 · Practise" title="Apply it" />
         {activities.length > 0 ? (
           <ul className="mt-5 space-y-3">
             {activities.map((a) => (
@@ -84,7 +73,11 @@ export function PracticeBlock({ activities, quiz }: PracticeBlockProps) {
       </div>
 
       <div>
-        <SubHead eyebrow="Step 5 · Prove" title="Prove understanding" />
+        <PanelHeading
+          as="h3"
+          eyebrow="Step 5 · Prove"
+          title="Prove understanding"
+        />
         {quiz ? (
           <div className="mt-5 rounded-lg border border-hairline bg-surface-card p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">

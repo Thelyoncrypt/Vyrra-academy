@@ -20,10 +20,18 @@
  * a11y: `error` → role="alert" (assertive); everything else → role="status"
  * (polite). Callers can override with `role`. An optional `title` renders
  * as an uppercase tracked eyebrow in the tone colour.
+ *
+ * `density` (additive, wave-5): `comfortable` is the original look (default,
+ * byte-identical to prior callers). `compact` tightens the padding + body
+ * type for inline / list use — e.g. the staged-quiz per-answer feedback line
+ * under each option — where the comfortable box is too heavy in a dense list.
+ * Tone, role inference, eyebrow and the dashed `provisional` pattern are
+ * unchanged at either density.
  */
 import type { ReactNode } from "react";
 
 type AlertTone = "info" | "success" | "warning" | "error" | "provisional";
+type AlertDensity = "comfortable" | "compact";
 
 interface AlertProps {
   children: ReactNode;
@@ -32,8 +40,34 @@ interface AlertProps {
   title?: string;
   /** Override the inferred ARIA role (alert for error, status otherwise). */
   role?: "alert" | "status";
+  /**
+   * Additive: `comfortable` (default) is the original size; `compact` is a
+   * tighter pad/type for inline per-item feedback in dense lists.
+   */
+  density?: AlertDensity;
   className?: string;
 }
+
+interface DensityStyle {
+  box: string;
+  body: string;
+  bodyGap: string;
+}
+
+const DENSITY: Record<AlertDensity, DensityStyle> = {
+  comfortable: {
+    box: "px-5 py-4",
+    body: "text-[0.875rem] leading-relaxed",
+    bodyGap: "mt-1.5",
+  },
+  // Tighter for inline/list use (quiz per-answer feedback): less pad, 13px
+  // body, smaller eyebrow→body gap. Same radius/border/tone as comfortable.
+  compact: {
+    box: "px-3.5 py-2.5",
+    body: "text-[0.8125rem] leading-relaxed",
+    bodyGap: "mt-1",
+  },
+};
 
 interface ToneStyle {
   box: string;
@@ -69,15 +103,17 @@ export function Alert({
   tone = "info",
   title,
   role,
+  density = "comfortable",
   className = "",
 }: AlertProps) {
   const style = TONE[tone];
+  const sizing = DENSITY[density];
   const resolvedRole = role ?? (tone === "error" ? "alert" : "status");
 
   return (
     <div
       role={resolvedRole}
-      className={`rounded-lg border px-5 py-4 ${style.box} ${className}`.trim()}
+      className={`rounded-lg border ${sizing.box} ${style.box} ${className}`.trim()}
     >
       {title ? (
         <p
@@ -87,8 +123,8 @@ export function Alert({
         </p>
       ) : null}
       <div
-        className={`font-sans text-[0.875rem] leading-relaxed text-body ${
-          title ? "mt-1.5" : ""
+        className={`font-sans text-body ${sizing.body} ${
+          title ? sizing.bodyGap : ""
         }`}
       >
         {children}

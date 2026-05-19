@@ -22,7 +22,10 @@
  */
 "use client";
 
-import { useReadingRatio } from "@/components/learn/use-reading-ratio";
+import {
+  useReadingRatio,
+  REVEAL_AT,
+} from "@/components/learn/use-reading-ratio";
 
 interface ReadingAffordancesProps {
   /** id of the rendered MDX body root the ratio tracks. */
@@ -30,9 +33,6 @@ interface ReadingAffordancesProps {
   /** Authored whole-lesson estimate (minutes) — drives the remaining hint. */
   estMinutes: number;
 }
-
-/** Reveal once the reader is in the tail of a long read. */
-const REVEAL_AT = 0.8;
 
 export function ReadingAffordances({
   targetId,

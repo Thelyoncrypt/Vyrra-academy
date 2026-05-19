@@ -29,8 +29,21 @@ import { useEffect, useRef, useState } from "react";
  * progress rule's perceived "you are here" sits at, so the TOC marker and
  * the fill agree. Kept in sync conceptually with the old observer's
  * `-96px 0px -65%` rootMargin (top band ≈ the upper third).
+ *
+ * Exported as the single source so every reading affordance (the progress
+ * rule via this hook, the TOC active item via `useActiveHeadingId`, and the
+ * tail back-to-top / time-remaining via `REVEAL_AT`) narrates ONE position
+ * story — the constants live here, not duplicated per island.
  */
-const READING_LINE = 0.33;
+export const READING_LINE = 0.33;
+
+/**
+ * Reveal threshold for the tail reading companion (back-to-top +
+ * time-remaining): shown once the reader is in the tail of a long read.
+ * Lives beside `READING_LINE` so the lesson's position story stays in
+ * lockstep across `reading-affordances`, `reading-progress` and `lesson-toc`.
+ */
+export const REVEAL_AT = 0.8;
 
 export function useReadingRatio(targetId: string): number {
   const [ratio, setRatio] = useState(0);
