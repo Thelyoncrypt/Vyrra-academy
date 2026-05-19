@@ -20,6 +20,7 @@ const { db } = vi.hoisted(() => ({
     },
     level: { findFirst: vi.fn() },
     track: { findUnique: vi.fn() },
+    module: { count: vi.fn() },
     assessment: { findFirst: vi.fn() },
     enrollment: { findUnique: vi.fn() },
   },
@@ -110,6 +111,9 @@ describe("getLevelCompletion — levelCompleted predicate", () => {
     db.lesson.findMany.mockResolvedValue(
       opts.lessonIds.map((id) => ({ id })),
     );
+    // Default: a non-empty scope, so the module-count consistency probe is
+    // never reached by the existing predicate tests.
+    db.module.count.mockResolvedValue(0);
     db.progress.count.mockResolvedValue(opts.completedCount);
     db.enrollment.findUnique.mockResolvedValue(
       (opts.enrolledHere ?? true) ? { id: "enrollment-1" } : null,
@@ -259,6 +263,44 @@ describe("getLevelCompletion — levelCompleted predicate", () => {
       allLessonsCompleted: false,
       capstonePassed: false,
       levelCompleted: false,
+      scopeInconsistent: false,
     });
+  });
+
+  test("a (track, level) with module(s) but ZERO lessons flags scopeInconsistent (corrupted-seed signal, code-review MEDIUM)", async () => {
+    // Arrange — level + track resolve, no lessons, but a module DOES exist
+    // for this (track, level): the corrupted-seed case the guard detects.
+    db.level.findFirst.mockResolvedValue({ id: "level-1" });
+    db.track.findUnique.mockResolvedValue({ id: "track-1" });
+    db.lesson.findMany.mockResolvedValue([]);
+    db.module.count.mockResolvedValue(1); // module exists, but has no lessons
+    db.enrollment.findUnique.mockResolvedValue({ id: "enrollment-1" });
+    db.assessment.findFirst.mockResolvedValue({ id: "a1" }); // even a pass
+
+    // Act
+    const result = await getLevelCompletion("user-1", 1, "claude");
+
+    // Assert — the inconsistency is observable, and an empty scope is still
+    // never "completed" (a passing capstone must NOT mask missing lessons).
+    expect(result.scopeInconsistent).toBe(true);
+    expect(result.allLessonsCompleted).toBe(false);
+    expect(result.levelCompleted).toBe(false);
+  });
+
+  test("a (track, level) with NO modules at all does NOT flag scopeInconsistent (legitimately empty)", async () => {
+    // Arrange — no lessons AND no modules: this (track, level) just has no
+    // content; that is a normal state, not a corruption signal.
+    db.level.findFirst.mockResolvedValue({ id: "level-1" });
+    db.track.findUnique.mockResolvedValue({ id: "track-1" });
+    db.lesson.findMany.mockResolvedValue([]);
+    db.module.count.mockResolvedValue(0);
+    db.enrollment.findUnique.mockResolvedValue(null);
+
+    // Act
+    const result = await getLevelCompletion("user-1", 1, "claude");
+
+    // Assert
+    expect(result.scopeInconsistent).toBe(false);
+    expect(result.allLessonsCompleted).toBe(false);
   });
 });

@@ -132,6 +132,11 @@ export async function devEnrollEverywhere(
     distinct: ["trackId", "levelId"],
   });
 
+  // TODO(optimization, future wave): this loops one upsert per pairing. For a
+  // dev-only seed convenience the N is tiny (≈ tracks × levels) so the loop is
+  // fine, but if this ever needs to scale, replace with a single
+  // `createMany({ data, skipDuplicates: true })` (idempotent via the
+  // (userId,trackId,levelId) unique constraint) — one round-trip instead of N.
   for (const p of pairings) {
     await db.enrollment.upsert({
       where: {

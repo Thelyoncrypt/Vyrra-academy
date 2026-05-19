@@ -76,6 +76,22 @@ export interface RetrievalService {
     question: string,
     options?: RetrieveOptions,
   ): Promise<RetrievalResult>;
+
+  /**
+   * Persist a freshly-generated grounded answer to the semantic cache
+   * (system-design §3.2/§3.4 cost control; route calls this post-stream).
+   * OPTIONAL on the interface: only the embedding-keyed real impl can key an
+   * entry, so the DB-free `StubRetrievalService` deliberately omits it. The
+   * route guards on presence (`retrievalService.cacheAnswer?.(…)`) so the
+   * keyless/stub path no-ops gracefully instead of crashing — least-agency
+   * preserved (this stores ONLY the tutor's own answer).
+   */
+  cacheAnswer?(
+    scope: RetrievalScope,
+    question: string,
+    answer: string,
+    citations: readonly Citation[],
+  ): Promise<void>;
 }
 
 // ---------------------------------------------------------------------------

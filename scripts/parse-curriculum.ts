@@ -58,9 +58,11 @@ async function main(): Promise<void> {
   };
 
   // CONTRACT GATE: validate before writing the manifest. Fail loudly.
-  let validated: unknown;
+  // `parseManifest` already returns the fully-narrowed manifest type, so we
+  // bind it directly — no `unknown` round-trip and no redundant re-cast.
+  let m: ReturnType<typeof parseManifest>;
   try {
-    validated = parseManifest(manifest);
+    m = parseManifest(manifest);
   } catch (err) {
     process.stderr.write(
       "[parse-curriculum] CONTRACT VIOLATION — manifest rejected by parseManifest:\n",
@@ -71,9 +73,8 @@ async function main(): Promise<void> {
   }
 
   // Stable JSON: 2-space indent, trailing newline (idempotent diff).
-  writeFileSync(MANIFEST_PATH, JSON.stringify(validated, null, 2) + "\n", "utf8");
+  writeFileSync(MANIFEST_PATH, JSON.stringify(m, null, 2) + "\n", "utf8");
 
-  const m = validated as ReturnType<typeof parseManifest>;
   const fullyParsed = ir.lessons.filter((l) => !l.isStub).length;
   log("OK — contract-valid manifest written.");
   log(`  program:   ${m.program.title} v${m.program.version}`);

@@ -116,6 +116,9 @@ function gradeAuto(q: QuizQuestion, raw: QuizResponse["value"]): boolean {
           ? [answer]
           : [];
       if (expected.length === 0) return false;
+      // Order is ignored and duplicates are eliminated: a multi-select answer
+      // is a SET, so [1,2], [2,1], and [1,1,2] are all equivalent. `new Set`
+      // drops dupes; `.sort` makes the two sides positionally comparable.
       const a = [...new Set(raw)].sort((x, y) => x - y);
       const b = [...new Set(expected)].sort((x, y) => x - y);
       return a.length === b.length && a.every((v, i) => v === b[i]);

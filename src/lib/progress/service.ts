@@ -39,6 +39,14 @@ export interface LevelCompletion {
   capstonePassed: boolean;
   /** Convenience: completed per system-design §4.3 `levelCompleted`. */
   levelCompleted: boolean;
+  /**
+   * TRUE iff this (track, level) has module(s) but ZERO lessons under them —
+   * a corrupted-seed / content-drift signal (code-review MEDIUM). Surfaced on
+   * the result (not a `console.*` log — CLAUDE.md observability rule) so a
+   * caller/observability wave can detect the inconsistency instead of it
+   * silently masking as "never completed".
+   */
+  scopeInconsistent: boolean;
 }
 
 /** Resolve a lesson code to its internal id, or `null` if unknown. */
@@ -152,6 +160,7 @@ export async function getLevelCompletion(
       allLessonsCompleted: false,
       capstonePassed: false,
       levelCompleted: false,
+      scopeInconsistent: false,
     };
   }
 
@@ -160,6 +169,21 @@ export async function getLevelCompletion(
     where: { module: { levelId: level.id, trackId: track.id } },
     select: { id: true },
   });
+
+  // Distinguish "this (track, level) legitimately has no content" from the
+  // corrupted-seed case "module(s) exist but contain zero lessons" — the
+  // latter would otherwise pin allLessonsCompleted=false forever, masking a
+  // genuine capstone pass and silently locking progression (code-review
+  // MEDIUM). We only flag the inconsistent case; both still yield
+  // allLessonsCompleted=false (an empty scope is never "completed"), but the
+  // flag makes the corrupted state observable instead of invisible.
+  let scopeInconsistent = false;
+  if (lessons.length === 0) {
+    const moduleCount = await db.module.count({
+      where: { levelId: level.id, trackId: track.id },
+    });
+    scopeInconsistent = moduleCount > 0;
+  }
 
   let allLessonsCompleted = false;
   if (lessons.length > 0) {
@@ -216,5 +240,6 @@ export async function getLevelCompletion(
     allLessonsCompleted,
     capstonePassed,
     levelCompleted: allLessonsCompleted && capstonePassed,
+    scopeInconsistent,
   };
 }

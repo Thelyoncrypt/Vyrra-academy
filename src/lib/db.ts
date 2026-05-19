@@ -28,9 +28,14 @@ function createPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter });
 }
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+/**
+ * The (typed) shape we attach the singleton to on `globalThis`. Extracted to
+ * a named alias so the `globalThis as unknown as …` cast reads clearly: it is
+ * deliberately widening the global object with our dev-only cache slot.
+ */
+type GlobalPrisma = { prisma: PrismaClient | undefined };
+
+const globalForPrisma = globalThis as unknown as GlobalPrisma;
 
 export const db: PrismaClient = globalForPrisma.prisma ?? createPrismaClient();
 

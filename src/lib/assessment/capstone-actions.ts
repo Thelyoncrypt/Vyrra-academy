@@ -350,6 +350,24 @@ export async function requestAiDraftAction(
  * if there is no match — the caller turns this into a typed action error so a
  * content/seed drift can never silently produce an empty-context AI draft
  * (code-review HIGH).
+ *
+ * COUPLING CONTRACT (code-review MEDIUM, documented):
+ * The DB `Capstone` row has no contract-slug column, so the DB↔contract join
+ * key is the COMPOSITE NATURAL KEY `(title, levelOrder)` — the exact tuple the
+ * seed writes the DB row from. This is an O(n) linear scan of the in-memory
+ * (process-cached, ~handful of entries) capstone manifest, run only on the
+ * staff-only AI-draft path (never in a learner hot path), so the scan cost is
+ * immaterial. The coupling is intentional and contained to this one function +
+ * `capstone-service.resolveCapstone` (the only other site that joins on the
+ * same tuple). The `match` invariant: titles are unique within a level in the
+ * curriculum, so the pair is a true key.
+ *
+ * TODO(content-wave, optimization+decoupling): add a stable
+ * `contractCapstoneId` column to the DB `Capstone` (write it in the seed) and
+ * resolve by direct id lookup. That removes the string-match coupling and the
+ * scan entirely. Deferred here: it is a schema + seed + migration change, out
+ * of scope for a code-review hardening pass; the throw-on-miss guard already
+ * makes the current coupling fail loud, not silent.
  */
 function resolveContractCapstone(title: string, levelOrder: number) {
   const match = listCapstones().find(

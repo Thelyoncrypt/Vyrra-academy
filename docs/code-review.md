@@ -28,29 +28,33 @@ src/lib/rag/retrieval.ts:73-80: stableHash() uses simple 32-bit hash. Determinis
 
 ### MEDIUM (maintainability / design concern)
 
-src/lib/assessment/capstone-actions.ts:334-340: listContractCapstoneForDbId() walks full manifest O(n) on every request using string-match (title, levelOrder). Tight coupling between DB natural key and contract layer. Consider storing contractCapstoneId in DB Capstone or document the string-match contract explicitly.
+> **Wave 5 iteration-4 disposition.** All 5 MEDIUM items addressed below
+> (minimal-safe improvement + precise deferral where the real fix is a larger
+> refactor). Repo stays green (tsc 0; 171 vitest pass; build OK).
 
-src/lib/progress/service.ts:164-175: getLevelCompletion() doesn't validate that lessons exist in (track, level) scope. If module exists but has zero lessons (corrupted seed), allLessonsCompleted stays false indefinitely even after capstone pass. Add explicit check and warning log if inconsistent state detected.
+src/lib/assessment/capstone-actions.ts (now `resolveContractCapstone`): **Documented.** The HIGH (silent null) was already fixed to throw-on-miss. Added an explicit COUPLING CONTRACT doc-block: the DB↔contract join is the composite natural key `(title, levelOrder)`, O(n) scan over the tiny process-cached manifest on the staff-only AI-draft path (never a learner hot path), titles unique within a level. Precise `TODO(content-wave)` left to add a `contractCapstoneId` DB column (schema+seed+migration — deliberately deferred, out of scope for a review-hardening pass; the throw-on-miss guard makes the coupling fail loud).
 
-src/lib/assessment/quiz-scoring.ts:119-121: Multi-select uses [...new Set(raw)].sort() silently eliminating order. While correct (order shouldn't matter), intent isn't obvious. Add comment: "Order is ignored; duplicates eliminated."
+src/lib/progress/service.ts getLevelCompletion(): **Fixed (behavior change + tests).** Added a scoped consistency probe: when a (track, level) has ZERO lessons, it now distinguishes "legitimately empty" (no modules) from the corrupted-seed case "module(s) exist but no lessons" via `db.module.count`, surfaced as a new typed `LevelCompletion.scopeInconsistent` flag (NOT a `console.*` log — observability rule). Empty scope still yields `allLessonsCompleted=false` (a capstone pass can never mask missing lessons). Two new tests assert both branches.
 
-src/lib/tools/simulate.ts:95-107: agentTrace clamping goal to 80 chars per step is reasonable but contract is undocumented. Add comment: "Output bounded: maxSteps <= 5, goal snippet <= 80 chars per step."
+src/lib/assessment/quiz-scoring.ts:119-121: **Fixed.** Added comment: order ignored, duplicates eliminated — a multi-select answer is a SET ([1,2] ≡ [2,1] ≡ [1,1,2]).
 
-src/lib/authz/gating.ts:61-80: Every canAccessLesson() call chains lesson->module->level/track inline without caching. Dashboard with 10 lessons = 10 separate queries. Consider memoized scope lookup or denormalization (Lesson.trackId).
+src/lib/tools/simulate.ts agentTrace(): **Fixed.** Added a doc-block: output is O(1) — maxSteps hard-clamped 1..5, goal snippet ≤ 80 chars/step, goal pre-clamped to MAX_FIELD_CHARS; a learner cannot inflate the trace.
+
+src/lib/authz/gating.ts getLessonScope(): **Documented (deferred).** Added a LATENCY TRADEOFF doc-block: the inline per-lesson indexed read is intentional — a process-global cache would leak one user's resolved graph across requests and serve stale lock state after a grade/confirm (an authorization hazard that outweighs the read cost). Per scope guidance NO global cache layer added. Precise `TODO(perf-wave)` left for a request-scoped React `cache()` or `Lesson.trackId/levelId` denormalization (render-architecture/schema change — deferred, out of scope).
 
 ---
 
 ### NITS (optional clarity)
 
-src/content/contract.ts:36: ContentHash regex [a-f0-9]{64} should document SHA256 format. Add JSDoc: /** SHA256 hex digest (64 hex chars). */
+src/content/contract.ts ContentHash: **Fixed.** Upgraded the one-line comment to a JSDoc documenting "SHA256 hex digest (exactly 64 lowercase hex chars)" + that a body change re-triggers re-embedding.
 
-src/lib/db.ts:31-32: Type cast `globalThis as unknown as { prisma: ... }` is safe but unclear. Extract to named type alias GlobalPrisma.
+src/lib/db.ts: **Fixed.** Extracted the cast target to a named `type GlobalPrisma = { prisma: PrismaClient | undefined }` alias with a clarifying comment.
 
-src/lib/assessment/capstone-service.ts:109-111: Undefined vs null distinction in Prisma input unclear. Add comment: "Undefined skips field update; null would overwrite with null."
+src/lib/assessment/capstone-service.ts createSubmission(): **Fixed.** Added comment: `undefined` omits the `payload` field (column stays NULL on create); a literal `null` would write JSON null — we want omit, not null-write.
 
-src/lib/enrollment/service.ts:135-151: Loop-based upsert over pairings could batch with createMany. Add TODO(optimization) comment for future wave.
+src/lib/enrollment/service.ts devEnrollEverywhere(): **Fixed.** Added a `TODO(optimization, future wave)` comment: replace the per-pairing upsert loop with a single `createMany({ skipDuplicates: true })` (idempotent via the unique constraint) if it ever needs to scale.
 
-scripts/parse-curriculum.ts:76: Redundant cast `as ReturnType<typeof parseManifest>` after parseManifest already narrows type. Remove cast.
+scripts/parse-curriculum.ts:76: **Fixed.** Removed the redundant cast by binding `parseManifest`'s already-narrowed return into a typed `const m` directly (no `unknown` round-trip), and used `m` for the manifest write — the `as ReturnType<…>` cast is gone.
 
 ---
 
@@ -109,4 +113,12 @@ Security: Defense-in-depth (server re-checks, AI never gates, injection containe
 Findings: 4 HIGH (must fix), 5 MEDIUM (maintainability), 5 NITS (clarity).
 
 Release readiness: Fix the 4 HIGH items, then v1-ready.
+
+> **Wave 5 iteration-4 closure.** 4 HIGH: fixed in prior iterations. 5 MEDIUM:
+> 3 Fixed (progress scope-guard w/ tests, quiz-scoring comment, simulate
+> bounds doc), 2 Documented with precise deferral TODOs (capstone-actions
+> coupling contract, gating latency tradeoff — both larger schema/render
+> refactors deliberately out of a review-hardening pass; neither is a
+> correctness/security gap). 5 NITS: all 5 Fixed. Repo green: tsc 0;
+> 171 vitest pass; `npm run build` OK.
 

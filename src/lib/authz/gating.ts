@@ -57,6 +57,24 @@ const STAFF_ROLES: ReadonlySet<Principal["role"]> = new Set([
  * and a module is bound to exactly one level and one track (schema:
  * Module.levelId + Module.trackId), so the lesson's gating scope is
  * unambiguous.
+ *
+ * LATENCY TRADEOFF (code-review MEDIUM, documented & accepted):
+ * `canAccessLesson` resolves this scope inline with one indexed
+ * `lesson.findFirst` on the unique `code`. A surface that gates N lessons
+ * (e.g. a dashboard outline) issues N of these reads — there is intentionally
+ * NO module-level cache here: a process-global cache would leak one user's
+ * resolved graph across requests and could serve a stale lock state after a
+ * grade/confirm (a correctness/authorization hazard that outweighs the read
+ * cost). Each query is a single PK/unique-index hit on a tiny content table,
+ * so the absolute cost is low. If a hot surface ever needs it,
+ * batch-resolving scopes for all visible lessons in ONE `IN` query at the
+ * call site, or a Lesson.trackId/levelId denormalization, is the right fix.
+ *
+ * TODO(perf-wave): if profiling shows this is hot, wrap the per-request
+ * resolution in React `cache()` (request-scoped, NOT process-global) or add
+ * the denormalized columns — both preserve the per-request correctness
+ * boundary this comment protects. Deferred: a schema/render-architecture
+ * change, out of scope for a code-review hardening pass.
  */
 async function getLessonScope(lessonCode: string): Promise<{
   levelId: string;

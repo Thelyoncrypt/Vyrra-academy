@@ -32,7 +32,11 @@ export const Slug = z
 /** Curriculum numbering code, e.g. "4" | "4.1" | "4.1.1". */
 export const Code = z.string().regex(/^\d+(?:\.\d+){0,2}$/, 'e.g. "4.1.1"');
 
-/** sha256 hex of the source MDX body — drives reindex/staleness. */
+/**
+ * SHA256 hex digest (exactly 64 lowercase hex chars) of the source MDX body.
+ * Drives reindex/staleness: a body change changes this hash, which triggers
+ * re-embedding of that lesson's chunks.
+ */
 export const ContentHash = z.string().regex(/^[a-f0-9]{64}$/);
 
 /**

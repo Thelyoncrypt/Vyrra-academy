@@ -106,6 +106,9 @@ export async function createSubmission(
   capstoneDbId: string,
   payload: { artifactUrl?: string; notes?: string },
 ): Promise<{ submissionId: string }> {
+  // `undefined` skips the `payload` field entirely (column stays NULL on
+  // create); a literal `null` would explicitly write JSON null. We want the
+  // former when there are no notes — omit, don't null-write.
   const data: Prisma.InputJsonValue | undefined = payload.notes
     ? { notes: payload.notes }
     : undefined;

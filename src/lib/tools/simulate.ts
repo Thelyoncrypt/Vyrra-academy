@@ -92,6 +92,14 @@ function schemaValidate(inputs: Inputs): SimulationResult {
   };
 }
 
+/**
+ * Output bounded (abuse containment, documented per code-review MEDIUM):
+ *   - `maxSteps` is hard-clamped to 1..5 (so the result array is ≤ 5 items);
+ *   - the goal snippet echoed per step is sliced to ≤ 80 chars;
+ *   - `goal` itself was already `clamp`ed to MAX_FIELD_CHARS on input.
+ * The simulated trace size is therefore O(1) regardless of input — a learner
+ * cannot inflate the output by passing a huge `maxSteps` or `goal`.
+ */
 function agentTrace(inputs: Inputs): SimulationResult {
   const goal = clamp(inputs.goal ?? "");
   const maxSteps = Math.max(

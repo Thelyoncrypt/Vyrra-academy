@@ -26,6 +26,7 @@
  */
 
 import { getTutorPrincipal } from "@/lib/ai/auth-stub";
+import { persistTutorTurn } from "@/lib/ai/tutor-persistence";
 import { streamTutorAnswer } from "@/lib/ai/tutor-agent";
 import { canAccessLesson } from "@/lib/authz/gating";
 import { rateLimiter } from "@/lib/rag/rate-limit";
@@ -144,7 +145,30 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     // ---- 5. Grounded generation (system-design §3.3) --------------------
-    const outcome = await streamTutorAnswer({ retrieval, messages });
+    // Persist the turn + write the semantic cache on stream completion
+    // (system-design §3.3 / §3.4). This runs in the AI SDK `onFinish` hook
+    // AFTER the answer has streamed — it never blocks the client. Every
+    // write is BEST-EFFORT and non-fatal: `persistTutorTurn` swallows its
+    // own failures (no console.*, no leak) so a DB/cache error can never
+    // 500 the user or corrupt the stream. It only ever runs here, on the
+    // success path — the 400/401/403/429 returns above skip it entirely,
+    // so a denied request persists nothing (least agency, §5.3).
+    const outcome = await streamTutorAnswer({
+      retrieval,
+      messages,
+      onComplete: async (completion) => {
+        // Discard the result: the persistence outcome is observability only
+        // and must never affect the response (it has already streamed).
+        await persistTutorTurn(retrievalService, scope, principal.userId, {
+          question: lastUser,
+          answer: completion.answer,
+          citations: retrieval.citations,
+          tokensIn: completion.tokensIn,
+          tokensOut: completion.tokensOut,
+          model: completion.model,
+        });
+      },
+    });
     if (!outcome.ok) {
       // Provider env missing / unavailable → clean 503, no crash, no leak.
       return errorResponse({
@@ -154,11 +178,8 @@ export async function POST(req: Request): Promise<Response> {
       });
     }
 
-    // TODO(db-wave): on stream completion persist TutorMessage (tokens,
-    // model) and upsert SemanticCacheEntry; tag spend in the Gateway by
-    // feature/user (system-design §3.3 / §3.4). Output is rendered as
-    // sanitized markdown client-side (§5.3) — the later useChat wave owns
-    // that; this route only streams the model's text parts.
+    // Output is rendered as sanitized markdown client-side (§5.3) — the
+    // useChat wave owns that; this route only streams the model's text parts.
     return outcome.response;
   } catch {
     // Never surface stack traces / messages — log server-side in a later

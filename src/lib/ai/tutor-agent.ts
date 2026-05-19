@@ -211,9 +211,32 @@ function buildModelMessages(
 // Generation
 // ---------------------------------------------------------------------------
 
+/**
+ * What a completed turn reports to the route's post-stream hook. Mirrors the
+ * subset of the AI SDK `onFinish` event the persistence layer needs — kept
+ * narrow so the route never depends on the SDK event shape directly.
+ */
+export interface TutorCompletion {
+  /** The model's full grounded answer text. */
+  readonly answer: string;
+  /** Prompt tokens, when the provider reported them. */
+  readonly tokensIn?: number;
+  /** Completion tokens, when the provider reported them. */
+  readonly tokensOut?: number;
+  /** Resolved model id (e.g. "claude-sonnet-4-6"), when known. */
+  readonly model?: string;
+}
+
 export interface TutorStreamInput {
   readonly retrieval: RetrievalResult;
   readonly messages: readonly TutorMessage[];
+  /**
+   * Optional best-effort post-stream hook. Invoked from the AI SDK
+   * `onFinish` callback AFTER the answer has fully streamed — it never
+   * delays or blocks the client stream. Persistence failures here must be
+   * swallowed by the callback (the route's contract), never thrown.
+   */
+  readonly onComplete?: (completion: TutorCompletion) => void | Promise<void>;
 }
 
 /** Either a streaming Response, or a typed reason the route maps to 503. */
@@ -272,6 +295,25 @@ export async function streamTutorAnswer(
     providerOptions: {
       anthropic: { cacheControl: { type: "ephemeral" } },
     },
+    // Post-stream hook (system-design §3.3): fires AFTER the full answer has
+    // streamed to the client, so it never delays/blocks the stream. The
+    // route's callback is best-effort and swallows its own errors; we still
+    // wrap defensively so a hook throw can never break the SDK stream.
+    onFinish: input.onComplete
+      ? async (event) => {
+          try {
+            await input.onComplete?.({
+              answer: event.text,
+              tokensIn: event.totalUsage.inputTokens,
+              tokensOut: event.totalUsage.outputTokens,
+              model: event.model.modelId,
+            });
+          } catch {
+            // Non-fatal: persistence is observability, not correctness.
+            // No console.* (CLAUDE.md observability rule).
+          }
+        }
+      : undefined,
   });
 
   // Streamed to the client; the client renders it as SANITIZED markdown
