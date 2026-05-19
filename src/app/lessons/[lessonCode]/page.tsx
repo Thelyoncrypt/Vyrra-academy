@@ -80,6 +80,15 @@ function toCompletionState(status: string | undefined): CompletionState {
   return "not-started";
 }
 
+/**
+ * Lowercase only the first character so an authored objective ("Design a
+ * reflection loop…") reads naturally mid-sentence ("become able to design a
+ * reflection loop…") without destroying acronyms later in the string.
+ */
+function lowerFirst(text: string): string {
+  return text ? text.charAt(0).toLowerCase() + text.slice(1) : text;
+}
+
 export const dynamic = "force-dynamic";
 
 export default async function LessonPage({ params }: LessonPageProps) {
@@ -128,6 +137,19 @@ export default async function LessonPage({ params }: LessonPageProps) {
   // Learning Objectives; fall back to the legacy `outcomes` so no lesson
   // loses its outcomes list.
   const whatYoullLearn = objectives.length > 0 ? objectives : lesson.outcomes;
+
+  // "Why it matters" must teach, not echo. The lead already shows
+  // `lesson.summary`; repeating it here (UX audit #2) wastes the learner's
+  // most motivation-critical moment. Instead derive a genuinely
+  // lesson-specific stake from real per-lesson data — its concept load, its
+  // place in the module/level, and the fact later lessons build on it — so it
+  // reads differently for every lesson with no new authored content field.
+  const conceptCount = lesson.keyConcepts.length;
+  const firstObjective = whatYoullLearn[0];
+  const hasQuiz = Boolean(lesson.quiz);
+  const completionCriteria = hasQuiz
+    ? "Work through the reading and its activities, then pass the quiz below to prove understanding and unlock what follows."
+    : "Work through the reading and its activities, then mark it complete to unlock what follows.";
 
   return (
     <PageShell as="article">
@@ -227,13 +249,23 @@ export default async function LessonPage({ params }: LessonPageProps) {
             eyebrow="Step 2 · Motivation"
           >
             <p className="font-sans text-[1.0625rem] leading-[1.7] text-body-strong">
-              {lesson.summary}
+              {firstObjective
+                ? `This lesson is where you actually become able to ${lowerFirst(
+                    firstObjective,
+                  )}`
+                : "This lesson turns the module's theory into a capability you can apply."}
             </p>
             <p className="mt-4 font-sans text-[1rem] leading-[1.7] text-body">
-              This lesson sits in{" "}
-              {mod ? `the “${mod.title}” module` : "the curriculum"} and is a
-              prerequisite for the capability work that follows — skipping it
-              leaves a gap the later lessons assume is filled.
+              It carries {conceptCount} key concept
+              {conceptCount === 1 ? "" : "s"}
+              {mod ? ` that the rest of “${mod.title}”` : " that later lessons"}{" "}
+              {mod && track
+                ? `(${levelDifficultyLabel(mod.levelOrder)} level of ${
+                    track.title
+                  })`
+                : ""}{" "}
+              treats as already known — later lessons build directly on it
+              rather than re-teaching it, so a gap here compounds downstream.
             </p>
           </LessonSection>
 
@@ -242,13 +274,11 @@ export default async function LessonPage({ params }: LessonPageProps) {
             id="lesson-how"
             eyebrow="Step 3 · The reading"
           >
-            <p className="font-sans text-[1rem] leading-[1.7] text-body">
-              Read straight through — the core explanation flows below as
-              open prose. Use the deeper section for optional detail, then
-              move into the practice block. The concepts in the margin are
-              the vocabulary you should be able to use unprompted by the end.
-            </p>
-            {/* The primary reading flows open as a magazine column (DESIGN.md
+            {/* The generic "read straight through…" paragraph was identical on
+                every lesson (UX audit #8) — pure filler before the real
+                content. The section title + eyebrow already orient; the
+                reading itself is the instruction. Open directly with it.
+                The primary reading flows open as a magazine column (DESIGN.md
                 Whitespace Philosophy) — it is not boxed in a disclosure card.
                 Worked examples and edge cases are authored inline in the MDX
                 body, so there is no hollow "going deeper" disclosure here:
@@ -313,7 +343,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
           <CompletionForm
             lessonCode={lesson.code}
             initialState={completionState}
-            criteria="Work through the reading and its activities, then mark it complete to unlock what follows."
+            criteria={completionCriteria}
             nextStep={nextStep}
           />
 
