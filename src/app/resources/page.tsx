@@ -55,6 +55,14 @@ interface ResourcesPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
+/**
+ * Per-item entrance delay classes. Cycled by index so the grid reveals as a
+ * short left-to-right wave that resets each row — bounded (never an
+ * unbounded delay on long lists) and fully neutralised under
+ * prefers-reduced-motion by the globals.css base layer.
+ */
+const STAGGER = ["", "delay-1", "delay-2"] as const;
+
 /** First value if a param arrived repeated; safe string otherwise. */
 function one(value: string | string[] | undefined): string {
   if (Array.isArray(value)) return value[0] ?? "";
@@ -103,6 +111,11 @@ export default async function ResourcesPage({
 
   const all = listResources();
   const resources = listResources(filter);
+
+  // Layout density is a view preference (not a content filter) persisted in
+  // the URL so it is shareable and survives back/forward — same source of
+  // truth as the facets. Default = comfortable.
+  const compact = one(params.density) === "compact";
 
   // Facet options derived from the FULL library so a filter never hides the
   // facet that would clear it. Only show facets that exist in the data.
@@ -167,6 +180,7 @@ export default async function ResourcesPage({
             facets={facets}
             resultCount={resources.length}
             totalCount={all.length}
+            compact={compact}
           />
         </aside>
 
@@ -175,10 +189,19 @@ export default async function ResourcesPage({
             Results
           </h2>
           {resources.length > 0 ? (
-            <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {resources.map((r) => (
-                <li key={r.id}>
-                  <ResourceCard resource={r} />
+            <ul
+              className={`grid sm:grid-cols-2 ${
+                compact
+                  ? "gap-3 xl:grid-cols-3"
+                  : "gap-5 xl:grid-cols-3"
+              }`}
+            >
+              {resources.map((r, i) => (
+                <li
+                  key={r.id}
+                  className={`animate-rise-in ${STAGGER[i % STAGGER.length]}`}
+                >
+                  <ResourceCard resource={r} compact={compact} />
                 </li>
               ))}
             </ul>

@@ -27,7 +27,9 @@ import { ConceptList } from "@/components/learn/concept-list";
 import { ResourcePanel } from "@/components/learn/resource-panel";
 import { PracticeBlock } from "@/components/learn/practice-block";
 import { CompletionForm } from "@/components/learn/completion-form";
-import { LessonBodySlot } from "@/components/learn/lesson-body-slot";
+import { LessonBodySlot, LESSON_BODY_ID } from "@/components/learn/lesson-body-slot";
+import { LessonToc } from "@/components/learn/lesson-toc";
+import type { NextStep } from "@/components/learn/next-lesson-cue";
 import { SpikeMark } from "@/components/brand/spike-mark";
 import { TutorPanelLazy } from "@/components/tutor/tutor-panel-lazy";
 import {
@@ -35,6 +37,7 @@ import {
   getModule,
   getTrack,
   levelDifficultyLabel,
+  listLessonsForModule,
 } from "@/lib/content/queries";
 import { renderLessonBody } from "@/lib/content/mdx";
 import { getCurrentPrincipal } from "@/lib/auth/session";
@@ -72,6 +75,25 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   const mod = getModule(lesson.moduleCode);
   const track = mod ? getTrack(mod.trackSlug) : null;
+
+  // "What's next" is derived purely from content order within the module
+  // (not from dashboard/progress state, not fabricated). The next lesson is
+  // the one immediately after this one in the same module; if none, the cue
+  // degrades to a back-to-track CTA.
+  const siblingLessons = listLessonsForModule(lesson.moduleCode);
+  const idx = siblingLessons.findIndex((l) => l.code === lesson.code);
+  const nextLesson =
+    idx >= 0 && idx + 1 < siblingLessons.length
+      ? siblingLessons[idx + 1]
+      : null;
+  const nextStep: NextStep = {
+    next: nextLesson
+      ? { code: nextLesson.code, title: nextLesson.title }
+      : null,
+    trackSlug: track?.slug ?? null,
+    trackTitle: track?.title ?? null,
+    moduleTitle: mod?.title ?? null,
+  };
 
   const principal = await getCurrentPrincipal();
   const [access, progress, body] = await Promise.all([
@@ -186,27 +208,26 @@ export default async function LessonPage({ params }: LessonPageProps) {
             eyebrow="Step 3 · The reading"
           >
             <p className="font-sans text-[1rem] leading-[1.7] text-body">
-              Read the explanation, expand the deeper sections where you want
-              detail, then move straight into the practice block. The concepts
-              in the margin are the vocabulary you should be able to use
-              unprompted by the end.
+              Read straight through — the core explanation flows below as
+              open prose. Use the deeper section for optional detail, then
+              move into the practice block. The concepts in the margin are
+              the vocabulary you should be able to use unprompted by the end.
             </p>
-            <div className="mt-7 space-y-4">
-              <Expandable
-                summary="Core explanation"
-                hint="The main reading for this lesson"
-                defaultOpen
-              >
-                <LessonBodySlot>{body}</LessonBodySlot>
-              </Expandable>
+            {/* The primary reading flows open as a magazine column (DESIGN.md
+                Whitespace Philosophy) — it is not boxed in a disclosure card,
+                only genuinely-optional depth collapses. */}
+            <div className="mt-9">
+              <LessonBodySlot>{body}</LessonBodySlot>
+            </div>
+            <div className="mt-10">
               <Expandable
                 summary="Going deeper"
                 hint="Optional — worked examples and edge cases"
               >
                 <p>
                   Optional depth, worked examples, and edge cases are authored
-                  in the MDX body above; expand the core explanation for the
-                  full treatment.
+                  in the MDX body above; the core explanation is the full
+                  treatment for this lesson.
                 </p>
               </Expandable>
             </div>
@@ -245,7 +266,15 @@ export default async function LessonPage({ params }: LessonPageProps) {
             lessonCode={lesson.code}
             initialState={completionState}
             criteria="Work through the reading and its activities, then mark it complete to unlock what follows."
+            nextStep={nextStep}
           />
+
+          <section aria-labelledby="aside-toc">
+            <h2 id="aside-toc" className="sr-only">
+              On this page
+            </h2>
+            <LessonToc bodyId={LESSON_BODY_ID} />
+          </section>
 
           <section aria-labelledby="aside-resources">
             <h2

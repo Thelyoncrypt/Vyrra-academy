@@ -18,6 +18,7 @@
  */
 import { useState } from "react";
 
+import { WindowDots } from "@/components/code/window-dots";
 import type { WorkflowStep } from "@/lib/tools/workflows";
 
 interface WorkflowVisualizerProps {
@@ -34,11 +35,9 @@ export function WorkflowVisualizer({ steps }: WorkflowVisualizerProps) {
         aria-hidden="true"
         className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3"
       >
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-error/70" />
-          <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
-          <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
-          <span className="ml-3 font-mono text-[0.6875rem] uppercase tracking-[1.5px] text-on-dark-soft">
+        <div className="flex items-center gap-3">
+          <WindowDots size="sm" />
+          <span className="font-mono text-[0.6875rem] uppercase tracking-[1.5px] text-on-dark-soft">
             agent trace
           </span>
         </div>
@@ -69,10 +68,12 @@ export function WorkflowVisualizer({ steps }: WorkflowVisualizerProps) {
                 ) : null}
                 <span
                   aria-hidden="true"
-                  className={`absolute left-4 top-4 flex h-6 w-6 items-center justify-center rounded-full font-mono text-[0.75rem] ${
+                  className={`absolute left-4 top-4 flex h-6 w-6 items-center justify-center rounded-full font-mono text-[0.75rem] ring-1 ${
                     step.safeguard
-                      ? "bg-primary text-on-primary"
-                      : "bg-white/10 text-on-dark"
+                      ? "bg-primary text-on-primary ring-primary/40"
+                      : isLast
+                        ? "bg-white/[0.16] text-on-dark ring-white/20"
+                        : "bg-white/10 text-on-dark ring-transparent"
                   }`}
                 >
                   {i + 1}

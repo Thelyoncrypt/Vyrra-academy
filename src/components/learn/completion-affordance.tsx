@@ -7,6 +7,10 @@
  * rather than a dead button.
  */
 import type { ReactNode } from "react";
+import {
+  NextLessonCue,
+  type NextStep,
+} from "@/components/learn/next-lesson-cue";
 
 type CompletionState = "not-started" | "in-progress" | "completed";
 
@@ -14,6 +18,8 @@ interface CompletionAffordanceProps {
   state: CompletionState;
   /** Lesson completion criteria, surfaced so the bar is meaningful. */
   criteria: string;
+  /** In-scope content-derived "what's next" — shown once complete. */
+  nextStep: NextStep;
 }
 
 const STATE_COPY: Record<CompletionState, { label: string; dot: string }> = {
@@ -25,6 +31,7 @@ const STATE_COPY: Record<CompletionState, { label: string; dot: string }> = {
 export function CompletionAffordance({
   state,
   criteria,
+  nextStep,
 }: CompletionAffordanceProps): ReactNode {
   const copy = STATE_COPY[state];
   const isCompleted = state === "completed";
@@ -51,23 +58,40 @@ export function CompletionAffordance({
         </span>
       </div>
       <p className="mt-4 font-sans text-[0.9375rem] leading-[1.6] text-muted">
-        <span className="font-medium text-body-strong">
-          To complete this lesson:
-        </span>{" "}
-        {criteria}
+        {isCompleted ? (
+          <>
+            <span className="font-medium text-body-strong">
+              Lesson complete.
+            </span>{" "}
+            The next lesson is unlocked — revisit this one any time.
+          </>
+        ) : (
+          <>
+            <span className="font-medium text-body-strong">
+              To complete this lesson:
+            </span>{" "}
+            {criteria}
+          </>
+        )}
       </p>
-      <button
-        type="button"
-        disabled
-        aria-disabled="true"
-        title="Available once progress tracking is enabled"
-        className="mt-6 w-full cursor-not-allowed rounded-md bg-primary-disabled px-5 py-2.5 font-sans text-[0.875rem] font-medium text-muted"
-      >
-        Mark complete
-      </button>
-      <p className="mt-2.5 font-sans text-[0.75rem] leading-relaxed text-muted-soft">
-        Enabled once accounts and progress tracking are wired up.
-      </p>
+      {isCompleted ? (
+        <NextLessonCue step={nextStep} />
+      ) : (
+        <>
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            title="Available once progress tracking is enabled"
+            className="mt-6 w-full cursor-not-allowed rounded-md bg-primary-disabled px-5 py-2.5 font-sans text-[0.875rem] font-medium text-muted"
+          >
+            Mark complete
+          </button>
+          <p className="mt-2.5 font-sans text-[0.75rem] leading-relaxed text-muted-soft">
+            Enabled once accounts and progress tracking are wired up.
+          </p>
+        </>
+      )}
     </section>
   );
 }

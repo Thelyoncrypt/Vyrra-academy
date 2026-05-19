@@ -12,6 +12,8 @@ import { useState, useTransition } from "react";
 
 import { runToolTaskAction } from "@/lib/tools/actions";
 import type { SimulationResult } from "@/lib/tools/types";
+import { CopyButton } from "@/components/code/copy-button";
+import { WindowDots } from "@/components/code/window-dots";
 
 interface GuidedTaskRunnerProps {
   toolSlug: string;
@@ -175,16 +177,21 @@ function ResultPanel({
       </div>
       {result ? (
         <div className="bg-canvas">
-          <div
-            aria-hidden="true"
-            className="flex items-center gap-1.5 border-b border-hairline-soft bg-surface-dark px-4 py-2"
-          >
-            <span className="h-2 w-2 rounded-full bg-error/70" />
-            <span className="h-2 w-2 rounded-full bg-warning/70" />
-            <span className="h-2 w-2 rounded-full bg-success/70" />
-            <span className="ml-2 font-mono text-[0.625rem] uppercase tracking-[1.5px] text-on-dark-soft">
-              output
+          <div className="flex items-center justify-between gap-3 border-b border-hairline-soft bg-surface-dark px-4 py-2">
+            <span className="flex items-center gap-2">
+              <WindowDots size="sm" />
+              <span
+                aria-hidden="true"
+                className="font-mono text-[0.625rem] uppercase tracking-[1.5px] text-on-dark-soft"
+              >
+                output
+              </span>
             </span>
+            <CopyButton
+              value={result.output}
+              label="simulation output"
+              tone="dark"
+            />
           </div>
           <pre className="overflow-x-auto bg-surface-dark-soft px-4 py-3.5 font-mono text-[0.8125rem] leading-relaxed text-on-dark">
             {result.output}

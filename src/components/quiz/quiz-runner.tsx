@@ -69,6 +69,13 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
     return idx === -1 ? stages.length - 1 : idx;
   }, [stages, responses]);
 
+  /** Stages with every question answered — drives the running summary. */
+  const clearedStageCount = useMemo(
+    () =>
+      stages.filter(([, qs]) => qs.every((q) => responses.has(q.id))).length,
+    [stages, responses],
+  );
+
   function setAnswer(questionId: string, value: ResponseValue) {
     setResponses((prev) => {
       const next = new Map(prev);
@@ -125,6 +132,7 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
       <StageProgress
         stages={stages.map(([s]) => s)}
         activeIndex={activeStageIndex}
+        clearedCount={clearedStageCount}
       />
 
       {stages.map(([stage, questions], stageIdx) => {
@@ -138,28 +146,36 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <span
                 aria-hidden="true"
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-pill font-sans text-[0.875rem] font-medium ${
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-pill font-sans text-[0.875rem] font-medium transition-[transform,background-color,color] duration-normal ease-out ${
                   stageDone
-                    ? "bg-ink text-on-dark"
-                    : "bg-surface-cream-strong text-body-strong"
+                    ? "scale-100 bg-ink text-on-dark"
+                    : "scale-95 bg-surface-cream-strong text-body-strong"
                 }`}
               >
                 {stageDone ? "✓" : stage}
               </span>
-              <div className="min-w-0">
-                <div className="flex items-baseline gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted">
                     Stage {stage} of {stages.length}
                   </span>
                   <h2 className="text-[1.375rem] tracking-[-0.3px] text-ink">
                     {meta.name}
                   </h2>
+                  <span
+                    className={`ml-auto shrink-0 rounded-pill px-2.5 py-0.5 font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] transition-colors duration-normal ${
+                      stageDone
+                        ? "bg-surface-cream-strong text-body-strong"
+                        : "bg-surface-soft text-muted"
+                    }`}
+                  >
+                    {stageDone
+                      ? "Cleared"
+                      : `${stageAnswered}/${questions.length} answered`}
+                  </span>
                 </div>
                 <p className="mt-1 font-sans text-[0.875rem] text-muted">
                   {meta.blurb}
-                  <span className="ml-2 text-muted-soft">
-                    · {stageAnswered}/{questions.length} answered
-                  </span>
                 </p>
               </div>
             </div>

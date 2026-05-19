@@ -3,10 +3,13 @@
  * role="progressbar" with value/min/max so screen readers announce progress.
  * Coral used here as a progress signal (a legitimate semantic, not decoration).
  *
- * Polish: the fill animates width on the shared motion easing (compositor-
- * tolerable for a thin bar; neutralised by prefers-reduced-motion via
- * globals.css) and carries a faint top sheen so it reads as a filled track
- * rather than a flat block. Public API + a11y attributes are unchanged.
+ * Polish: the fill animates with `transform: scaleX` (a compositor-only
+ * property — no layout/paint, unlike the prior `width` animation) from a
+ * left origin, and carries a faint top sheen so it reads as a filled track
+ * rather than a flat block. The fill spans the full track and is scaled to
+ * `pct`, so the visual result is identical. Neutralised by
+ * prefers-reduced-motion via globals.css. Public API + a11y attributes are
+ * unchanged.
  */
 interface ProgressBarProps {
   /** 0–100. Clamped defensively. */
@@ -45,8 +48,8 @@ export function ProgressBar({
         className="h-2 w-full overflow-hidden rounded-pill bg-surface-cream-strong"
       >
         <div
-          className="h-full rounded-pill bg-primary bg-gradient-to-b from-white/15 to-transparent transition-[width] duration-slow ease-out"
-          style={{ width: `${pct}%` }}
+          className="h-full w-full origin-left rounded-pill bg-primary bg-gradient-to-b from-white/15 to-transparent transition-transform duration-slow ease-out"
+          style={{ transform: `scaleX(${pct / 100})` }}
         />
       </div>
     </div>

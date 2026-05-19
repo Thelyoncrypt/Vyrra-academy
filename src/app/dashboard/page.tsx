@@ -93,8 +93,9 @@ export default function DashboardPage() {
       >
         {/* Scale contrast, not a uniform 4-up: the programme-completion tile
             is the feature (larger serif, cream-card, spans 2 cols) and reads
-            as the headline metric; the rest are quieter canvas tiles. */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            as the headline metric; the rest are quieter canvas tiles. The
+            band rises as one unit (reduced-motion safe via globals.css). */}
+        <div className="animate-rise-in grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2">
             <StatTile
               feature
@@ -136,11 +137,18 @@ export default function DashboardPage() {
       >
         {tracks.length > 0 ? (
           <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {tracks.map((track) => {
+            {tracks.map((track, i) => {
               const total = countLessonsForTrack(track.slug);
               const pct = trackProgress.get(track.slug) ?? 0;
+              // Cascade by position, cycling the 3 documented delay steps so
+              // a long grid never waits more than 210ms (reduced-motion safe:
+              // globals.css base layer neutralises the animation entirely).
+              const delay = `delay-${(i % 3) + 1}`;
               return (
-                <li key={track.slug}>
+                <li
+                  key={track.slug}
+                  className={`animate-rise-in ${delay}`}
+                >
                   <TrackCard
                     track={track}
                     lessonCount={total}

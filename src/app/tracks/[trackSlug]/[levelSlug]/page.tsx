@@ -108,7 +108,7 @@ export default async function LevelPage({ params }: LevelPageProps) {
             {level.outcomes.map((o, i) => (
               <li
                 key={o}
-                className="flex items-start gap-3 rounded-lg bg-surface-card px-5 py-4"
+                className={`flex items-start gap-3 rounded-lg bg-surface-card px-5 py-4 transition-colors duration-200 hover:bg-surface-cream-strong animate-rise-in delay-${(i % 3) + 1}`}
               >
                 <span className="tabular-nums mt-0.5 shrink-0 font-mono text-[0.8125rem] text-muted-soft">
                   {String(i + 1).padStart(2, "0")}
@@ -146,13 +146,17 @@ export default async function LevelPage({ params }: LevelPageProps) {
 
         {modules.length > 0 ? (
           <div className="space-y-5">
-            {modules.map((m) => (
-              <ModuleOutline
+            {modules.map((m, i) => (
+              <div
                 key={m.code}
-                module={m}
-                lessons={listLessonsForModule(m.code)}
-                unlocked={levelUnlocked}
-              />
+                className={`animate-rise-in delay-${(i % 3) + 1}`}
+              >
+                <ModuleOutline
+                  module={m}
+                  lessons={listLessonsForModule(m.code)}
+                  unlocked={levelUnlocked}
+                />
+              </div>
             ))}
           </div>
         ) : (

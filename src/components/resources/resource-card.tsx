@@ -16,9 +16,14 @@ import { DIFFICULTY_LABEL, RESOURCE_TYPE_LABEL } from "./resource-meta";
 
 interface ResourceCardProps {
   resource: Resource;
+  /** Compact density: tighter padding + spacing for scanning long lists. */
+  compact?: boolean;
 }
 
-export function ResourceCard({ resource }: ResourceCardProps) {
+export function ResourceCard({
+  resource,
+  compact = false,
+}: ResourceCardProps) {
   const typeLabel = RESOURCE_TYPE_LABEL[resource.type] ?? resource.type;
   const isLink = Boolean(resource.url);
 
@@ -33,7 +38,11 @@ export function ResourceCard({ resource }: ResourceCardProps) {
         ) : null}
       </div>
 
-      <h3 className="mt-5 text-[1.25rem] leading-snug tracking-[-0.3px] text-ink transition-colors group-hover:text-primary">
+      <h3
+        className={`${
+          compact ? "mt-3 text-[1.0625rem]" : "mt-5 text-[1.25rem]"
+        } leading-snug tracking-[-0.3px] text-ink transition-colors group-hover:text-primary`}
+      >
         {resource.title}
         {isLink ? (
           <>
@@ -44,7 +53,11 @@ export function ResourceCard({ resource }: ResourceCardProps) {
       </h3>
 
       {resource.topic ? (
-        <p className="mt-2.5 flex-1 font-sans text-[0.875rem] leading-relaxed text-muted">
+        <p
+          className={`${
+            compact ? "mt-1.5" : "mt-2.5"
+          } flex-1 font-sans text-[0.875rem] leading-relaxed text-muted`}
+        >
           {resource.topic}
         </p>
       ) : (
@@ -53,8 +66,9 @@ export function ResourceCard({ resource }: ResourceCardProps) {
     </>
   );
 
-  const base =
-    "group relative flex h-full flex-col rounded-lg border border-hairline bg-canvas p-6";
+  const base = `group relative flex h-full flex-col rounded-lg border border-hairline bg-canvas ${
+    compact ? "p-4" : "p-6"
+  }`;
 
   if (isLink && resource.url) {
     return (
@@ -65,7 +79,11 @@ export function ResourceCard({ resource }: ResourceCardProps) {
         className={`${base} hover-raise hover:border-primary/40`}
       >
         {inner}
-        <p className="mt-5 flex items-center gap-1.5 border-t border-hairline-soft pt-4 font-sans text-[0.75rem] font-medium text-muted">
+        <p
+          className={`${
+            compact ? "mt-3 pt-3" : "mt-5 pt-4"
+          } flex items-center gap-1.5 border-t border-hairline-soft font-sans text-[0.75rem] font-medium text-muted`}
+        >
           <span
             aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-accent-teal"
@@ -79,7 +97,11 @@ export function ResourceCard({ resource }: ResourceCardProps) {
   return (
     <div className={base}>
       {inner}
-      <p className="mt-5 flex items-center gap-1.5 border-t border-hairline-soft pt-4 font-sans text-[0.75rem] text-muted-soft">
+      <p
+        className={`${
+          compact ? "mt-3 pt-3" : "mt-5 pt-4"
+        } flex items-center gap-1.5 border-t border-hairline-soft font-sans text-[0.75rem] text-muted-soft`}
+      >
         <span
           aria-hidden="true"
           className="h-1.5 w-1.5 rounded-full bg-muted-soft"

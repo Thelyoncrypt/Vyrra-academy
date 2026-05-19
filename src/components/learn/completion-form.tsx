@@ -19,6 +19,10 @@
 import { useState, useTransition } from "react";
 
 import { markLessonProgressAction } from "@/lib/progress/actions";
+import {
+  NextLessonCue,
+  type NextStep,
+} from "@/components/learn/next-lesson-cue";
 
 type CompletionState = "not-started" | "in-progress" | "completed";
 
@@ -27,6 +31,8 @@ interface CompletionFormProps {
   initialState: CompletionState;
   /** Lesson completion criteria, surfaced so the bar is meaningful. */
   criteria: string;
+  /** In-scope content-derived "what's next" — shown once complete. */
+  nextStep: NextStep;
 }
 
 const STATE_COPY: Record<CompletionState, { label: string; dot: string }> = {
@@ -39,6 +45,7 @@ export function CompletionForm({
   lessonCode,
   initialState,
   criteria,
+  nextStep,
 }: CompletionFormProps) {
   const [state, setState] = useState<CompletionState>(initialState);
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +125,8 @@ export function CompletionForm({
           {error}
         </p>
       ) : null}
+
+      {isCompleted ? <NextLessonCue step={nextStep} /> : null}
     </section>
   );
 }

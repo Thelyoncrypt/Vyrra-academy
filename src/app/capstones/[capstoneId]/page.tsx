@@ -151,33 +151,41 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
           >
             {/* A real scoring grid: criteria as rows, proficiency bands as
                 columns. Horizontal scroll on small screens keeps the matrix
-                legible (DESIGN.md: don't wrap a data table to mush). */}
+                legible (DESIGN.md: don't wrap a data table to mush). The band
+                number is its own emphasised line above the label so the four
+                columns scan as an ascending scale; the criterion column is a
+                pinned cream-strong rail so a long row never loses its anchor. */}
             <div className="overflow-x-auto rounded-lg border border-hairline">
-              <table className="w-full min-w-[680px] border-collapse text-left">
+              <table className="w-full min-w-[720px] border-collapse text-left">
                 <caption className="sr-only">
                   Capstone assessment rubric: criteria scored across four
-                  proficiency bands.
+                  proficiency bands, then weighted.
                 </caption>
                 <thead>
                   <tr className="bg-surface-cream-strong">
                     <th
                       scope="col"
-                      className="w-[26%] px-4 py-3 font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-body-strong"
+                      className="sticky left-0 z-10 w-[24%] bg-surface-cream-strong px-4 py-3 font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-body-strong"
                     >
                       Criterion
                     </th>
                     {[
-                      "1 · Emerging",
-                      "2 · Developing",
-                      "3 · Proficient",
-                      "4 · Advanced",
-                    ].map((band) => (
+                      ["1", "Emerging"],
+                      ["2", "Developing"],
+                      ["3", "Proficient"],
+                      ["4", "Advanced"],
+                    ].map(([n, label]) => (
                       <th
-                        key={band}
+                        key={n}
                         scope="col"
-                        className="px-4 py-3 font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted"
+                        className="px-4 py-3 align-bottom"
                       >
-                        {band}
+                        <span className="block font-sans text-[0.8125rem] font-medium text-body-strong">
+                          {n}
+                        </span>
+                        <span className="mt-0.5 block font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted">
+                          {label}
+                        </span>
                       </th>
                     ))}
                   </tr>
@@ -192,10 +200,12 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
                     >
                       <th
                         scope="row"
-                        className="px-4 py-4 align-top font-sans text-[0.875rem] font-medium text-body-strong"
+                        className={`sticky left-0 z-10 px-4 py-4 align-top font-sans text-[0.875rem] font-medium text-body-strong ${
+                          i % 2 === 1 ? "bg-surface-card" : "bg-canvas"
+                        }`}
                       >
                         {c.name}
-                        <span className="mt-1 block font-normal text-[0.75rem] text-muted">
+                        <span className="mt-1 block rounded-pill bg-surface-cream-strong px-2 py-0.5 text-[0.6875rem] font-medium text-muted [width:fit-content]">
                           weight ×{c.weight}
                         </span>
                       </th>
@@ -207,7 +217,7 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
                       ].map((desc, bi) => (
                         <td
                           key={bi}
-                          className="px-4 py-4 align-top font-sans text-[0.8125rem] leading-relaxed text-body"
+                          className="border-l border-hairline-soft px-4 py-4 align-top font-sans text-[0.8125rem] leading-relaxed text-body"
                         >
                           {desc}
                         </td>

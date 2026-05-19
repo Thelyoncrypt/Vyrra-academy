@@ -16,6 +16,7 @@ import { useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 
 import { submitChallengeAction } from "@/lib/sandbox/actions";
+import { WindowDots } from "./window-dots";
 import type {
   ChallengeLanguage,
   CriterionResult,
@@ -37,12 +38,10 @@ const CodeEditor = dynamic(
       <div className="overflow-hidden rounded-lg border border-white/[0.06] bg-surface-dark">
         <div
           aria-hidden="true"
-          className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-3"
+          className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-3"
         >
-          <span className="h-3 w-3 rounded-full bg-error/70" />
-          <span className="h-3 w-3 rounded-full bg-warning/70" />
-          <span className="h-3 w-3 rounded-full bg-success/70" />
-          <span className="ml-3 rounded-md bg-white/[0.06] px-2.5 py-1 font-mono text-[0.75rem] text-on-dark-soft">
+          <WindowDots />
+          <span className="rounded-md bg-white/[0.06] px-2.5 py-1 font-mono text-[0.75rem] text-on-dark-soft">
             loading editor…
           </span>
         </div>

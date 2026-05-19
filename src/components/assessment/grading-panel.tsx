@@ -142,24 +142,39 @@ export function GradingPanel({
     });
   }
 
+  const scoredCount = criteria.filter((c) => scores.has(c.id)).length;
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        {existing ? (
-          <Badge tone={isDone ? "level" : "outline"}>
-            {existing.mode === "human"
-              ? "Human-graded"
-              : isDone
-                ? "AI draft · confirmed"
-                : "AI draft · awaiting confirmation"}
-          </Badge>
-        ) : (
-          <Badge tone="outline">Not yet graded</Badge>
-        )}
-        {existing?.outcome ? (
-          <Badge tone={isDone ? "level" : "outline"}>
-            {existing.outcome} · {existing.totalScore ?? 0}%
-          </Badge>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {existing ? (
+            <Badge tone={isDone ? "level" : "outline"}>
+              {existing.mode === "human"
+                ? "Human-graded"
+                : isDone
+                  ? "AI draft · confirmed"
+                  : "AI draft · awaiting confirmation"}
+            </Badge>
+          ) : (
+            <Badge tone="outline">Not yet graded</Badge>
+          )}
+          {existing?.outcome ? (
+            <Badge tone={isDone ? "level" : "outline"}>
+              {existing.outcome} · {existing.totalScore ?? 0}%
+            </Badge>
+          ) : null}
+        </div>
+        {!isDone ? (
+          <span
+            className="font-sans text-[0.8125rem] text-muted"
+            aria-live="polite"
+          >
+            <span className="font-medium text-body-strong">
+              {scoredCount} of {criteria.length}
+            </span>{" "}
+            criteria scored
+          </span>
         ) : null}
       </div>
 
@@ -205,6 +220,7 @@ export function GradingPanel({
             onScore={setScore}
             onComment={setComment}
             disabled={isPending || isDone}
+            provisional={isUnconfirmedDraft && !isDone}
           />
         ))}
       </div>

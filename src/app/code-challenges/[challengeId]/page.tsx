@@ -17,6 +17,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
 import { ChallengeRunner } from "@/components/code/challenge-runner";
+import { ReferenceCodeBlock } from "@/components/code/reference-code-block";
 import { getChallenge } from "@/lib/sandbox/registry";
 
 interface ChallengePageProps {
@@ -93,22 +94,10 @@ export default async function ChallengePage({
           aria-label="Challenge reference"
           className="space-y-8 lg:sticky lg:top-24 lg:self-start"
         >
-          <div className="overflow-hidden rounded-lg border border-white/[0.06] bg-surface-dark">
-            <div
-              aria-hidden="true"
-              className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-2.5"
-            >
-              <span className="h-2.5 w-2.5 rounded-full bg-error/70" />
-              <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
-              <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
-              <span className="ml-2 font-mono text-[0.6875rem] uppercase tracking-[1.5px] text-on-dark-soft">
-                Expected result
-              </span>
-            </div>
-            <pre className="overflow-x-auto bg-surface-dark-soft px-4 py-4 font-mono text-[0.8125rem] leading-relaxed text-on-dark">
-              {challenge.expectedResult}
-            </pre>
-          </div>
+          <ReferenceCodeBlock
+            content={challenge.expectedResult}
+            label="Expected result"
+          />
 
           <div className="rounded-lg border border-hairline bg-surface-card p-6">
             <div className="flex items-baseline justify-between gap-3">

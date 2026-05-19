@@ -31,6 +31,13 @@ const LEVELS: readonly ToolSkillLevel[] = [
   "expert",
 ];
 
+/**
+ * Bounded entrance-delay steps cycled by column index so the grid reveals as
+ * a short left-to-right wave (resets each row). Reduced-motion safe — the
+ * globals.css base layer neutralises the animation entirely.
+ */
+const STAGGER = ["", "delay-1", "delay-2"] as const;
+
 export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
   const [category, setCategory] = useState<string>("all");
   const [level, setLevel] = useState<string>("all");
@@ -82,8 +89,14 @@ export function ToolFilterGrid({ tools, categories }: ToolFilterGridProps) {
 
       {visible.length > 0 ? (
         <ul className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {visible.map((tool) => (
-            <li key={tool.slug}>
+          {visible.map((tool, i) => (
+            <li
+              // Key includes the active facets so a filter change remounts the
+              // items and replays the entrance — visible feedback that the
+              // result set changed.
+              key={`${category}-${level}-${tool.slug}`}
+              className={`animate-rise-in ${STAGGER[i % STAGGER.length]}`}
+            >
               <ToolCard tool={tool} />
             </li>
           ))}

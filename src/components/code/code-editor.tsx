@@ -28,6 +28,8 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 
 import type { ChallengeLanguage } from "@/lib/sandbox/types";
+import { WindowDots } from "./window-dots";
+import { CopyButton } from "./copy-button";
 
 interface CodeEditorProps {
   value: string;
@@ -67,21 +69,23 @@ export function CodeEditor({
 
   return (
     <div className="code-editor-surface overflow-hidden rounded-lg border border-white/[0.06] bg-surface-dark">
-      <div
-        aria-hidden="true"
-        className="flex items-center justify-between gap-3 border-b border-white/[0.06] bg-surface-dark px-5 py-3"
-      >
-        <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-full bg-error/70" />
-          <span className="h-3 w-3 rounded-full bg-warning/70" />
-          <span className="h-3 w-3 rounded-full bg-success/70" />
-          <span className="ml-3 rounded-md bg-white/[0.06] px-2.5 py-1 font-mono text-[0.75rem] text-on-dark-soft">
+      <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] bg-surface-dark px-5 py-3">
+        <div aria-hidden="true" className="flex items-center gap-3">
+          <WindowDots />
+          <span className="flex items-center gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.06] px-2.5 py-1 font-mono text-[0.75rem] text-on-dark">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent-teal" />
             {FILE_EXT[language]}
           </span>
         </div>
-        <span className="font-mono text-[0.6875rem] uppercase tracking-[1.5px] text-on-dark-soft">
-          {language}
-        </span>
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="font-mono text-[0.6875rem] uppercase tracking-[1.5px] text-on-dark-soft"
+          >
+            {language}
+          </span>
+          <CopyButton value={value} label="your code" tone="dark" />
+        </div>
       </div>
 
       <label htmlFor={editorId} className="sr-only">
@@ -91,7 +95,7 @@ export function CodeEditor({
       <div className="flex bg-surface-dark-soft">
         <div
           aria-hidden="true"
-          className="select-none border-r border-white/[0.05] py-6 pl-5 pr-3 text-right font-mono text-[0.875rem] leading-[1.6] text-on-dark-soft/50"
+          className="select-none border-r border-white/[0.05] bg-surface-dark/40 py-6 pl-5 pr-3.5 text-right font-mono text-[0.875rem] leading-[1.6] tabular-nums text-on-dark-soft/40"
         >
           {Array.from({ length: lineCount }, (_, i) => (
             <div key={i}>{i + 1}</div>
@@ -127,10 +131,21 @@ export function CodeEditor({
         aria-hidden="true"
         className="flex items-center justify-between border-t border-white/[0.06] bg-surface-dark-elevated px-5 py-2 font-mono text-[0.6875rem] text-on-dark-soft"
       >
-        <span>{disabled ? "read-only — checking" : "editable"}</span>
-        <span>
-          {lineCount} {lineCount === 1 ? "line" : "lines"} ·{" "}
-          {value.length} chars
+        <span className="flex items-center gap-1.5">
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              disabled ? "bg-warning" : "bg-success"
+            }`}
+          />
+          {disabled ? "read-only — checking" : "editable"}
+        </span>
+        <span className="flex items-center gap-3 tabular-nums">
+          <span className="uppercase tracking-[1.5px]">{language}</span>
+          <span className="text-on-dark-soft/40">·</span>
+          <span>
+            {lineCount} {lineCount === 1 ? "line" : "lines"} · {value.length}{" "}
+            chars
+          </span>
         </span>
       </div>
     </div>

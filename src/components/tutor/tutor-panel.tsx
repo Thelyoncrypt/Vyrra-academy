@@ -18,7 +18,7 @@
  * Collapsible via native <details> (keyboard + screen-reader for free, matches
  * the lesson's Expandable). Additive: the lesson page mounts it once.
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { TutorMessageList } from "./tutor-message-list";
@@ -40,6 +40,8 @@ const UNAVAILABLE_COPY =
 
 export function TutorPanel({ lessonId }: TutorPanelProps) {
   const [draft, setDraft] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage, status, error, stop } = useChat({
     transport: new DefaultChatTransport({
@@ -51,6 +53,22 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
 
   const isStreaming = status === "submitted" || status === "streaming";
   const isUnavailable = status === "error" || Boolean(error);
+
+  // Keep the newest token in view while a turn streams and after each turn.
+  // Scrolls only the panel's own log container (never the page). Honours
+  // reduced-motion: behaviour falls back to an instant jump there.
+  useEffect(() => {
+    const container = scrollRef.current;
+    const anchor = endRef.current;
+    if (!container || !anchor) return;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    anchor.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "nearest",
+    });
+  }, [messages, isStreaming]);
 
   const handleSend = () => {
     const text = draft.trim();
@@ -122,8 +140,15 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
             </p>
           </div>
         ) : messages.length > 0 ? (
-          <div className="max-h-[26rem] overflow-y-auto pr-1">
-            <TutorMessageList messages={messages} isStreaming={isStreaming} />
+          <div
+            ref={scrollRef}
+            className="max-h-[26rem] overflow-y-auto pr-1"
+          >
+            <TutorMessageList
+              messages={messages}
+              isStreaming={isStreaming}
+              endRef={endRef}
+            />
           </div>
         ) : (
           <div className="rounded-lg border border-dashed border-hairline bg-canvas/50 px-4 py-8 text-center">

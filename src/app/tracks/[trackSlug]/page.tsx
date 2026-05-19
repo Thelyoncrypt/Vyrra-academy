@@ -147,13 +147,17 @@ export default async function TrackPage({ params }: TrackPageProps) {
 
             {modules.length > 0 ? (
               <div className="space-y-5">
-                {modules.map((m) => (
-                  <ModuleOutline
+                {modules.map((m, i) => (
+                  <div
                     key={m.code}
-                    module={m}
-                    lessons={listLessonsForModule(m.code)}
-                    unlocked={levelUnlocked}
-                  />
+                    className={`animate-rise-in delay-${(i % 3) + 1}`}
+                  >
+                    <ModuleOutline
+                      module={m}
+                      lessons={listLessonsForModule(m.code)}
+                      unlocked={levelUnlocked}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (

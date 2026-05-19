@@ -32,15 +32,22 @@ interface ResourceFilterBarProps {
   /** Number of resources after the active filter (server-computed). */
   resultCount: number;
   totalCount: number;
+  /** Current layout density (server-parsed from the `density` URL param). */
+  compact: boolean;
 }
 
-/** Param keys mirror `ResourceFilter` so the server parse stays trivial. */
+/**
+ * Param keys mirror `ResourceFilter` so the server parse stays trivial.
+ * `density` is a view preference (not a content filter) but rides the same
+ * URL-as-state mechanism so it is shareable and survives back/forward.
+ */
 const PARAM = {
   track: "track",
   level: "level",
   type: "type",
   difficulty: "difficulty",
   q: "q",
+  density: "density",
 } as const;
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -49,6 +56,7 @@ export function ResourceFilterBar({
   facets,
   resultCount,
   totalCount,
+  compact,
 }: ResourceFilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -99,7 +107,15 @@ export function ResourceFilterBar({
 
   const clearAll = () => {
     setDraftQ("");
-    router.replace(pathname, { scroll: false });
+    // Density is a view preference, not a content filter — preserve it when
+    // the learner clears the facets.
+    const density = get(PARAM.density);
+    const qs = density ? `?${PARAM.density}=${density}` : "";
+    router.replace(`${pathname}${qs}`, { scroll: false });
+  };
+
+  const toggleDensity = () => {
+    setParam(PARAM.density, compact ? "" : "compact");
   };
 
   return (
@@ -174,6 +190,28 @@ export function ResourceFilterBar({
         current={get(PARAM.difficulty)}
         onSelect={setParam}
       />
+
+        <fieldset>
+          <legend className="mb-2.5 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+            Layout
+          </legend>
+          <div className="flex flex-wrap gap-1.5">
+            <FacetPill
+              label="Comfortable"
+              active={!compact}
+              onClick={() => {
+                if (compact) toggleDensity();
+              }}
+            />
+            <FacetPill
+              label="Compact"
+              active={compact}
+              onClick={() => {
+                if (!compact) toggleDensity();
+              }}
+            />
+          </div>
+        </fieldset>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-5">
           <p

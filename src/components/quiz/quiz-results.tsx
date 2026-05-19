@@ -11,13 +11,20 @@
  * card (never coral — coral is not failure). Per-answer feedback uses semantic
  * success/error tokens *semantically* (correct/incorrect), each with a clear
  * status pill, the "why", and a "what to review" line for misses.
+ *
+ * Wave 2: the headline score counts up (reduced-motion → instant, never
+ * confetti) and a per-stage cleared summary is derived purely from the
+ * server's `graded` array — no client scoring, ever (system-design §5.2).
  */
 "use client";
+
+import { useMemo } from "react";
 
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Badge } from "@/components/ui/badge";
 import type { QuizResult } from "@/lib/assessment/quiz-scoring";
-import { STAGE_META } from "@/components/quiz/stage-meta";
+import { STAGE_META, type StageOrder } from "@/components/quiz/stage-meta";
+import { useCountUp } from "@/components/quiz/use-count-up";
 
 interface QuizResultsProps {
   result: QuizResult;
@@ -32,6 +39,37 @@ export function QuizResults({
 }: QuizResultsProps) {
   const autoGraded = result.graded.filter((g) => g.mode === "auto");
   const correctCount = autoGraded.filter((g) => g.correct).length;
+  const animatedScore = useCountUp(result.scorePct);
+
+  /**
+   * Per-stage cleared breakdown — a stage is "cleared" when every AUTO item
+   * in it is correct. Purely derived from the server's graded array; no
+   * scoring happens here (system-design §5.2). Manual-only stages are shown
+   * as reflection, not pass/fail.
+   */
+  const stageSummary = useMemo(() => {
+    const byStage = new Map<
+      StageOrder,
+      { auto: number; correct: number; manual: number }
+    >();
+    for (const g of result.graded) {
+      const row =
+        byStage.get(g.stage) ?? { auto: 0, correct: 0, manual: 0 };
+      if (g.mode === "auto") {
+        row.auto += 1;
+        if (g.correct) row.correct += 1;
+      } else {
+        row.manual += 1;
+      }
+      byStage.set(g.stage, row);
+    }
+    return [...byStage.entries()].sort((a, b) => a[0] - b[0]);
+  }, [result.graded]);
+
+  const clearedStages = stageSummary.filter(
+    ([, r]) => r.auto > 0 && r.correct === r.auto,
+  ).length;
+  const gradedStages = stageSummary.filter(([, r]) => r.auto > 0).length;
 
   return (
     <div className="space-y-8">
@@ -45,7 +83,11 @@ export function QuizResults({
             </span>
           </div>
           <h2 className="mt-3 text-[clamp(1.75rem,1rem+2.5vw,2.25rem)] leading-tight tracking-[-0.5px]">
-            Passed — {result.scorePct}%
+            Passed —{" "}
+            <span aria-hidden="true" className="tabular-nums">
+              {animatedScore}%
+            </span>
+            <span className="sr-only">{result.scorePct}%</span>
           </h2>
           <p
             className="mt-3 max-w-xl font-sans text-[0.9375rem] leading-relaxed text-on-primary/90"
@@ -88,6 +130,65 @@ export function QuizResults({
           </div>
         </div>
       )}
+
+      {gradedStages > 1 ? (
+        <div className="rounded-lg border border-hairline bg-surface-card p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <h3 className="text-[1.0625rem] tracking-[-0.2px] text-ink">
+              Stage breakdown
+            </h3>
+            <span className="font-sans text-[0.8125rem] text-muted">
+              <span className="font-medium text-body-strong">
+                {clearedStages} of {gradedStages}
+              </span>{" "}
+              graded stage{gradedStages === 1 ? "" : "s"} cleared
+            </span>
+          </div>
+          <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+            {stageSummary.map(([stage, row]) => {
+              const isReflectionOnly = row.auto === 0;
+              const cleared = !isReflectionOnly && row.correct === row.auto;
+              return (
+                <li
+                  key={stage}
+                  className={`flex items-center gap-3 rounded-md border px-4 py-3 ${
+                    isReflectionOnly
+                      ? "border-hairline bg-canvas"
+                      : cleared
+                        ? "border-success/40 bg-success/5"
+                        : "border-hairline bg-canvas"
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-pill font-sans text-[0.75rem] font-medium ${
+                      cleared
+                        ? "bg-ink text-on-dark"
+                        : "bg-surface-cream-strong text-muted"
+                    }`}
+                  >
+                    {cleared ? "✓" : stage}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-sans text-[0.875rem] font-medium text-body-strong">
+                      {STAGE_META[stage].name}
+                    </p>
+                    <p className="font-sans text-[0.75rem] text-muted">
+                      {isReflectionOnly
+                        ? `${row.manual} reflection item${
+                            row.manual === 1 ? "" : "s"
+                          } — not scored`
+                        : `${row.correct}/${row.auto} correct${
+                            cleared ? " — cleared" : ""
+                          }`}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      ) : null}
 
       {result.hasManualQuestions ? (
         <p className="rounded-lg border border-hairline bg-surface-soft px-5 py-4 font-sans text-[0.8125rem] leading-relaxed text-muted">

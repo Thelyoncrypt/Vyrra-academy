@@ -7,12 +7,14 @@
  * Pure cream/ink trinity: completed nodes fill with ink, the current node
  * carries a hairline ring, upcoming nodes stay muted. Coral is deliberately
  * NOT used here — it is reserved for the pass/mastery moment (DESIGN.md: coral
- * scarce on individual elements). The connector fill is the surface-cream-strong
- * progress track shared with ProgressBar, so the visual language stays
- * consistent across the app.
+ * scarce on individual elements).
  *
- * `aria-hidden` because the textual stage headings (QuizRunner H2s) already
- * carry the same information to assistive tech — this rail is a visual aid.
+ * Wave 2: a running "X of Y stages cleared" caption sits above the rail (the
+ * only screen-reader-exposed part — it carries the live count via aria-live),
+ * and each node carries a subtle answered→complete settle (transform/opacity
+ * only, compositor-friendly, neutralised under prefers-reduced-motion by the
+ * globals.css base layer). The rail itself stays `aria-hidden` because the
+ * QuizRunner stage H2s already convey position to assistive tech.
  */
 "use client";
 
@@ -27,52 +29,78 @@ interface StageProgressProps {
    * as complete.
    */
   activeIndex: number;
+  /** How many stages are fully answered — drives the running summary. */
+  clearedCount: number;
 }
 
-export function StageProgress({ stages, activeIndex }: StageProgressProps) {
+export function StageProgress({
+  stages,
+  activeIndex,
+  clearedCount,
+}: StageProgressProps) {
+  const total = stages.length;
+  const allCleared = clearedCount === total;
+
   return (
-    <ol
-      aria-hidden="true"
-      className="flex items-stretch gap-0 overflow-hidden rounded-lg border border-hairline bg-surface-card"
-    >
-      {stages.map((stage, i) => {
-        const meta = STAGE_META[stage];
-        const isDone = i < activeIndex;
-        const isCurrent = i === activeIndex;
-        const node = isDone
-          ? "bg-ink text-on-dark"
-          : isCurrent
-            ? "bg-canvas text-ink ring-2 ring-inset ring-ink"
-            : "bg-surface-cream-strong text-muted";
-        return (
-          <li
-            key={stage}
-            className={`flex-1 px-4 py-3 ${
-              i > 0 ? "border-l border-hairline" : ""
-            } ${isCurrent ? "bg-canvas" : ""}`}
-          >
-            <div className="flex items-center gap-3">
-              <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-pill font-sans text-[0.8125rem] font-medium ${node}`}
-              >
-                {isDone ? "✓" : stage}
-              </span>
-              <div className="min-w-0">
-                <p
-                  className={`truncate font-sans text-[0.8125rem] font-medium ${
-                    isCurrent || isDone ? "text-body-strong" : "text-muted"
-                  }`}
+    <div className="space-y-3">
+      <p
+        className="flex flex-wrap items-baseline gap-x-2 font-sans text-[0.8125rem] text-muted"
+        aria-live="polite"
+      >
+        <span className="font-medium text-body-strong">
+          {clearedCount} of {total}
+        </span>
+        <span>
+          stage{total === 1 ? "" : "s"} cleared
+          {allCleared
+            ? " — every stage answered, ready to submit"
+            : " — answer every item in a stage to clear it"}
+        </span>
+      </p>
+
+      <ol
+        aria-hidden="true"
+        className="flex items-stretch gap-0 overflow-hidden rounded-lg border border-hairline bg-surface-card"
+      >
+        {stages.map((stage, i) => {
+          const meta = STAGE_META[stage];
+          const isDone = i < activeIndex || (allCleared && i === activeIndex);
+          const isCurrent = i === activeIndex && !allCleared;
+          const node = isDone
+            ? "scale-100 bg-ink text-on-dark"
+            : isCurrent
+              ? "scale-100 bg-canvas text-ink ring-2 ring-inset ring-ink"
+              : "scale-95 bg-surface-cream-strong text-muted";
+          return (
+            <li
+              key={stage}
+              className={`flex-1 px-4 py-3 transition-colors duration-normal ease-standard ${
+                i > 0 ? "border-l border-hairline" : ""
+              } ${isCurrent ? "bg-canvas" : ""}`}
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-pill font-sans text-[0.8125rem] font-medium transition-[transform,background-color,color] duration-normal ease-out ${node}`}
                 >
-                  {meta.name}
-                </p>
-                <p className="truncate font-sans text-[0.6875rem] uppercase tracking-[1.5px] text-muted-soft">
-                  {isDone ? "Done" : isCurrent ? "In progress" : "Up next"}
-                </p>
+                  {isDone ? "✓" : stage}
+                </span>
+                <div className="min-w-0">
+                  <p
+                    className={`truncate font-sans text-[0.8125rem] font-medium transition-colors duration-normal ${
+                      isCurrent || isDone ? "text-body-strong" : "text-muted"
+                    }`}
+                  >
+                    {meta.name}
+                  </p>
+                  <p className="truncate font-sans text-[0.6875rem] uppercase tracking-[1.5px] text-muted-soft">
+                    {isDone ? "Cleared" : isCurrent ? "In progress" : "Up next"}
+                  </p>
+                </div>
               </div>
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
