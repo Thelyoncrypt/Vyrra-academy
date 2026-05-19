@@ -101,12 +101,16 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
       </div>
 
       {!canSubmit ? (
-        <p className="mt-8 rounded-lg border border-hairline bg-surface-soft px-5 py-4 font-sans text-[0.875rem] text-muted">
-          <span className="font-medium text-body-strong">Preview only.</span>{" "}
-          {access.reason === "not enrolled"
-            ? "Enrol in a track at this level to submit the capstone. The brief and rubric are fully visible below."
-            : "This level is locked, but the full brief and rubric are previewable below."}
-        </p>
+        <div className="mt-8 rounded-lg border border-hairline bg-surface-soft px-5 py-4">
+          <p className="font-sans text-[0.8125rem] font-medium uppercase tracking-[1.5px] text-muted">
+            Preview only
+          </p>
+          <p className="mt-1.5 font-sans text-[0.875rem] leading-relaxed text-body">
+            {access.reason === "not enrolled"
+              ? "Enrol in a track at this level to submit the capstone. The full brief, requirements and rubric are visible below so you can plan ahead."
+              : "This level is locked, but the full brief, requirements and rubric are previewable below so you know exactly what to build."}
+          </p>
+        </div>
       ) : null}
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -140,43 +144,78 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
             </div>
           </Section>
 
-          <Section id="capstone-rubric" title="Assessment rubric">
-            <div className="space-y-3">
-              {contract.rubric.map((c) => (
-                <div
-                  key={c.id}
-                  className="rounded-lg border border-hairline bg-surface-card p-5"
-                >
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h3 className="text-[1.0625rem] font-medium text-body-strong">
-                      {c.name}
-                    </h3>
-                    <span className="font-sans text-[0.75rem] text-muted">
-                      weight ×{c.weight}
-                    </span>
-                  </div>
-                  <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+          <Section
+            id="capstone-rubric"
+            title="Assessment rubric"
+            description="Each criterion is scored 1–4 against these bands, then weighted. Know exactly how the work is judged before you start."
+          >
+            {/* A real scoring grid: criteria as rows, proficiency bands as
+                columns. Horizontal scroll on small screens keeps the matrix
+                legible (DESIGN.md: don't wrap a data table to mush). */}
+            <div className="overflow-x-auto rounded-lg border border-hairline">
+              <table className="w-full min-w-[680px] border-collapse text-left">
+                <caption className="sr-only">
+                  Capstone assessment rubric: criteria scored across four
+                  proficiency bands.
+                </caption>
+                <thead>
+                  <tr className="bg-surface-cream-strong">
+                    <th
+                      scope="col"
+                      className="w-[26%] px-4 py-3 font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-body-strong"
+                    >
+                      Criterion
+                    </th>
                     {[
-                      ["1 · Emerging", c.level1Desc],
-                      ["2 · Developing", c.level2Desc],
-                      ["3 · Proficient", c.level3Desc],
-                      ["4 · Advanced", c.level4Desc],
-                    ].map(([band, desc]) => (
-                      <div
+                      "1 · Emerging",
+                      "2 · Developing",
+                      "3 · Proficient",
+                      "4 · Advanced",
+                    ].map((band) => (
+                      <th
                         key={band}
-                        className="rounded-md bg-canvas px-3 py-2"
+                        scope="col"
+                        className="px-4 py-3 font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted"
                       >
-                        <dt className="font-sans text-[0.75rem] font-medium text-body-strong">
-                          {band}
-                        </dt>
-                        <dd className="mt-0.5 font-sans text-[0.8125rem] leading-relaxed text-muted">
-                          {desc}
-                        </dd>
-                      </div>
+                        {band}
+                      </th>
                     ))}
-                  </dl>
-                </div>
-              ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {contract.rubric.map((c, i) => (
+                    <tr
+                      key={c.id}
+                      className={`border-t border-hairline ${
+                        i % 2 === 1 ? "bg-surface-card" : "bg-canvas"
+                      }`}
+                    >
+                      <th
+                        scope="row"
+                        className="px-4 py-4 align-top font-sans text-[0.875rem] font-medium text-body-strong"
+                      >
+                        {c.name}
+                        <span className="mt-1 block font-normal text-[0.75rem] text-muted">
+                          weight ×{c.weight}
+                        </span>
+                      </th>
+                      {[
+                        c.level1Desc,
+                        c.level2Desc,
+                        c.level3Desc,
+                        c.level4Desc,
+                      ].map((desc, bi) => (
+                        <td
+                          key={bi}
+                          className="px-4 py-4 align-top font-sans text-[0.8125rem] leading-relaxed text-body"
+                        >
+                          {desc}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </Section>
         </div>

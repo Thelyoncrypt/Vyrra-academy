@@ -1,80 +1,135 @@
 import Link from "next/link";
+import { SpikeMark } from "@/components/brand/spike-mark";
 
 /**
- * Landing page. DESIGN.md `hero-band`: cream canvas, serif display headline
- * (weight 400, negative tracking), coral primary CTA. Shell only — no data.
- * The three pillars below use `feature-card` (cream, one step darker than canvas).
+ * Landing page — DESIGN.md `hero-band` (cream canvas, 6/6 split: serif display
+ * h1 + sub-head + button row left, product-mockup card right). The right column
+ * is a `product-mockup-card-dark` (DESIGN.md: "show real product chrome, don't
+ * paint marketing illustrations of code"). Pacing then alternates cream → dark
+ * mockup → cream feature cards → coral callout (the brand's documented rhythm,
+ * never two consecutive same-surface bands).
+ *
+ * Server component — no client JS. Motion is CSS-only (rise-in: transform +
+ * opacity, easeOut), neutralised under prefers-reduced-motion via globals.css.
  */
 
 interface Pillar {
   readonly title: string;
   readonly body: string;
+  readonly marker: string;
 }
 
 const PILLARS: readonly Pillar[] = [
   {
     title: "Structured pathways",
     body: "Twelve tracks across four skill levels — beginner to expert — with prerequisite gating and per-level capstones.",
+    marker: "01",
   },
   {
     title: "Hands-on practice",
     body: "Interactive lessons, staged quizzes, coding challenges, and guided tool tasks. Prove mastery, not just attendance.",
+    marker: "02",
   },
   {
     title: "AI-assisted learning",
     body: "A grounded tutor and rubric-based assessment drafting that always defers to a human before a gate is passed.",
+    marker: "03",
   },
+] as const;
+
+/** Curriculum scale — concrete numbers read as a real product, not a template. */
+const STATS: readonly { value: string; label: string }[] = [
+  { value: "12", label: "Learning tracks" },
+  { value: "4", label: "Skill levels" },
+  { value: "Beginner→Expert", label: "Progression" },
 ] as const;
 
 export default function HomePage() {
   return (
     <>
+      {/* Hero band — cream canvas, 6/6 grid (DESIGN.md hero-band, 96px rhythm) */}
       <section
         aria-labelledby="hero-heading"
-        className="mx-auto max-w-[1200px] px-6 py-24"
+        className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-12 px-6 py-20 md:py-24 lg:grid-cols-12 lg:gap-16 lg:py-[7.5rem]"
       >
-        <div className="max-w-3xl">
-          <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+        <div className="lg:col-span-6">
+          <p className="animate-rise-in inline-flex items-center gap-2 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+            <SpikeMark size={14} className="text-primary" />
             AI Development Ecosystems
           </p>
           <h1
             id="hero-heading"
-            className="mt-6 text-[clamp(2.75rem,1rem+6vw,4rem)] leading-[1.05] tracking-[-1.5px] text-ink"
+            className="animate-rise-in delay-1 mt-6 text-[clamp(2.75rem,1rem+6vw,4rem)] leading-[1.05] tracking-[-1.5px] text-ink"
           >
-            Learn the patterns that outlast the tools.
+            Learn the patterns
+            <br className="hidden sm:block" /> that outlast the tools.
           </h1>
-          <p className="mt-6 max-w-2xl font-sans text-lg leading-relaxed text-body">
+          <p className="animate-rise-in delay-2 mt-6 max-w-xl font-sans text-lg leading-relaxed text-body-strong">
             A premium interactive training environment that delivers the entire
-            curriculum inside the platform — capability-based learning from first
-            principles to multi-agent enterprise architecture.
+            curriculum inside the platform — capability-based learning from
+            first principles to multi-agent enterprise architecture.
           </p>
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="animate-rise-in delay-3 mt-9 flex flex-wrap items-center gap-3">
             <Link
               href="/dashboard"
-              className="rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active"
+              className="inline-flex h-10 items-center rounded-md bg-primary px-5 font-sans text-sm font-medium text-on-primary transition-colors duration-fast ease-standard hover:bg-primary-active active:bg-primary-active"
             >
               Start learning
             </Link>
             <Link
               href="/tracks"
-              className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors hover:bg-surface-soft"
+              className="inline-flex h-10 items-center rounded-md border border-hairline bg-canvas px-5 font-sans text-sm font-medium text-ink transition-colors duration-fast ease-standard hover:border-muted-soft hover:bg-surface-soft active:bg-surface-card"
             >
               Explore tracks
             </Link>
           </div>
+
+          {/* Curriculum scale — a designed stat row, hairline-separated rhythm */}
+          <dl className="animate-rise-in delay-3 mt-12 flex flex-wrap gap-x-10 gap-y-5 border-t border-hairline pt-8">
+            {STATS.map((stat) => (
+              <div key={stat.label}>
+                <dt className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted-soft">
+                  {stat.label}
+                </dt>
+                <dd className="mt-1 font-display text-[1.625rem] leading-none tracking-[-0.3px] text-ink">
+                  {stat.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        {/* Right column: product-mockup-card-dark — real lesson chrome, not a
+            painted illustration (DESIGN.md Do). Stacks below on mobile. */}
+        <div className="animate-rise-in delay-2 lg:col-span-6">
+          <HeroProductMockup />
         </div>
       </section>
 
+      {/* Feature band — cream-card 3-up (DESIGN.md feature-card; alternates off
+          the dark mockup above for the documented pacing rhythm) */}
       <section
-        aria-label="What the platform offers"
+        aria-labelledby="pillars-heading"
         className="mx-auto max-w-[1200px] px-6 pb-24"
       >
-        <ul className="grid gap-6 md:grid-cols-3">
+        <h2
+          id="pillars-heading"
+          className="max-w-2xl text-[clamp(1.75rem,1rem+2.5vw,2.5rem)] leading-[1.15] tracking-[-0.5px] text-ink"
+        >
+          A complete training environment, not a course website.
+        </h2>
+        <ul className="mt-12 grid gap-6 md:grid-cols-3">
           {PILLARS.map((pillar) => (
-            <li key={pillar.title} className="rounded-xl bg-surface-card p-8">
-              <h2 className="text-2xl tracking-[-0.3px] text-ink">
+            <li
+              key={pillar.title}
+              className="hover-raise group rounded-lg border border-transparent bg-surface-card p-8"
+            >
+              <span className="font-display text-[1.75rem] leading-none tracking-[-0.3px] text-primary">
+                {pillar.marker}
+              </span>
+              <h3 className="mt-5 font-sans text-lg font-medium tracking-tight text-ink">
                 {pillar.title}
-              </h2>
+              </h3>
               <p className="mt-3 font-sans text-base leading-relaxed text-body">
                 {pillar.body}
               </p>
@@ -82,6 +137,80 @@ export default function HomePage() {
           ))}
         </ul>
       </section>
+
+      {/* Pre-footer coral callout (DESIGN.md callout-card-coral: coral IS the
+          voltage; the CTA inside inverts to a cream button on coral). */}
+      <section
+        aria-labelledby="cta-heading"
+        className="mx-auto max-w-[1200px] px-6 pb-24"
+      >
+        <div className="rounded-lg bg-primary px-8 py-14 text-on-primary md:px-14">
+          <h2
+            id="cta-heading"
+            className="max-w-2xl text-[clamp(1.75rem,1rem+2vw,2rem)] leading-[1.2] tracking-[-0.3px] text-on-primary"
+          >
+            Start where you are. Progress until you can prove it.
+          </h2>
+          <p className="mt-4 max-w-xl font-sans text-base leading-relaxed text-on-primary/85">
+            Open enrollment. Every track tracks your progress, surfaces weak
+            areas, and gates the next level on demonstrated mastery.
+          </p>
+          <Link
+            href="/dashboard"
+            className="mt-8 inline-flex h-10 items-center rounded-md bg-canvas px-5 font-sans text-sm font-medium text-ink transition-colors duration-fast ease-standard hover:bg-surface-soft active:bg-surface-card"
+          >
+            Open your dashboard
+          </Link>
+        </div>
+      </section>
     </>
+  );
+}
+
+/**
+ * A dark product-mockup card (DESIGN.md `product-mockup-card-dark`): shows a
+ * fragment of real lesson chrome — a track header, a progress line, and a
+ * monospace "next action" panel — instead of an abstract marketing graphic.
+ * Pure presentational markup; no client state.
+ */
+function HeroProductMockup() {
+  return (
+    <div className="rounded-xl bg-surface-dark p-6 shadow-raise sm:p-8">
+      <div className="flex items-center gap-2 text-on-dark">
+        <SpikeMark size={16} />
+        <span className="font-sans text-sm font-medium">
+          Claude · Agent Architecture
+        </span>
+        <span className="ml-auto rounded-pill bg-primary px-2.5 py-1 font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-on-primary">
+          Advanced
+        </span>
+      </div>
+
+      <p className="mt-6 font-display text-[1.75rem] leading-[1.2] tracking-[-0.3px] text-on-dark">
+        Designing reliable multi-agent systems
+      </p>
+
+      {/* Progress line — coral as a legitimate progress semantic, not decoration */}
+      <div className="mt-6">
+        <div className="flex items-center justify-between font-sans text-[0.8125rem] text-on-dark-soft">
+          <span>Module 3 of 5</span>
+          <span className="text-on-dark">62%</span>
+        </div>
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-pill bg-surface-dark-elevated">
+          <div className="h-full w-[62%] rounded-pill bg-primary" />
+        </div>
+      </div>
+
+      {/* Next-action panel — monospace chrome on the inner dark-soft surface */}
+      <div className="mt-6 rounded-lg bg-surface-dark-soft p-4">
+        <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-on-dark-soft">
+          Next action
+        </p>
+        <p className="mt-2 font-mono text-[0.8125rem] leading-relaxed text-on-dark">
+          <span className="text-accent-teal">$</span> exercise · build a
+          reflection loop with a runaway-cost guard
+        </p>
+      </div>
+    </div>
   );
 }

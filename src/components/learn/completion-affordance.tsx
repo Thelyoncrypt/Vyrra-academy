@@ -1,8 +1,10 @@
 /**
- * CompletionAffordance — the lesson's completion-state UI. Visual contract
- * only: the real "mark complete" mutation needs auth + the progress model
- * (later wave). Renders the current state and a disabled-with-reason control
- * so the affordance is honest rather than a dead button.
+ * CompletionAffordance — the static (pre-auth) completion-state card. Visual
+ * contract only: the live "mark complete" mutation is CompletionForm. This
+ * mirrors CompletionForm's DESIGN.md treatment exactly (uppercase tracked
+ * heading, status row, criteria, disabled-with-reason control) so the two
+ * variants are visually interchangeable and the affordance is honest
+ * rather than a dead button.
  */
 import type { ReactNode } from "react";
 
@@ -25,16 +27,30 @@ export function CompletionAffordance({
   criteria,
 }: CompletionAffordanceProps): ReactNode {
   const copy = STATE_COPY[state];
+  const isCompleted = state === "completed";
   return (
-    <div className="rounded-xl border border-hairline bg-surface-card p-6">
-      <div className="flex items-center gap-2 font-sans text-[0.8125rem] font-medium text-body-strong">
-        <span
-          aria-hidden="true"
-          className={`h-2.5 w-2.5 rounded-full ${copy.dot}`}
-        />
-        <span>{copy.label}</span>
+    <section
+      aria-labelledby="completion-heading"
+      className={`rounded-lg border bg-surface-card p-6 ${
+        isCompleted ? "border-success/45" : "border-hairline"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h2
+          id="completion-heading"
+          className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted"
+        >
+          Your progress
+        </h2>
+        <span className="flex items-center gap-2 font-sans text-[0.8125rem] font-medium text-body-strong">
+          <span
+            aria-hidden="true"
+            className={`h-2.5 w-2.5 rounded-full ${copy.dot}`}
+          />
+          <span>{copy.label}</span>
+        </span>
       </div>
-      <p className="mt-3 font-sans text-[0.875rem] leading-relaxed text-muted">
+      <p className="mt-4 font-sans text-[0.9375rem] leading-[1.6] text-muted">
         <span className="font-medium text-body-strong">
           To complete this lesson:
         </span>{" "}
@@ -45,13 +61,13 @@ export function CompletionAffordance({
         disabled
         aria-disabled="true"
         title="Available once progress tracking is enabled"
-        className="mt-5 w-full cursor-not-allowed rounded-md bg-primary-disabled px-5 py-2.5 font-sans text-sm font-medium text-muted"
+        className="mt-6 w-full cursor-not-allowed rounded-md bg-primary-disabled px-5 py-2.5 font-sans text-[0.875rem] font-medium text-muted"
       >
         Mark complete
       </button>
-      <p className="mt-2 font-sans text-[0.75rem] text-muted-soft">
+      <p className="mt-2.5 font-sans text-[0.75rem] leading-relaxed text-muted-soft">
         Enabled once accounts and progress tracking are wired up.
       </p>
-    </div>
+    </section>
   );
 }

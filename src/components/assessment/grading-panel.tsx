@@ -157,11 +157,35 @@ export function GradingPanel({
           <Badge tone="outline">Not yet graded</Badge>
         )}
         {existing?.outcome ? (
-          <Badge tone="outline">
+          <Badge tone={isDone ? "level" : "outline"}>
             {existing.outcome} · {existing.totalScore ?? 0}%
           </Badge>
         ) : null}
       </div>
+
+      {/* AI draft is advisory until a human confirms — make that PROVISIONAL
+          status unmistakable and visually distinct from a final grade
+          (CLAUDE.md §3 / system-design §4.3). Dashed, warning-toned, never
+          mistakable for a confirmed outcome. */}
+      {isUnconfirmedDraft && !isDone ? (
+        <div
+          className="rounded-lg border border-dashed border-warning/60 bg-warning/5 px-5 py-4"
+          role="status"
+        >
+          <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-warning">
+            AI draft · unconfirmed
+          </p>
+          <p className="mt-1.5 font-sans text-[0.875rem] leading-relaxed text-body">
+            These scores were drafted by AI and are{" "}
+            <span className="font-medium text-body-strong">
+              not final
+            </span>
+            . Review every criterion, adjust as needed, then confirm — the
+            confirm action is the only thing that satisfies the progression
+            gate.
+          </p>
+        </div>
+      ) : null}
 
       <div className="space-y-4">
         {criteria.map((c) => (
@@ -209,20 +233,26 @@ export function GradingPanel({
               type="button"
               onClick={confirmDraft}
               disabled={isPending}
-              className="rounded-md border border-primary bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-primary transition-colors hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
             >
-              Confirm AI draft (satisfies gate)
+              {isPending ? "Confirming…" : "Confirm assessment — satisfies gate"}
             </button>
           ) : null}
         </div>
       ) : (
-        <p
-          className="rounded-lg border border-success/40 bg-surface-soft px-5 py-4 font-sans text-[0.875rem] text-body"
+        <div
+          className="rounded-lg border border-success/40 bg-success/5 px-5 py-4"
           role="status"
         >
-          This assessment is final. A confirmed passing outcome lets the
-          existing gating service unlock the next level for the learner.
-        </p>
+          <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-success">
+            Assessment final
+          </p>
+          <p className="mt-1.5 font-sans text-[0.875rem] leading-relaxed text-body">
+            This grade is confirmed and locked. A passing outcome lets the
+            gating service unlock the next level for the learner once their
+            other prerequisites are met.
+          </p>
+        </div>
       )}
 
       {message ? (

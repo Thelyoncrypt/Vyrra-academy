@@ -40,19 +40,50 @@ export default function ToolsPage() {
 
       <Link
         href="/tools/agent-training"
-        className="mt-10 block rounded-lg bg-surface-dark p-8 transition-colors hover:bg-surface-dark-elevated"
+        className="group mt-10 block overflow-hidden rounded-lg border border-white/[0.06] bg-surface-dark transition-colors hover:bg-surface-dark-elevated"
       >
-        <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-on-dark-soft">
-          Agent &amp; workflow training
-        </p>
-        <h2 className="mt-3 text-[1.5rem] tracking-[-0.3px] text-on-dark">
-          Learn when (and when not) to use agents
-        </h2>
-        <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-on-dark-soft">
-          Step through single-agent, multi-agent, swarm, planning, reflection,
-          and human-in-the-loop patterns — each with its failure mode and the
-          safeguard that contains it. Visualization only; nothing executes.
-        </p>
+        <div className="grid gap-8 p-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+          <div>
+            <p className="flex items-center gap-2 font-sans text-xs font-medium uppercase tracking-[1.5px] text-on-dark-soft">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-accent-teal"
+              />
+              Agent &amp; workflow training
+            </p>
+            <h2 className="mt-3 text-[1.5rem] tracking-[-0.3px] text-on-dark">
+              Learn when (and when not) to use agents
+            </h2>
+            <p className="mt-2 max-w-2xl font-sans text-[0.9375rem] leading-relaxed text-on-dark-soft">
+              Step through single-agent, multi-agent, swarm, planning,
+              reflection, and human-in-the-loop patterns — each with its
+              failure mode and the safeguard that contains it. Visualization
+              only; nothing executes.
+            </p>
+            <span className="mt-5 inline-flex items-center gap-2 font-sans text-[0.875rem] font-medium text-on-dark">
+              Open the training
+              <span
+                aria-hidden="true"
+                className="transition-transform group-hover:translate-x-1"
+              >
+                →
+              </span>
+            </span>
+          </div>
+          <ol
+            aria-hidden="true"
+            className="hidden gap-px overflow-hidden rounded-md border border-white/[0.06] md:grid"
+          >
+            {["plan", "act", "observe", "safeguard"].map((node) => (
+              <li
+                key={node}
+                className="bg-surface-dark-soft px-5 py-2.5 font-mono text-[0.6875rem] uppercase tracking-[1.5px] text-on-dark-soft last:bg-primary/15 last:text-primary"
+              >
+                {node}
+              </li>
+            ))}
+          </ol>
+        </div>
       </Link>
 
       <div className="mt-12">

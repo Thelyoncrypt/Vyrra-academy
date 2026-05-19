@@ -93,31 +93,61 @@ export default async function ChallengePage({
           aria-label="Challenge reference"
           className="space-y-8 lg:sticky lg:top-24 lg:self-start"
         >
-          <div className="rounded-lg border border-hairline bg-surface-card p-6">
-            <h2 className="text-[1.125rem] font-medium text-ink">
-              Expected result
-            </h2>
-            <pre className="mt-3 overflow-x-auto rounded-md bg-surface-dark px-4 py-3 font-mono text-[0.8125rem] leading-relaxed text-on-dark">
+          <div className="overflow-hidden rounded-lg border border-white/[0.06] bg-surface-dark">
+            <div
+              aria-hidden="true"
+              className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-2.5"
+            >
+              <span className="h-2.5 w-2.5 rounded-full bg-error/70" />
+              <span className="h-2.5 w-2.5 rounded-full bg-warning/70" />
+              <span className="h-2.5 w-2.5 rounded-full bg-success/70" />
+              <span className="ml-2 font-mono text-[0.6875rem] uppercase tracking-[1.5px] text-on-dark-soft">
+                Expected result
+              </span>
+            </div>
+            <pre className="overflow-x-auto bg-surface-dark-soft px-4 py-4 font-mono text-[0.8125rem] leading-relaxed text-on-dark">
               {challenge.expectedResult}
             </pre>
           </div>
 
           <div className="rounded-lg border border-hairline bg-surface-card p-6">
-            <h2 className="text-[1.125rem] font-medium text-ink">
-              Test cases
-            </h2>
-            <ul className="mt-4 space-y-4">
-              {challenge.testCases.map((t) => (
-                <li key={t.name}>
-                  <p className="font-sans text-[0.875rem] font-medium text-body-strong">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-[1.125rem] font-medium text-ink">
+                Test cases
+              </h2>
+              <span className="font-sans text-[0.75rem] text-muted-soft">
+                {challenge.testCases.length} total
+              </span>
+            </div>
+            <ul className="mt-4 space-y-3">
+              {challenge.testCases.map((t, i) => (
+                <li
+                  key={t.name}
+                  className="rounded-md border border-hairline-soft bg-canvas p-4"
+                >
+                  <p className="flex items-center gap-2 font-sans text-[0.875rem] font-medium text-body-strong">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-cream-strong font-mono text-[0.6875rem] text-muted"
+                    >
+                      {i + 1}
+                    </span>
                     {t.name}
                   </p>
-                  <p className="mt-1 font-sans text-[0.8125rem] text-muted">
-                    Given: {t.given}
-                  </p>
-                  <p className="font-sans text-[0.8125rem] text-muted">
-                    Expected: {t.expected}
-                  </p>
+                  <dl className="mt-2.5 space-y-1.5 font-sans text-[0.8125rem]">
+                    <div className="flex gap-2">
+                      <dt className="shrink-0 font-medium uppercase tracking-[1px] text-muted-soft">
+                        Given
+                      </dt>
+                      <dd className="text-muted">{t.given}</dd>
+                    </div>
+                    <div className="flex gap-2">
+                      <dt className="shrink-0 font-medium uppercase tracking-[1px] text-muted-soft">
+                        Expect
+                      </dt>
+                      <dd className="text-muted">{t.expected}</dd>
+                    </div>
+                  </dl>
                 </li>
               ))}
             </ul>

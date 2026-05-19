@@ -51,13 +51,23 @@ export function TutorMessageList({
             }
           >
             <div
-              className={`max-w-[85%] rounded-lg px-4 py-3 font-sans text-[0.875rem] leading-relaxed ${
+              className={`max-w-[88%] rounded-lg px-4 py-3 font-sans text-[0.875rem] leading-relaxed ${
                 isUser
-                  ? "bg-surface-cream-strong text-body-strong"
-                  : "border border-hairline bg-canvas text-body"
+                  ? "rounded-br-xs bg-surface-cream-strong text-body-strong"
+                  : "rounded-bl-xs border border-hairline bg-canvas text-body"
               }`}
             >
-              <p className="mb-1 font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted-soft">
+              <p
+                className={`mb-1.5 flex items-center gap-1.5 font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] ${
+                  isUser ? "justify-end text-muted-soft" : "text-primary"
+                }`}
+              >
+                {!isUser ? (
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-primary"
+                  />
+                ) : null}
                 {isUser ? "You" : "Tutor"}
               </p>
               <p className="whitespace-pre-wrap break-words">{text}</p>
@@ -68,11 +78,19 @@ export function TutorMessageList({
 
       {isStreaming ? (
         <div className="flex justify-start">
-          <div className="rounded-lg border border-hairline bg-canvas px-4 py-3">
+          <div className="flex items-center gap-2 rounded-lg rounded-bl-xs border border-hairline bg-canvas px-4 py-3">
             <span className="sr-only">Tutor is responding</span>
             <span
               aria-hidden="true"
-              className="font-sans text-[0.875rem] text-muted"
+              className="flex gap-1"
+            >
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-muted-soft" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-muted-soft [animation-delay:150ms]" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-muted-soft [animation-delay:300ms]" />
+            </span>
+            <span
+              aria-hidden="true"
+              className="font-sans text-[0.8125rem] text-muted"
             >
               Thinking…
             </span>

@@ -34,23 +34,24 @@ const CodeEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="overflow-hidden rounded-lg bg-surface-dark">
+      <div className="overflow-hidden rounded-lg border border-white/[0.06] bg-surface-dark">
         <div
           aria-hidden="true"
-          className="flex items-center gap-2 border-b border-white/5 px-5 py-3"
+          className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-3"
         >
           <span className="h-3 w-3 rounded-full bg-error/70" />
           <span className="h-3 w-3 rounded-full bg-warning/70" />
           <span className="h-3 w-3 rounded-full bg-success/70" />
-          <span className="ml-3 font-mono text-[0.75rem] text-on-dark-soft">
+          <span className="ml-3 rounded-md bg-white/[0.06] px-2.5 py-1 font-mono text-[0.75rem] text-on-dark-soft">
             loading editor…
           </span>
         </div>
         <div
           role="status"
           aria-label="Loading code editor"
-          className="min-h-64 bg-surface-dark-soft px-6 py-6 font-mono text-[0.875rem] text-on-dark-soft"
+          className="flex min-h-64 items-center gap-2 bg-surface-dark-soft px-6 py-6 font-mono text-[0.875rem] text-on-dark-soft"
         >
+          <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
           Preparing the editor…
         </div>
       </div>
@@ -149,16 +150,22 @@ export function ChallengeRunner({
       </div>
 
       {hintsShown > 0 ? (
-        <ul className="space-y-2 rounded-lg border border-hairline bg-surface-soft px-5 py-4">
+        <ul className="space-y-3 rounded-lg border border-hairline bg-surface-soft px-5 py-4">
           {hints.slice(0, hintsShown).map((h, i) => (
             <li
               key={h}
-              className="font-sans text-[0.875rem] leading-relaxed text-body"
+              className="flex gap-3 font-sans text-[0.875rem] leading-relaxed text-body"
             >
-              <span className="font-medium text-body-strong">
-                Hint {i + 1}:
-              </span>{" "}
-              {h}
+              <span
+                aria-hidden="true"
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-cream-strong font-mono text-[0.6875rem] font-medium text-muted"
+              >
+                {i + 1}
+              </span>
+              <span>
+                <span className="sr-only">Hint {i + 1}: </span>
+                {h}
+              </span>
             </li>
           ))}
         </ul>
@@ -189,22 +196,32 @@ function ResultPanel({
 }: ResultPanelProps) {
   if (state === "idle") {
     return (
-      <p className="font-sans text-[0.8125rem] text-muted">
-        Write your solution above, then check it. Your code is graded by a
-        deterministic checker — it is never executed on the server.
-      </p>
+      <div className="rounded-lg border border-hairline bg-surface-soft px-5 py-4">
+        <p className="flex items-center gap-2 font-sans text-[0.8125rem] text-muted">
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-muted-soft"
+          />
+          Write your solution above, then check it. Your code is graded by a
+          deterministic checker — it is never executed on the server.
+        </p>
+      </div>
     );
   }
 
   if (state === "evaluating") {
     return (
-      <p
+      <div
         role="status"
-        className="font-sans text-[0.875rem] text-muted"
         aria-live="polite"
+        className="flex items-center gap-2 rounded-lg border border-hairline bg-surface-soft px-5 py-4 font-sans text-[0.875rem] text-muted"
       >
+        <span
+          aria-hidden="true"
+          className="h-2 w-2 animate-pulse rounded-full bg-primary"
+        />
         Checking your submission…
-      </p>
+      </div>
     );
   }
 
@@ -214,51 +231,67 @@ function ResultPanel({
     <div
       role="status"
       aria-live="polite"
-      className={`rounded-lg border px-5 py-4 ${
-        passed
-          ? "border-success/40 bg-success/10"
-          : "border-error/40 bg-error/10"
+      className={`overflow-hidden rounded-lg border ${
+        passed ? "border-success/40" : "border-error/40"
       }`}
     >
-      <div className="flex items-center gap-2 font-sans text-[0.875rem] font-medium text-body-strong">
+      <div
+        className={`flex items-center gap-2 px-5 py-3 ${
+          passed ? "bg-success/10" : "bg-error/10"
+        }`}
+      >
         <span
           aria-hidden="true"
-          className={`h-2.5 w-2.5 rounded-full ${
+          className={`flex h-5 w-5 items-center justify-center rounded-full text-[0.75rem] font-bold text-on-primary ${
             passed ? "bg-success" : "bg-error"
           }`}
-        />
-        {error ?? result?.summary ?? (passed ? "Passed" : "Not yet")}
+        >
+          {passed ? "✓" : "!"}
+        </span>
+        <span className="font-sans text-[0.875rem] font-medium text-body-strong">
+          {error ?? result?.summary ?? (passed ? "All checks passed" : "Not yet")}
+        </span>
       </div>
 
-      {progressRecorded ? (
-        <p className="mt-2 font-sans text-[0.8125rem] text-muted">
-          Saved — this counts toward the linked lesson&apos;s completion.
-        </p>
-      ) : null}
+      <div className="space-y-3 bg-canvas px-5 py-4">
+        {progressRecorded ? (
+          <p className="flex items-center gap-2 font-sans text-[0.8125rem] text-muted">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-success"
+            />
+            Saved — this counts toward the linked lesson&apos;s completion.
+          </p>
+        ) : null}
 
-      {result && result.criteria.length > 0 ? (
-        <ul className="mt-3 space-y-1.5">
-          {result.criteria.map((c: CriterionResult) => (
-            <li
-              key={c.label}
-              className="flex items-center gap-2 font-sans text-[0.8125rem] text-body"
-            >
-              <span
-                aria-hidden="true"
-                className={`h-1.5 w-1.5 rounded-full ${
-                  c.passed ? "bg-success" : "bg-muted-soft"
-                }`}
-              />
-              <span className={c.passed ? "" : "text-muted"}>
-                {c.label}
-              </span>
-              <span className="sr-only">
-                {c.passed ? "satisfied" : "not satisfied"}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+        {result && result.criteria.length > 0 ? (
+          <ul className="space-y-2">
+            {result.criteria.map((c: CriterionResult) => (
+              <li
+                key={c.label}
+                className="flex items-center gap-2.5 font-sans text-[0.8125rem]"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[0.625rem] font-bold ${
+                    c.passed
+                      ? "bg-success/15 text-success"
+                      : "bg-muted-soft/20 text-muted-soft"
+                  }`}
+                >
+                  {c.passed ? "✓" : "·"}
+                </span>
+                <span className={c.passed ? "text-body" : "text-muted"}>
+                  {c.label}
+                </span>
+                <span className="sr-only">
+                  {c.passed ? "satisfied" : "not satisfied"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
     </div>
   );
 }

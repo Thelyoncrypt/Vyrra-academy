@@ -48,8 +48,12 @@ export default function AgentTrainingPage() {
         />
       </div>
 
-      <div className="mt-8 rounded-lg border border-hairline bg-surface-soft px-5 py-4">
-        <p className="font-sans text-[0.875rem] leading-relaxed text-body">
+      <div className="mt-8 flex gap-4 rounded-lg border border-hairline bg-surface-cream-strong px-6 py-5">
+        <span
+          aria-hidden="true"
+          className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary"
+        />
+        <p className="font-sans text-[0.9375rem] leading-relaxed text-body">
           <span className="font-medium text-body-strong">
             Start with the simplest pattern that works.
           </span>{" "}

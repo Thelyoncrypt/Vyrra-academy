@@ -26,7 +26,15 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
-    include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.{ts,tsx}"],
+    include: [
+      "src/**/*.test.{ts,tsx}",
+      "tests/**/*.test.{ts,tsx}",
+      // W5.5: the parser text helpers have a real test suite under
+      // scripts/lib; it was previously never collected (only src/ + tests/
+      // were in `include`), so scripts/lib/text.ts showed near-0% coverage
+      // despite being pure + fully tested. Collect it.
+      "scripts/**/*.test.{ts,tsx}",
+    ],
     exclude: [
       "node_modules/**",
       ".next/**",
@@ -49,16 +57,24 @@ export default defineConfig({
         "tests/**",
         "e2e/**",
         "**/*.d.ts",
-        // DB/network/AI/server-action shells: behaviour is exercised via
-        // mocked-db unit tests of the pure decision logic, not these I/O
-        // wrappers — counting them would understate core-logic coverage.
+        // Genuine non-logic I/O shells with NO pure decision branches to
+        // unit-test: a thin Prisma client constructor, the AI/embedding
+        // provider key-reads (exercised indirectly via the typed-unavailable
+        // path in ai-grader/embedder tests), the streaming tutor agent (needs
+        // a live model + RSC stream), and the MDX render component (RSC, no
+        // unit-context). Counting these would understate core-logic coverage
+        // and they cannot be meaningfully exercised in a unit harness.
         "src/lib/db.ts",
         "src/lib/ai/provider.ts",
         "src/lib/ai/tutor-agent.ts",
         "src/lib/ai/auth-stub.ts",
-        "src/lib/**/actions.ts",
-        "src/lib/rag/**",
         "src/lib/content/mdx.tsx",
+        // NOTE (W5.5): the prior blanket `src/lib/**/actions.ts` and
+        // `src/lib/rag/**` exclusions were REMOVED. RAG became real in W5.3
+        // (PgVectorRetrievalService, real ingest pipeline) and is now unit-
+        // tested with a mocked db + fake embedder; the Server Actions are
+        // tested with a mocked principal + db (authz/validation/AI-unavailable
+        // branches). They are real decision logic, so they count.
       ],
     },
   },

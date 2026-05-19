@@ -83,6 +83,9 @@ export default async function QuizPage({ params }: QuizPageProps) {
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <Badge tone="outline">{quiz.questions.length} questions</Badge>
+        <Badge tone="outline">
+          {stageCount} stage{stageCount === 1 ? "" : "s"}
+        </Badge>
         <Badge tone="outline">Pass ≥ {quiz.passPct}%</Badge>
         {mod ? (
           <Badge tone="level">{levelDifficultyLabel(mod.levelOrder)}</Badge>
@@ -91,18 +94,22 @@ export default async function QuizPage({ params }: QuizPageProps) {
       </div>
 
       {!canSubmit ? (
-        <p className="mt-8 rounded-lg border border-hairline bg-surface-soft px-5 py-4 font-sans text-[0.875rem] text-muted">
-          <span className="font-medium text-body-strong">Preview only.</span>{" "}
-          {access.reason === "not enrolled"
-            ? "Enrol in this track and level to take the quiz and record progress."
-            : access.unmetPrerequisite
-              ? `Locked — complete level ${access.unmetPrerequisite.levelOrder}${
-                  access.unmetPrerequisite.needsCapstone
-                    ? " (including its capstone)"
-                    : ""
-                } first. You can still read the questions below.`
-              : "This quiz is locked, but you can still read the questions."}
-        </p>
+        <div className="mt-8 rounded-lg border border-hairline bg-surface-soft px-5 py-4">
+          <p className="font-sans text-[0.8125rem] font-medium uppercase tracking-[1.5px] text-muted">
+            Preview only
+          </p>
+          <p className="mt-1.5 font-sans text-[0.875rem] leading-relaxed text-body">
+            {access.reason === "not enrolled"
+              ? "Enrol in this track and level to take the quiz and record progress. Every stage is fully readable below."
+              : access.unmetPrerequisite
+                ? `Locked — complete level ${access.unmetPrerequisite.levelOrder}${
+                    access.unmetPrerequisite.needsCapstone
+                      ? " (including its capstone)"
+                      : ""
+                  } first. You can still read every question below.`
+                : "This quiz is locked, but you can still read every question below."}
+          </p>
+        </div>
       ) : null}
 
       <div className="mt-12">

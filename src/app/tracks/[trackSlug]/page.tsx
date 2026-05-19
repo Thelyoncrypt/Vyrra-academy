@@ -82,21 +82,24 @@ export default async function TrackPage({ params }: TrackPageProps) {
         <Badge tone="outline">{totalLessons} lessons</Badge>
       </div>
 
-      <div className="mt-8 rounded-xl bg-surface-card p-6">
-        <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
-          Who this is for
-        </p>
-        <p className="mt-3 font-sans text-base leading-relaxed text-body">
-          {track.targetLearner}
-        </p>
-        {track.recommendedPath ? (
-          <p className="mt-4 font-sans text-[0.9375rem] leading-relaxed text-muted">
-            <span className="font-medium text-body-strong">
-              Recommended path:
-            </span>{" "}
-            {track.recommendedPath}
+      <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-hairline bg-hairline md:grid-cols-2">
+        <div className="bg-surface-card p-7">
+          <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+            Who this is for
           </p>
-        ) : null}
+          <p className="mt-3 font-sans text-base leading-relaxed text-body">
+            {track.targetLearner}
+          </p>
+        </div>
+        <div className="bg-surface-card p-7">
+          <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+            Recommended path
+          </p>
+          <p className="mt-3 font-sans text-base leading-relaxed text-body">
+            {track.recommendedPath ??
+              "Work the levels in order — each builds on the capabilities proven in the one before."}
+          </p>
+        </div>
       </div>
 
       {levels.map((level) => {
@@ -115,9 +118,15 @@ export default async function TrackPage({ params }: TrackPageProps) {
             action={
               <Link
                 href={`/tracks/${track.slug}/${level.slug}`}
-                className="rounded-md font-sans text-sm font-medium text-primary transition-colors hover:text-primary-active"
+                className="group inline-flex items-center gap-1.5 rounded-md font-sans text-sm font-medium text-primary transition-colors duration-200 hover:text-primary-active"
               >
-                Open level →
+                Open level
+                <span
+                  aria-hidden="true"
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                >
+                  →
+                </span>
               </Link>
             }
           >
@@ -154,23 +163,40 @@ export default async function TrackPage({ params }: TrackPageProps) {
             )}
 
             {capstone ? (
-              <div className="mt-6 rounded-xl border border-hairline bg-canvas p-6">
+              <div className="mt-7 rounded-xl bg-surface-dark p-8 text-on-dark">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-primary">
+                  <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-accent-amber">
                     {levelDifficultyLabel(level.order)} capstone
                   </p>
-                  <Badge tone="outline">
+                  <span className="tabular-nums font-sans text-[0.8125rem] text-on-dark-soft">
                     {capstone.deliverables.length} deliverables
-                  </Badge>
+                  </span>
                 </div>
-                <h3 className="mt-3 text-[1.375rem] tracking-[-0.2px] text-ink">
+                <h3 className="mt-3 text-[1.5rem] tracking-[-0.2px] text-on-dark">
                   {capstone.title}
                 </h3>
-                <ul className="mt-3 list-disc space-y-1 pl-5 font-sans text-[0.9375rem] leading-relaxed text-body">
+                <p className="mt-4 font-sans text-xs font-medium uppercase tracking-[1.5px] text-on-dark-soft">
+                  What you'll prove
+                </p>
+                <ul className="mt-3 list-disc space-y-1.5 pl-5 font-sans text-[0.9375rem] leading-relaxed text-on-dark-soft">
                   {capstone.requirements.map((req) => (
                     <li key={req}>{req}</li>
                   ))}
                 </ul>
+                <div className="mt-7">
+                  <Link
+                    href={`/capstones/${capstone.id}`}
+                    className="group inline-flex items-center gap-2 rounded-md bg-surface-dark-elevated px-5 py-2.5 font-sans text-sm font-medium text-on-dark transition-colors duration-200 hover:bg-primary hover:text-on-primary"
+                  >
+                    Open capstone
+                    <span
+                      aria-hidden="true"
+                      className="transition-transform duration-200 group-hover:translate-x-0.5"
+                    >
+                      →
+                    </span>
+                  </Link>
+                </div>
               </div>
             ) : null}
           </Section>

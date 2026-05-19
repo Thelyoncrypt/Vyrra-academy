@@ -49,22 +49,29 @@ export function CapstoneSubmitForm({
   if (submittedId) {
     return (
       <div
-        className="rounded-xl border border-success/40 bg-surface-soft p-6"
+        className="rounded-xl border border-success/40 bg-success/5 p-6"
         role="status"
       >
-        <h3 className="text-[1.25rem] tracking-[-0.2px] text-ink">
+        <span
+          aria-hidden="true"
+          className="flex h-9 w-9 items-center justify-center rounded-pill bg-success/15 font-sans text-[1rem] font-medium text-success"
+        >
+          ✓
+        </span>
+        <h3 className="mt-4 text-[1.25rem] tracking-[-0.2px] text-ink">
           Submission received
         </h3>
         <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-body">
           Your capstone is queued for assessment. An instructor reviews it
-          (optionally with an AI draft they must confirm) before it can unlock
-          the next level.
+          against the rubric — optionally with an AI draft they must confirm —
+          before it can unlock the next level. AI never auto-passes a gate.
         </p>
         <Link
           href={`/assessments/${submittedId}`}
-          className="mt-5 inline-block rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-body-strong transition-colors hover:text-ink"
+          className="mt-5 inline-flex items-center gap-2 rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-body-strong transition-colors hover:text-ink"
         >
-          View assessment status
+          Track assessment status
+          <span aria-hidden="true">→</span>
         </Link>
       </div>
     );
@@ -72,9 +79,16 @@ export function CapstoneSubmitForm({
 
   return (
     <div className="rounded-xl border border-hairline bg-surface-card p-6">
-      <h3 className="text-[1.25rem] tracking-[-0.2px] text-ink">
+      <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted">
+        {canSubmit ? "Ready to submit" : "Submission"}
+      </p>
+      <h3 className="mt-2 text-[1.25rem] tracking-[-0.2px] text-ink">
         Submit your capstone
       </h3>
+      <p className="mt-2 font-sans text-[0.8125rem] leading-relaxed text-muted">
+        Link your work and tell the grader how it meets each requirement. You
+        can resubmit if it isn&rsquo;t passed.
+      </p>
       <fieldset disabled={!canSubmit || isPending} className="mt-5 space-y-5">
         <div>
           <label

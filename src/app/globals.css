@@ -100,6 +100,33 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-pill: 9999px;
+
+  /*
+   * --- Motion system (DESIGN.md does not extract timings; these formalise the
+   * "Known Gaps" note so motion is consistent and clarifying, never decorative).
+   * Compositor-friendly only: every consumer animates transform/opacity/color.
+   * Durations stay short and editorial — the warm-editorial voice is calm, not
+   * flashy. All neutralised under prefers-reduced-motion in the base layer. ---
+   */
+  --duration-instant: 90ms;
+  --duration-fast: 150ms;
+  --duration-normal: 220ms;
+  --duration-slow: 360ms;
+  /* easeOutExpo — entrances/reveals settle decisively (clarifies arrival). */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* standard ease for hover/state colour shifts. */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /*
+   * --- Elevation scale (DESIGN.md "Elevation & Depth": color-block first,
+   * shadow rare; the one documented hover shadow is 0 1px 3px rgba(20,20,19,.08)).
+   * Kept low-alpha and warm-ink-tinted so depth never reads as a cool material
+   * drop shadow. shadow-none is the default; shadow-raise is the *only* hover
+   * elevation; shadow-overlay is reserved for true layered surfaces (sheets). ---
+   */
+  --shadow-raise: 0 1px 3px rgba(20, 20, 19, 0.08);
+  --shadow-raise-lg: 0 4px 16px -2px rgba(20, 20, 19, 0.1);
+  --shadow-overlay: 0 12px 40px -8px rgba(20, 20, 19, 0.18);
 }
 
 /* Base layer: cream canvas floor + warm ink text + editorial defaults */
@@ -107,6 +134,8 @@
   html {
     background-color: var(--color-canvas);
     color: var(--color-ink);
+    /* Editorial pacing: scoped, never abrupt, honoured by reduced-motion. */
+    scroll-behavior: smooth;
   }
 
   body {
@@ -116,22 +145,48 @@
     color: var(--color-body);
     background-color: var(--color-canvas);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
+  /*
+   * Display headings: Copernicus substitute, weight 400 (never bold —
+   * DESIGN.md Don't), warm ink. Optical-sizing + a faint negative tracking
+   * baseline keep Cormorant Garamond on-brand; per-size tracking still comes
+   * from the --text-display-*--letter-spacing tokens where those classes apply.
+   */
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
     font-weight: 400; /* DESIGN.md: display weight is always 400, never bold */
     color: var(--color-ink);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
   }
 
-  /* WCAG 2.1 AA: a clearly visible, brand-tinted focus ring on all interactives */
+  /* Long-form text wraps prettily without orphans (editorial column feel). */
+  p {
+    text-wrap: pretty;
+  }
+
+  /* WCAG 2.1 AA: a clearly visible, brand-tinted focus ring on all
+   * interactives. Uses a coral ring + cream offset gap so it is legible on
+   * cream, cream-card, AND coral surfaces. Animated subtly (opacity/transform
+   * safe — outline color/offset only) and neutralised by reduced-motion. */
   :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
+  }
+
+  /* On dark surfaces a coral-on-near-black ring can read low; widen the offset
+   * so the cream gap does the separating work (kept token-driven). */
+  .bg-surface-dark :focus-visible,
+  .bg-surface-dark-elevated :focus-visible,
+  .bg-primary :focus-visible {
+    outline-color: var(--color-on-dark);
+    outline-offset: 3px;
   }
 
   /*
@@ -149,14 +204,76 @@
       0 0 0 4px var(--color-primary);
   }
 
-  /* Respect reduced-motion preference */
+  /* Respect reduced-motion preference: neutralise all motion, including the
+   * smooth scroll and any token-driven transitions/animations. */
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
     *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/*
+ * Utilities layer — small, reusable, token-driven helpers consumed across the
+ * app shell and feature surfaces. Additive only; no component owns these
+ * exclusively, so they stay backward-compatible for every agent.
+ */
+@layer utilities {
+  /* Editorial entrance: subtle rise + fade, compositor-friendly, settles with
+   * easeOut. Apply to hero / band content. Reduced-motion safe (base layer
+   * neutralises the duration; final state is the at-rest state). */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .animate-rise-in {
+    animation: rise-in var(--duration-slow) var(--ease-out) both;
+  }
+
+  /* Staggered children: opt-in delay steps for hero clusters. */
+  .animate-rise-in.delay-1 {
+    animation-delay: 70ms;
+  }
+  .animate-rise-in.delay-2 {
+    animation-delay: 140ms;
+  }
+  .animate-rise-in.delay-3 {
+    animation-delay: 210ms;
+  }
+
+  /* The single documented hover elevation (DESIGN.md): a faint warm shadow +
+   * a 1px lift. Color-block-first still holds — this is the *rare* exception
+   * reserved for interactive cards. */
+  .hover-raise {
+    transition:
+      transform var(--duration-normal) var(--ease-standard),
+      box-shadow var(--duration-normal) var(--ease-standard),
+      border-color var(--duration-normal) var(--ease-standard);
+  }
+
+  .hover-raise:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow: var(--shadow-raise-lg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hover-raise:hover {
+      transform: none;
     }
   }
 }

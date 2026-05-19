@@ -166,27 +166,50 @@ export default async function AssessmentPage({
             }))}
             existing={existing}
           />
+        ) : a && a.confirmedAt && passing ? (
+          // The earned outcome — DESIGN.md callout-card-coral, the one place
+          // coral is generous. Reserved strictly for a confirmed pass.
+          <div className="rounded-xl bg-primary p-8 text-on-primary">
+            <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-on-primary/80">
+              Capstone passed
+            </span>
+            <h3 className="mt-3 text-[clamp(1.75rem,1rem+2.5vw,2.25rem)] capitalize leading-tight tracking-[-0.5px]">
+              {a.outcome} · {a.totalScore ?? 0}%
+            </h3>
+            <p className="mt-3 max-w-xl font-sans text-[0.9375rem] leading-relaxed text-on-primary/90">
+              An instructor reviewed and confirmed this against the rubric.
+              Your next level unlocks once your remaining prerequisites are
+              met. Well earned.
+            </p>
+          </div>
         ) : (
           <div className="rounded-xl border border-hairline bg-surface-card p-6">
             {a && a.confirmedAt ? (
               <>
-                <p className="font-sans text-[0.9375rem] text-body">
+                <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted">
+                  Not passed
+                </p>
+                <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-body">
                   Outcome:{" "}
-                  <span className="font-medium text-body-strong">
+                  <span className="font-medium capitalize text-body-strong">
                     {a.outcome}
                   </span>{" "}
-                  ({a.totalScore ?? 0}%).{" "}
-                  {passing
-                    ? "This is a passing result — your next level is unlocked once prerequisites are met."
-                    : "This did not pass. Review the rubric and resubmit."}
+                  ({a.totalScore ?? 0}%). This didn&rsquo;t pass yet — review
+                  the rubric bands against your work and resubmit. There&rsquo;s
+                  no penalty for resubmitting.
                 </p>
               </>
             ) : (
-              <p className="font-sans text-[0.9375rem] text-muted">
-                Your submission is queued for assessment. An instructor must
-                review and confirm it — AI assistance never auto-passes a
-                gate.
-              </p>
+              <>
+                <p className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted">
+                  In review
+                </p>
+                <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-body">
+                  Your submission is queued for assessment. An instructor must
+                  review and confirm it before it can unlock the next level —
+                  AI assistance drafts a grade but never auto-passes a gate.
+                </p>
+              </>
             )}
           </div>
         )}

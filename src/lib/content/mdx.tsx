@@ -25,61 +25,76 @@ import type { ReactNode } from "react";
 import { compileMDX } from "next-mdx-remote/rsc";
 
 /**
- * DESIGN.md component map. Headings/body/code/lists/quotes use the cream
- * editorial palette tokens already defined in globals.css and used across
- * `src/components`. The lesson page owns the H1 (PageHeader), so MDX `#`
- * starts at the visual H2 scale to preserve the WCAG heading order.
+ * DESIGN.md component map (visual map only — parsing, security and the
+ * no-rehype-raw / no-dangerouslySetInnerHTML posture above are unchanged).
+ *
+ * This is the lesson's long-form reading column: it should "read like a
+ * magazine column" (DESIGN.md Whitespace Philosophy). Headings run the
+ * Copernicus-substitute serif at weight 400 with negative tracking (the
+ * cream-editorial voice — DESIGN.md Typography Principles); body runs the
+ * StyreneB-substitute sans at the `body-md` scale (1rem / 1.55) so the
+ * measure breathes. Code blocks render on the dark `code-window-card`
+ * surface in JetBrains Mono (DESIGN.md `code-window-card`); inline code
+ * stays on the strongest cream so it reads as an inline token, not a block.
+ * Links use the scarce coral `text-link` treatment. Vertical rhythm steps
+ * the spacing tokens (heading lead > paragraph lead) so sections have an
+ * intentional cadence rather than uniform gaps.
+ *
+ * The lesson page owns the page H1 (PageHeader), so MDX `#` is demoted to
+ * the visual H2 scale to preserve the single-H1 / ordered-heading contract
+ * (WCAG 2.1 AA — semantic level is intentionally one below the rendered
+ * size to keep the document outline correct).
  */
 const mdxComponents = {
   h1: (props: { children?: ReactNode }) => (
     <h2
-      className="mt-12 scroll-mt-24 text-[1.75rem] font-medium tracking-[-0.3px] text-ink"
+      className="mt-14 scroll-mt-28 font-display text-[1.875rem] font-normal leading-[1.2] tracking-[-0.5px] text-ink first:mt-0"
       {...props}
     />
   ),
   h2: (props: { children?: ReactNode }) => (
     <h2
-      className="mt-12 scroll-mt-24 text-[1.5rem] font-medium tracking-[-0.2px] text-ink"
+      className="mt-14 scroll-mt-28 font-display text-[1.625rem] font-normal leading-[1.25] tracking-[-0.3px] text-ink first:mt-0"
       {...props}
     />
   ),
   h3: (props: { children?: ReactNode }) => (
     <h3
-      className="mt-9 scroll-mt-24 text-[1.25rem] font-medium tracking-[-0.2px] text-body-strong"
+      className="mt-10 scroll-mt-28 font-display text-[1.3125rem] font-normal leading-[1.3] tracking-[-0.2px] text-body-strong"
       {...props}
     />
   ),
   h4: (props: { children?: ReactNode }) => (
     <h4
-      className="mt-7 scroll-mt-24 text-[1.0625rem] font-medium text-body-strong"
+      className="mt-8 scroll-mt-28 font-sans text-[1.0625rem] font-medium leading-snug text-body-strong"
       {...props}
     />
   ),
   p: (props: { children?: ReactNode }) => (
     <p
-      className="mt-5 font-sans text-[0.9375rem] leading-relaxed text-body"
+      className="mt-5 font-sans text-[1rem] leading-[1.7] text-body [&:first-child]:mt-0"
       {...props}
     />
   ),
   ul: (props: { children?: ReactNode }) => (
     <ul
-      className="mt-5 list-disc space-y-2 pl-5 font-sans text-[0.9375rem] leading-relaxed text-body"
+      className="mt-5 list-disc space-y-2.5 pl-6 font-sans text-[1rem] leading-[1.7] text-body marker:text-muted-soft"
       {...props}
     />
   ),
   ol: (props: { children?: ReactNode }) => (
     <ol
-      className="mt-5 list-decimal space-y-2 pl-5 font-sans text-[0.9375rem] leading-relaxed text-body"
+      className="mt-5 list-decimal space-y-2.5 pl-6 font-sans text-[1rem] leading-[1.7] text-body marker:text-muted-soft"
       {...props}
     />
   ),
   li: (props: { children?: ReactNode }) => (
-    <li className="leading-relaxed" {...props} />
+    <li className="pl-1 leading-[1.7] [&>ul]:mt-2.5 [&>ol]:mt-2.5" {...props} />
   ),
   a: (props: { children?: ReactNode; href?: string }) => (
     // External-safe: no window.opener leak (web/security baseline).
     <a
-      className="text-primary underline decoration-hairline underline-offset-2 transition-colors hover:text-primary-active"
+      className="font-medium text-primary underline decoration-primary/30 underline-offset-[3px] transition-colors hover:text-primary-active hover:decoration-primary-active/60"
       target="_blank"
       rel="noopener noreferrer"
       {...props}
@@ -87,45 +102,56 @@ const mdxComponents = {
   ),
   blockquote: (props: { children?: ReactNode }) => (
     <blockquote
-      className="mt-6 border-l-2 border-primary/40 bg-surface-soft px-5 py-3 font-sans text-[0.9375rem] italic leading-relaxed text-muted"
+      className="mt-7 border-l-2 border-primary pl-6 font-display text-[1.1875rem] font-normal italic leading-[1.55] tracking-[-0.2px] text-body-strong [&>p]:mt-3 [&>p:first-child]:mt-0"
       {...props}
     />
   ),
   code: (props: { children?: ReactNode }) => (
     <code
-      className="rounded bg-surface-cream-strong px-1.5 py-0.5 font-mono text-[0.8125rem] text-body-strong"
+      className="rounded-sm bg-surface-cream-strong px-1.5 py-0.5 font-mono text-[0.875em] text-body-strong"
       {...props}
     />
   ),
+  // DESIGN.md `code-window-card`: dark surface, JetBrains Mono, rounded-lg,
+  // 24px (spacing.lg) padding, horizontal scroll on overflow (never wrap).
+  // Inner <code> resets the inline-token styling so block code reads on dark.
   pre: (props: { children?: ReactNode }) => (
     <pre
-      className="mt-6 overflow-x-auto rounded-xl bg-surface-dark p-5 font-mono text-[0.8125rem] leading-relaxed text-on-dark"
+      className="mt-7 overflow-x-auto rounded-lg bg-surface-dark p-6 font-mono text-[0.8125rem] leading-[1.6] text-on-dark [&>code]:bg-transparent [&>code]:px-0 [&>code]:py-0 [&>code]:text-[length:inherit] [&>code]:text-on-dark"
       {...props}
     />
   ),
-  hr: () => <hr className="mt-10 border-hairline" />,
+  hr: () => (
+    <hr className="mx-auto mt-12 w-16 border-t-2 border-hairline" />
+  ),
   table: (props: { children?: ReactNode }) => (
-    <div className="mt-6 overflow-x-auto">
+    <div className="mt-7 overflow-x-auto rounded-lg border border-hairline">
       <table
-        className="w-full border-collapse font-sans text-[0.875rem] text-body"
+        className="w-full border-collapse font-sans text-[0.9375rem] text-body"
         {...props}
       />
     </div>
   ),
+  thead: (props: { children?: ReactNode }) => (
+    <thead className="bg-surface-soft" {...props} />
+  ),
   th: (props: { children?: ReactNode }) => (
     <th
-      className="border-b border-hairline px-3 py-2 text-left font-medium text-body-strong"
+      className="border-b border-hairline px-4 py-3 text-left font-medium text-body-strong"
       {...props}
     />
   ),
   td: (props: { children?: ReactNode }) => (
     <td
-      className="border-b border-hairline-soft px-3 py-2 align-top"
+      className="border-b border-hairline-soft px-4 py-3 align-top last:[&]:border-b-0"
       {...props}
     />
   ),
   strong: (props: { children?: ReactNode }) => (
     <strong className="font-semibold text-body-strong" {...props} />
+  ),
+  em: (props: { children?: ReactNode }) => (
+    <em className="italic text-body-strong" {...props} />
   ),
 };
 
@@ -136,15 +162,15 @@ function unavailable(bodyPath: string): ReactNode {
       data-slot="lesson-mdx-body"
       data-body-state="unavailable"
       data-body-path={bodyPath}
-      className="rounded-xl border border-dashed border-hairline bg-surface-soft px-6 py-10 text-center"
+      className="rounded-lg border border-dashed border-hairline bg-surface-soft px-8 py-12 text-center"
     >
-      <p className="font-sans text-[0.875rem] font-medium text-muted">
-        Lesson body unavailable
+      <p className="font-display text-[1.375rem] font-normal tracking-[-0.2px] text-body-strong">
+        This lesson&rsquo;s reading is being prepared
       </p>
-      <p className="mx-auto mt-2 max-w-md font-sans text-[0.8125rem] leading-relaxed text-muted-soft">
-        The authored content for this lesson could not be loaded right now.
-        The rest of the lesson — objectives, practice, and resources — is
-        still available below.
+      <p className="mx-auto mt-3 max-w-md font-sans text-[0.9375rem] leading-[1.7] text-muted">
+        The authored content couldn&rsquo;t be loaded right now. The rest of
+        the lesson — objectives, practice, and resources — is still available
+        below, so you can keep moving.
       </p>
     </div>
   );

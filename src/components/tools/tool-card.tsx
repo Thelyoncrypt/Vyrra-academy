@@ -13,7 +13,7 @@ interface ToolCardProps {
 
 export function ToolCard({ tool }: ToolCardProps) {
   return (
-    <article className="flex h-full flex-col rounded-lg bg-surface-card p-8">
+    <article className="hover-raise group flex h-full flex-col rounded-lg border border-hairline bg-surface-card p-8 hover:border-primary/30">
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone="outline">{tool.category}</Badge>
         <Badge tone="level">{tool.skillLevel}</Badge>
@@ -32,12 +32,21 @@ export function ToolCard({ tool }: ToolCardProps) {
         {tool.description}
       </p>
 
-      <p className="mt-6 font-sans text-[0.8125rem] text-muted">
-        <span className="font-medium text-body-strong">
-          {tool.guidedTasks.length}
-        </span>{" "}
-        guided task{tool.guidedTasks.length === 1 ? "" : "s"} · simulated
-      </p>
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-hairline-soft pt-4 font-sans text-[0.75rem] text-muted">
+        <span className="flex items-center gap-1.5">
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-accent-teal"
+          />
+          <span className="font-medium text-body-strong">
+            {tool.guidedTasks.length}
+          </span>{" "}
+          guided task{tool.guidedTasks.length === 1 ? "" : "s"}
+        </span>
+        <span className="font-medium uppercase tracking-[1.5px] text-muted-soft">
+          Simulated
+        </span>
+      </div>
     </article>
   );
 }

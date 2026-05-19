@@ -4,9 +4,11 @@
  * TrackFilterGrid — the only client component on /tracks. Holds two filter
  * facets (skill level, ecosystem) in local state and renders the matching
  * TrackCards. DESIGN.md `category-tab` / `category-tab-active` for the facet
- * pills. Filtering is pure derivation from props — no server state duplicated.
+ * pills (active = `surface-card` bg + ink text; inactive = transparent +
+ * muted text, ink on hover). Filtering is pure derivation from props — no
+ * server state duplicated.
  *
- * The four baseline states: populated (cards), empty (no match → EmptyState).
+ * Baseline states: populated (cards) and empty (no match → EmptyState).
  * Loading/error are owned by the server route (data is synchronous here).
  */
 import { useMemo, useState } from "react";
@@ -48,6 +50,8 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
     [items, level, ecosystem],
   );
 
+  const filtered = level !== "all" || ecosystem !== "all";
+
   const reset = () => {
     setLevel("all");
     setEcosystem("all");
@@ -55,9 +59,9 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
 
   return (
     <div>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-6 border-y border-hairline py-7">
         <FilterRow
-          legend="Filter by skill level"
+          legend="Skill level"
           options={[
             { value: "all", label: "All levels" },
             ...LEVEL_OPTIONS.map((o) => ({
@@ -71,7 +75,7 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
           }
         />
         <FilterRow
-          legend="Filter by ecosystem"
+          legend="Ecosystem"
           options={[
             { value: "all", label: "All ecosystems" },
             ...ecosystems.map((e) => ({ value: e, label: e })),
@@ -81,12 +85,31 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
         />
       </div>
 
-      <p className="mt-8 font-sans text-[0.8125rem] text-muted" aria-live="polite">
-        Showing {visible.length} of {items.length} tracks
-      </p>
+      <div className="mt-8 flex flex-wrap items-baseline gap-x-4 gap-y-2">
+        <p
+          className="font-sans text-[0.8125rem] text-muted"
+          aria-live="polite"
+        >
+          Showing{" "}
+          <span className="tabular-nums font-medium text-body-strong">
+            {visible.length}
+          </span>{" "}
+          of{" "}
+          <span className="tabular-nums">{items.length}</span> tracks
+        </p>
+        {filtered ? (
+          <button
+            type="button"
+            onClick={reset}
+            className="rounded-md font-sans text-[0.8125rem] font-medium text-primary transition-colors duration-200 hover:text-primary-active"
+          >
+            Clear filters
+          </button>
+        ) : null}
+      </div>
 
       {visible.length > 0 ? (
-        <ul className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {visible.map(({ track, lessonCount }) => (
             <li key={track.slug}>
               <TrackCard track={track} lessonCount={lessonCount} />
@@ -94,7 +117,7 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
           ))}
         </ul>
       ) : (
-        <div className="mt-4">
+        <div className="mt-6">
           <EmptyState
             title="No tracks match those filters"
             description="Try widening the skill level or ecosystem to see more of the programme."
@@ -102,7 +125,7 @@ export function TrackFilterGrid({ items }: TrackFilterGridProps) {
               <button
                 type="button"
                 onClick={reset}
-                className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors hover:bg-surface-soft"
+                className="rounded-md border border-hairline bg-canvas px-5 py-2.5 font-sans text-sm font-medium text-ink transition-colors duration-200 hover:bg-surface-soft"
               >
                 Clear filters
               </button>
@@ -123,8 +146,8 @@ interface FilterRowProps {
 
 function FilterRow({ legend, options, active, onSelect }: FilterRowProps) {
   return (
-    <fieldset>
-      <legend className="mb-3 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+    <fieldset className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+      <legend className="float-left mb-3 w-32 shrink-0 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted sm:mb-0">
         {legend}
       </legend>
       <div className="flex flex-wrap gap-2">
@@ -136,10 +159,10 @@ function FilterRow({ legend, options, active, onSelect }: FilterRowProps) {
               type="button"
               aria-pressed={isActive}
               onClick={() => onSelect(opt.value)}
-              className={`rounded-md px-3.5 py-2 font-sans text-sm font-medium transition-colors ${
+              className={`rounded-md px-3.5 py-2 font-sans text-sm font-medium transition-colors duration-200 ${
                 isActive
                   ? "bg-surface-card text-ink"
-                  : "text-muted hover:text-ink"
+                  : "text-muted hover:bg-surface-soft hover:text-ink"
               }`}
             >
               {opt.label}

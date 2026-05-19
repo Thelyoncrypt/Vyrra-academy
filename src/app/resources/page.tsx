@@ -175,7 +175,7 @@ export default async function ResourcesPage({
             Results
           </h2>
           {resources.length > 0 ? (
-            <ul className="grid gap-6 sm:grid-cols-2">
+            <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {resources.map((r) => (
                 <li key={r.id}>
                   <ResourceCard resource={r} />

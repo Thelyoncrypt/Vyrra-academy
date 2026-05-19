@@ -117,18 +117,28 @@ export default async function ToolPage({ params }: ToolPageProps) {
 
           <Section title="Guided tasks" id="tool-tasks">
             <div className="space-y-8">
-              {tool.guidedTasks.map((task) => (
+              {tool.guidedTasks.map((task, i) => (
                 <div
                   key={task.id}
                   className="rounded-lg border border-hairline bg-surface-card p-6"
                 >
-                  <h3 className="text-[1.125rem] font-medium text-ink">
-                    {task.title}
-                  </h3>
-                  <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-body">
-                    {task.brief}
-                  </p>
-                  <div className="mt-5">
+                  <div className="flex items-start gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-cream-strong font-mono text-[0.75rem] font-medium text-muted"
+                    >
+                      {i + 1}
+                    </span>
+                    <div>
+                      <h3 className="text-[1.125rem] font-medium text-ink">
+                        {task.title}
+                      </h3>
+                      <p className="mt-2 font-sans text-[0.9375rem] leading-relaxed text-body">
+                        {task.brief}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-5 border-t border-hairline-soft pt-5">
                     <GuidedTaskRunner
                       toolSlug={tool.slug}
                       taskId={task.id}

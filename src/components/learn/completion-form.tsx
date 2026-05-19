@@ -1,11 +1,18 @@
 /**
  * CompletionForm — interactive lesson completion control (client island).
  *
- * Replaces the disabled placeholder in CompletionAffordance for the wired
- * path: it calls the `markLessonProgressAction` Server Action (which
- * re-checks auth + gating server-side — the client is never trusted). Visual
- * structure mirrors CompletionAffordance so the DESIGN.md treatment is
- * unchanged; only the affordance becomes live.
+ * It calls the `markLessonProgressAction` Server Action (which re-checks
+ * auth + gating server-side — the client is never trusted). DESIGN.md: a
+ * designed completion affordance, not a bare button. The card carries a
+ * status row (coloured dot + label), the completion criteria, and a single
+ * coral primary CTA (`button-primary`). On completion the card warms to a
+ * quiet success treatment (a soft success-tinted hairline + a calm
+ * confirmation line) so finishing a lesson reads as an accomplishment
+ * rather than a no-op toggle. Coral stays scarce — only the active CTA.
+ *
+ * a11y: status is announced via aria-live; the busy state sets aria-busy;
+ * errors render in role="alert". Motion is limited to colour transitions,
+ * which the global prefers-reduced-motion rule neutralises.
  */
 "use client";
 
@@ -53,26 +60,52 @@ export function CompletionForm({
   }
 
   return (
-    <div className="rounded-xl border border-hairline bg-surface-card p-6">
-      <div className="flex items-center gap-2 font-sans text-[0.8125rem] font-medium text-body-strong">
-        <span
-          aria-hidden="true"
-          className={`h-2.5 w-2.5 rounded-full ${copy.dot}`}
-        />
-        <span aria-live="polite">{copy.label}</span>
+    <section
+      aria-labelledby="completion-heading"
+      className={`rounded-lg border bg-surface-card p-6 transition-colors ${
+        isCompleted ? "border-success/45" : "border-hairline"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h2
+          id="completion-heading"
+          className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted"
+        >
+          Your progress
+        </h2>
+        <span className="flex items-center gap-2 font-sans text-[0.8125rem] font-medium text-body-strong">
+          <span
+            aria-hidden="true"
+            className={`h-2.5 w-2.5 rounded-full ${copy.dot}`}
+          />
+          <span aria-live="polite">{copy.label}</span>
+        </span>
       </div>
-      <p className="mt-3 font-sans text-[0.875rem] leading-relaxed text-muted">
-        <span className="font-medium text-body-strong">
-          To complete this lesson:
-        </span>{" "}
-        {criteria}
+
+      <p className="mt-4 font-sans text-[0.9375rem] leading-[1.6] text-muted">
+        {isCompleted ? (
+          <>
+            <span className="font-medium text-body-strong">
+              Lesson complete.
+            </span>{" "}
+            The next lesson is unlocked — revisit this one any time.
+          </>
+        ) : (
+          <>
+            <span className="font-medium text-body-strong">
+              To complete this lesson:
+            </span>{" "}
+            {criteria}
+          </>
+        )}
       </p>
+
       <button
         type="button"
         onClick={() => submit(isCompleted ? "in_progress" : "completed")}
         disabled={isPending}
         aria-busy={isPending}
-        className="mt-5 w-full rounded-md bg-primary px-5 py-2.5 font-sans text-sm font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
+        className="mt-6 w-full rounded-md bg-primary px-5 py-2.5 font-sans text-[0.875rem] font-medium text-on-primary transition-colors hover:bg-primary-active disabled:cursor-not-allowed disabled:bg-primary-disabled disabled:text-muted"
       >
         {isPending
           ? "Saving…"
@@ -81,13 +114,10 @@ export function CompletionForm({
             : "Mark complete"}
       </button>
       {error ? (
-        <p
-          role="alert"
-          className="mt-3 font-sans text-[0.75rem] text-error"
-        >
+        <p role="alert" className="mt-3 font-sans text-[0.8125rem] text-error">
           {error}
         </p>
       ) : null}
-    </div>
+    </section>
   );
 }

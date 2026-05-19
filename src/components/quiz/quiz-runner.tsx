@@ -7,6 +7,11 @@
  * answer key). Four UI states: idle (answering), submitting (busy/disabled),
  * results (feedback), error (typed alert). Retake resets to idle.
  *
+ * Polish (DESIGN.md): a StageProgress rail gives motivating momentum across
+ * Knowledge → Applied → Scenario → Mastery; each stage is a numbered cream
+ * band; questions sit in designed cards with a per-answer "answered" tick.
+ * Coral is reserved for the submit CTA only (DESIGN.md: scarce on individuals).
+ *
  * No client-side scoring, ever (system-design §5.2). The component only
  * gathers input and renders what the server returns.
  */
@@ -17,8 +22,12 @@ import { useMemo, useState, useTransition } from "react";
 import type { Quiz } from "@/content/contract";
 import { submitQuizAction } from "@/lib/assessment/quiz-actions";
 import type { QuizResult } from "@/lib/assessment/quiz-scoring";
-import { QuestionInput, type ResponseValue } from "@/components/quiz/question-input";
+import {
+  QuestionInput,
+  type ResponseValue,
+} from "@/components/quiz/question-input";
 import { QuizResults } from "@/components/quiz/quiz-results";
+import { StageProgress } from "@/components/quiz/stage-progress";
 import { STAGE_META, type StageOrder } from "@/components/quiz/stage-meta";
 
 interface QuizRunnerProps {
@@ -51,6 +60,14 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
 
   const answeredCount = responses.size;
   const totalCount = quiz.questions.length;
+
+  /** First stage (by index) that still has an unanswered question. */
+  const activeStageIndex = useMemo(() => {
+    const idx = stages.findIndex(([, qs]) =>
+      qs.some((q) => !responses.has(q.id)),
+    );
+    return idx === -1 ? stages.length - 1 : idx;
+  }, [stages, responses]);
 
   function setAnswer(questionId: string, value: ResponseValue) {
     setResponses((prev) => {
@@ -105,53 +122,97 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
 
   return (
     <div className="space-y-10">
-      {stages.map(([stage, questions]) => {
+      <StageProgress
+        stages={stages.map(([s]) => s)}
+        activeIndex={activeStageIndex}
+      />
+
+      {stages.map(([stage, questions], stageIdx) => {
         const meta = STAGE_META[stage];
+        const stageAnswered = questions.filter((q) =>
+          responses.has(q.id),
+        ).length;
+        const stageDone = stageAnswered === questions.length;
         return (
           <section key={stage} aria-label={`Stage ${stage}: ${meta.name}`}>
-            <div className="flex items-baseline gap-3">
-              <span className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
-                Stage {stage}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span
+                aria-hidden="true"
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-pill font-sans text-[0.875rem] font-medium ${
+                  stageDone
+                    ? "bg-ink text-on-dark"
+                    : "bg-surface-cream-strong text-body-strong"
+                }`}
+              >
+                {stageDone ? "✓" : stage}
               </span>
-              <h2 className="text-[1.25rem] tracking-[-0.2px] text-ink">
-                {meta.name}
-              </h2>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted">
+                    Stage {stage} of {stages.length}
+                  </span>
+                  <h2 className="text-[1.375rem] tracking-[-0.3px] text-ink">
+                    {meta.name}
+                  </h2>
+                </div>
+                <p className="mt-1 font-sans text-[0.875rem] text-muted">
+                  {meta.blurb}
+                  <span className="ml-2 text-muted-soft">
+                    · {stageAnswered}/{questions.length} answered
+                  </span>
+                </p>
+              </div>
             </div>
-            <p className="mt-1 font-sans text-[0.875rem] text-muted">
-              {meta.blurb}
-            </p>
-            <ol className="mt-5 space-y-6">
-              {questions.map((q, i) => (
-                <li
-                  key={q.id}
-                  className="rounded-lg border border-hairline bg-surface-card p-5"
-                >
-                  <p className="font-sans text-[0.9375rem] font-medium leading-relaxed text-body-strong">
-                    {i + 1}. {q.prompt}
-                  </p>
-                  <div className="mt-4">
-                    <QuestionInput
-                      question={q}
-                      value={responses.get(q.id)}
-                      onChange={(v) => setAnswer(q.id, v)}
-                      disabled={!canSubmit || busy}
-                    />
-                  </div>
-                </li>
-              ))}
+            <ol className="mt-5 space-y-4">
+              {questions.map((q, i) => {
+                const answered = responses.has(q.id);
+                return (
+                  <li
+                    key={q.id}
+                    className={`rounded-lg border bg-surface-card p-5 transition-colors ${
+                      answered ? "border-hairline" : "border-hairline-soft"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <p className="font-sans text-[0.9375rem] font-medium leading-relaxed text-body-strong">
+                        <span className="text-muted">
+                          {stageIdx + 1}.{i + 1}
+                        </span>{" "}
+                        {q.prompt}
+                      </p>
+                      {answered ? (
+                        <span className="shrink-0 font-sans text-[0.6875rem] font-medium uppercase tracking-[1.5px] text-muted-soft">
+                          Answered
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="mt-4">
+                      <QuestionInput
+                        question={q}
+                        value={responses.get(q.id)}
+                        onChange={(v) => setAnswer(q.id, v)}
+                        disabled={!canSubmit || busy}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           </section>
         );
       })}
 
       {error ? (
-        <p role="alert" className="font-sans text-[0.8125rem] text-error">
+        <p
+          role="alert"
+          className="rounded-lg border border-error/40 bg-surface-card px-5 py-4 font-sans text-[0.875rem] text-error"
+        >
           {error}
         </p>
       ) : null}
 
       {canSubmit ? (
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 border-t border-hairline pt-6">
           <button
             type="button"
             onClick={submit}
@@ -162,7 +223,15 @@ export function QuizRunner({ quiz, canSubmit }: QuizRunnerProps) {
             {busy ? "Grading…" : "Submit for grading"}
           </button>
           <span className="font-sans text-[0.8125rem] text-muted">
-            {answeredCount} / {totalCount} answered
+            <span className="font-medium text-body-strong">
+              {answeredCount}
+            </span>{" "}
+            of {totalCount} answered
+            {answeredCount === 0
+              ? " — answer at least one to submit"
+              : answeredCount < totalCount
+                ? " — unanswered items score as incorrect"
+                : ""}
           </span>
         </div>
       ) : (

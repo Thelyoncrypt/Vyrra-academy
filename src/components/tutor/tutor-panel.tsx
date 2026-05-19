@@ -60,14 +60,27 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
   };
 
   return (
-    <details className="group rounded-xl border border-hairline bg-surface-card">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5">
-        <span>
-          <span className="block font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
-            AI Tutor
+    <details className="group overflow-hidden rounded-xl border border-hairline bg-surface-card">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 transition-colors hover:bg-surface-cream-strong/40">
+        <span className="flex items-center gap-3.5">
+          <span
+            aria-hidden="true"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-dark"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 2 9.6 9.6 2 12l7.6 2.4L12 22l2.4-7.6L22 12l-7.6-2.4z"
+                fill="var(--color-primary)"
+              />
+            </svg>
           </span>
-          <span className="mt-1 block font-sans text-[1rem] font-medium text-ink">
-            Ask a question about this lesson
+          <span>
+            <span className="block font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+              AI Tutor
+            </span>
+            <span className="mt-0.5 block font-sans text-[1rem] font-medium text-ink">
+              Ask a question about this lesson
+            </span>
           </span>
         </span>
         <span
@@ -95,21 +108,32 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
         {isUnavailable ? (
           <div
             role="status"
-            className="rounded-lg border border-hairline bg-canvas px-4 py-4"
+            className="rounded-lg border border-hairline bg-canvas px-5 py-5"
           >
-            <p className="font-sans text-[0.875rem] font-medium text-body-strong">
+            <p className="flex items-center gap-2 font-sans text-[0.875rem] font-medium text-body-strong">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-warning"
+              />
               Tutor unavailable
             </p>
-            <p className="mt-1 font-sans text-[0.8125rem] leading-relaxed text-muted">
+            <p className="mt-1.5 font-sans text-[0.8125rem] leading-relaxed text-muted">
               {UNAVAILABLE_COPY}
             </p>
           </div>
         ) : messages.length > 0 ? (
-          <TutorMessageList messages={messages} isStreaming={isStreaming} />
+          <div className="max-h-[26rem] overflow-y-auto pr-1">
+            <TutorMessageList messages={messages} isStreaming={isStreaming} />
+          </div>
         ) : (
-          <p className="rounded-lg border border-dashed border-hairline px-4 py-6 text-center font-sans text-[0.8125rem] text-muted-soft">
-            No questions yet. Ask anything about what you&apos;re reading.
-          </p>
+          <div className="rounded-lg border border-dashed border-hairline bg-canvas/50 px-4 py-8 text-center">
+            <p className="font-sans text-[0.875rem] font-medium text-body-strong">
+              No questions yet
+            </p>
+            <p className="mt-1 font-sans text-[0.8125rem] leading-relaxed text-muted-soft">
+              Ask anything about what you&apos;re reading.
+            </p>
+          </div>
         )}
 
         {isStreaming ? (
@@ -118,7 +142,7 @@ export function TutorPanel({ lessonId }: TutorPanelProps) {
             onClick={() => stop()}
             className="rounded-md border border-hairline bg-canvas px-4 py-2 font-sans text-[0.8125rem] font-medium text-ink transition-colors hover:bg-surface-soft"
           >
-            Stop
+            Stop generating
           </button>
         ) : null}
 

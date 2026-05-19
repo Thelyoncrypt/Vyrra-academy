@@ -30,6 +30,7 @@ export function TutorComposer({
 
   const trimmed = value.trim();
   const canSend = !disabled && trimmed.length > 0;
+  const nearLimit = value.length >= MAX_MESSAGE_CHARS * 0.9;
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -61,12 +62,14 @@ export function TutorComposer({
         maxLength={MAX_MESSAGE_CHARS}
         aria-describedby={countId}
         placeholder="e.g. Can you explain this concept with a small example?"
-        className="w-full resize-y rounded-md border border-hairline bg-canvas px-3.5 py-2.5 font-sans text-[0.875rem] leading-relaxed text-ink placeholder:text-muted-soft disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full resize-y rounded-md border border-hairline bg-canvas px-3.5 py-2.5 font-sans text-[0.875rem] leading-relaxed text-ink transition-colors placeholder:text-muted-soft focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
       />
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <span
           id={countId}
-          className="font-sans text-[0.6875rem] text-muted-soft"
+          className={`font-sans text-[0.6875rem] tabular-nums ${
+            nearLimit ? "font-medium text-warning" : "text-muted-soft"
+          }`}
         >
           {value.length} / {MAX_MESSAGE_CHARS}
         </span>

@@ -2,8 +2,13 @@
  * LessonRow — one lesson line inside a module outline. Renders a locked or
  * unlocked affordance per system-design §4.1 UX: a locked lesson is NOT a dead
  * link / 403 — it stays visible with a lock glyph, a "Locked" badge, and an
- * aria-disabled marker, so the learner sees the path ahead. Gating LOGIC is a
- * later wave; this is the visual contract that logic will drive.
+ * aria-disabled marker, so the learner sees the path ahead. Gating LOGIC is
+ * owned upstream; this is the visual contract that logic drives.
+ *
+ * The status node carries the affordance: a filled coral check for completed,
+ * a recessed cream lock for locked, an outlined index for available. Available
+ * rows get a designed hover (cream wash + an arrow that advances) so the next
+ * step reads as the live one. Motion is transform/opacity only.
  */
 import Link from "next/link";
 import type { Lesson } from "@/content/contract";
@@ -11,14 +16,14 @@ import { Badge } from "@/components/ui/badge";
 
 interface LessonRowProps {
   lesson: Lesson;
-  /** Visual state only — wired to real progress/gating in a later wave. */
+  /** Visual state only — driven by real progress/gating upstream. */
   state: "completed" | "available" | "locked";
 }
 
 const LockGlyph = () => (
   <svg
-    width="16"
-    height="16"
+    width="14"
+    height="14"
     viewBox="0 0 24 24"
     fill="none"
     aria-hidden="true"
@@ -44,8 +49,8 @@ const LockGlyph = () => (
 
 const CheckGlyph = () => (
   <svg
-    width="16"
-    height="16"
+    width="14"
+    height="14"
     viewBox="0 0 24 24"
     fill="none"
     aria-hidden="true"
@@ -63,30 +68,33 @@ const CheckGlyph = () => (
 
 export function LessonRow({ lesson, state }: LessonRowProps) {
   const isLocked = state === "locked";
+  const isCompleted = state === "completed";
 
   const inner = (
     <>
       <span
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-          state === "completed"
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-sans text-[0.75rem] font-medium transition-colors duration-200 ${
+          isCompleted
             ? "bg-primary text-on-primary"
             : isLocked
               ? "bg-surface-cream-strong text-muted-soft"
-              : "border border-hairline bg-canvas text-muted"
+              : "border border-hairline bg-canvas text-muted group-hover:border-primary group-hover:text-primary"
         }`}
       >
-        {state === "completed" ? (
+        {isCompleted ? (
           <CheckGlyph />
         ) : isLocked ? (
           <LockGlyph />
         ) : (
-          <span className="font-sans text-[0.75rem] font-medium">
-            {lesson.order}
-          </span>
+          lesson.order
         )}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block font-sans text-[0.9375rem] font-medium text-ink">
+        <span
+          className={`block font-sans text-[0.9375rem] font-medium ${
+            isLocked ? "text-muted" : "text-ink"
+          }`}
+        >
           {lesson.title}
         </span>
         <span className="mt-0.5 block font-sans text-[0.8125rem] leading-relaxed text-muted">
@@ -94,11 +102,19 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
         </span>
       </span>
       <span className="flex shrink-0 items-center gap-3 self-start">
-        <span className="font-sans text-[0.8125rem] text-muted-soft">
+        <span className="tabular-nums font-sans text-[0.8125rem] text-muted-soft">
           {lesson.estMinutes} min
         </span>
-        {state === "completed" ? <Badge tone="neutral">Done</Badge> : null}
+        {isCompleted ? <Badge tone="neutral">Done</Badge> : null}
         {isLocked ? <Badge tone="outline">Locked</Badge> : null}
+        {state === "available" ? (
+          <span
+            aria-hidden="true"
+            className="text-muted-soft transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary"
+          >
+            →
+          </span>
+        ) : null}
       </span>
     </>
   );
@@ -109,7 +125,7 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
         role="group"
         aria-disabled="true"
         aria-label={`${lesson.title} — locked. Complete the prerequisites to unlock this lesson.`}
-        className="flex cursor-not-allowed items-start gap-4 rounded-lg px-4 py-4 opacity-70"
+        className="flex cursor-not-allowed items-start gap-4 rounded-lg px-4 py-4 opacity-65"
       >
         {inner}
       </div>
@@ -119,7 +135,7 @@ export function LessonRow({ lesson, state }: LessonRowProps) {
   return (
     <Link
       href={`/lessons/${lesson.code}`}
-      className="flex items-start gap-4 rounded-lg px-4 py-4 transition-colors hover:bg-surface-soft"
+      className="group flex items-start gap-4 rounded-lg px-4 py-4 transition-colors duration-200 hover:bg-surface-soft"
     >
       {inner}
     </Link>

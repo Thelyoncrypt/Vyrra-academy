@@ -105,12 +105,17 @@ export default async function LevelPage({ params }: LevelPageProps) {
       {level.outcomes.length > 0 ? (
         <Section id="level-outcomes" title="What you'll be able to do">
           <ul className="grid gap-3 sm:grid-cols-2">
-            {level.outcomes.map((o) => (
+            {level.outcomes.map((o, i) => (
               <li
                 key={o}
-                className="rounded-lg bg-surface-card px-5 py-4 font-sans text-[0.9375rem] leading-relaxed text-body"
+                className="flex items-start gap-3 rounded-lg bg-surface-card px-5 py-4"
               >
-                {o}
+                <span className="tabular-nums mt-0.5 shrink-0 font-mono text-[0.8125rem] text-muted-soft">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="font-sans text-[0.9375rem] leading-relaxed text-body">
+                  {o}
+                </span>
               </li>
             ))}
           </ul>
@@ -159,8 +164,11 @@ export default async function LevelPage({ params }: LevelPageProps) {
 
       {capstone ? (
         <Section id="level-capstone" title={`${level.title} capstone`}>
-          <div className="rounded-xl bg-surface-dark p-8 text-on-dark">
-            <h3 className="text-[1.5rem] tracking-[-0.2px] text-on-dark">
+          <div className="rounded-xl bg-surface-dark p-8 text-on-dark sm:p-10">
+            <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-accent-amber">
+              {levelDifficultyLabel(level.order)} capstone
+            </p>
+            <h3 className="mt-3 text-[1.625rem] tracking-[-0.3px] text-on-dark">
               {capstone.title}
             </h3>
             <div className="mt-6 grid gap-8 md:grid-cols-2">
@@ -188,9 +196,15 @@ export default async function LevelPage({ params }: LevelPageProps) {
             <div className="mt-8">
               <Link
                 href={`/capstones/${capstone.id}`}
-                className="inline-block rounded-md bg-surface-dark-elevated px-5 py-2.5 font-sans text-sm font-medium text-on-dark transition-colors hover:bg-primary hover:text-on-primary"
+                className="group inline-flex items-center gap-2 rounded-md bg-surface-dark-elevated px-5 py-2.5 font-sans text-sm font-medium text-on-dark transition-colors duration-200 hover:bg-primary hover:text-on-primary"
               >
                 Open capstone &amp; submit
+                <span
+                  aria-hidden="true"
+                  className="transition-transform duration-200 group-hover:translate-x-0.5"
+                >
+                  →
+                </span>
               </Link>
             </div>
           </div>

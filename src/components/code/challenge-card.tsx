@@ -13,7 +13,7 @@ interface ChallengeCardProps {
 
 export function ChallengeCard({ challenge }: ChallengeCardProps) {
   return (
-    <article className="flex h-full flex-col rounded-lg bg-surface-card p-8">
+    <article className="hover-raise group flex h-full flex-col rounded-lg border border-hairline bg-surface-card p-8 hover:border-primary/30">
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone="level">{challenge.difficulty}</Badge>
         <Badge tone="outline">{challenge.language}</Badge>
@@ -32,16 +32,28 @@ export function ChallengeCard({ challenge }: ChallengeCardProps) {
         {challenge.summary}
       </p>
 
-      <p className="mt-6 font-sans text-[0.8125rem] text-muted">
-        <span className="font-medium text-body-strong">
-          {challenge.testCases.length}
-        </span>{" "}
-        checks ·{" "}
-        <span className="font-medium text-body-strong">
-          {challenge.hints.length}
-        </span>{" "}
-        hints
-      </p>
+      <div className="mt-6 flex items-center gap-5 border-t border-hairline-soft pt-4 font-sans text-[0.75rem] text-muted">
+        <span className="flex items-center gap-1.5">
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-accent-teal"
+          />
+          <span className="font-medium text-body-strong">
+            {challenge.testCases.length}
+          </span>{" "}
+          checks
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-accent-amber"
+          />
+          <span className="font-medium text-body-strong">
+            {challenge.hints.length}
+          </span>{" "}
+          hints
+        </span>
+      </div>
     </article>
   );
 }

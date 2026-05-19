@@ -28,6 +28,7 @@ import { ResourcePanel } from "@/components/learn/resource-panel";
 import { PracticeBlock } from "@/components/learn/practice-block";
 import { CompletionForm } from "@/components/learn/completion-form";
 import { LessonBodySlot } from "@/components/learn/lesson-body-slot";
+import { SpikeMark } from "@/components/brand/spike-mark";
 import { TutorPanelLazy } from "@/components/tutor/tutor-panel-lazy";
 import {
   getLesson,
@@ -82,7 +83,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const completionState = toCompletionState(progress?.status);
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <article className="mx-auto max-w-[1180px] px-6 py-16 md:py-24">
       <Breadcrumb
         items={[
           { label: "Tracks", href: "/tracks" },
@@ -93,7 +94,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
         ]}
       />
 
-      <div className="mt-8">
+      <div className="mt-10">
         <PageHeader
           eyebrow={`Lesson ${lesson.code}${mod ? ` · ${mod.title}` : ""}`}
           title={lesson.title}
@@ -102,67 +103,106 @@ export default async function LessonPage({ params }: LessonPageProps) {
         />
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        <Badge tone="outline">{lesson.estMinutes} min</Badge>
+      <div className="mt-7 flex flex-wrap items-center gap-2.5">
+        <Badge tone="outline">{lesson.estMinutes} min read</Badge>
         {mod ? (
           <Badge tone="level">{levelDifficultyLabel(mod.levelOrder)}</Badge>
         ) : null}
-        <Badge tone="outline">{lesson.keyConcepts.length} key concepts</Badge>
+        <Badge tone="outline">
+          {lesson.keyConcepts.length} key concept
+          {lesson.keyConcepts.length === 1 ? "" : "s"}
+        </Badge>
       </div>
 
       {!access.allowed ? (
-        <p className="mt-8 rounded-lg border border-hairline bg-surface-soft px-5 py-4 font-sans text-[0.875rem] text-muted">
-          <span className="font-medium text-body-strong">Preview only.</span>{" "}
-          {access.reason === "not enrolled"
-            ? "Enrol in this track and level to track progress and complete this lesson."
-            : access.unmetPrerequisite
-              ? `Locked — complete level ${access.unmetPrerequisite.levelOrder}${
-                  access.unmetPrerequisite.needsCapstone
-                    ? " (including its capstone)"
-                    : ""
-                } first. You can still read the lesson below.`
-              : "This lesson is locked, but you can still read it below."}
-        </p>
+        <div className="mt-8 flex items-start gap-3.5 rounded-lg border border-hairline bg-surface-soft px-6 py-5">
+          <span aria-hidden="true" className="mt-0.5 text-primary">
+            <SpikeMark size={15} />
+          </span>
+          <p className="font-sans text-[0.9375rem] leading-[1.6] text-muted">
+            <span className="font-medium text-body-strong">
+              Preview reading.
+            </span>{" "}
+            {access.reason === "not enrolled"
+              ? "Enrol in this track and level to track progress and mark this lesson complete — the full reading stays open below."
+              : access.unmetPrerequisite
+                ? `Locked — complete level ${access.unmetPrerequisite.levelOrder}${
+                    access.unmetPrerequisite.needsCapstone
+                      ? " (including its capstone)"
+                      : ""
+                  } first. You can still read the lesson below.`
+                : "This lesson is locked, but the full reading stays open below."}
+          </p>
+        </div>
       ) : null}
 
-      <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_320px]">
-        {/* Main lesson column */}
-        <div className="space-y-14">
-          <LessonSection title="What you'll learn" id="lesson-outcomes">
+      <div className="mt-16 grid gap-x-16 gap-y-16 lg:grid-cols-[minmax(0,640px)_minmax(0,1fr)] lg:items-start">
+        {/* Reading column — magazine measure (~640px) */}
+        <div className="min-w-0 space-y-20 lg:space-y-24">
+          <LessonSection
+            title="What you'll learn"
+            id="lesson-outcomes"
+            eyebrow="Step 1 · Outcomes"
+          >
             {lesson.outcomes.length > 0 ? (
-              <ul className="list-disc space-y-2 pl-5 font-sans text-[0.9375rem] leading-relaxed text-body">
+              <ul className="space-y-3 font-sans text-[1rem] leading-[1.7] text-body">
                 {lesson.outcomes.map((o) => (
-                  <li key={o}>{o}</li>
+                  <li key={o} className="flex gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                    />
+                    <span>{o}</span>
+                  </li>
                 ))}
               </ul>
             ) : (
-              <p className="font-sans text-[0.9375rem] text-muted">
-                Learning outcomes are authored with the lesson body.
+              <p className="font-sans text-[1rem] leading-[1.7] text-muted">
+                Learning outcomes are authored with the lesson body — read the
+                explanation below to see what this lesson builds toward.
               </p>
             )}
           </LessonSection>
 
-          <LessonSection title="Why it matters" id="lesson-why">
-            <p className="font-sans text-[0.9375rem] leading-relaxed text-body">
-              {lesson.summary} This lesson sits in{" "}
+          <LessonSection
+            title="Why it matters"
+            id="lesson-why"
+            eyebrow="Step 2 · Motivation"
+          >
+            <p className="font-sans text-[1.0625rem] leading-[1.7] text-body-strong">
+              {lesson.summary}
+            </p>
+            <p className="mt-4 font-sans text-[1rem] leading-[1.7] text-body">
+              This lesson sits in{" "}
               {mod ? `the “${mod.title}” module` : "the curriculum"} and is a
               prerequisite for the capability work that follows — skipping it
               leaves a gap the later lessons assume is filled.
             </p>
           </LessonSection>
 
-          <LessonSection title="How to use it" id="lesson-how">
-            <p className="font-sans text-[0.9375rem] leading-relaxed text-body">
+          <LessonSection
+            title="How to use it"
+            id="lesson-how"
+            eyebrow="Step 3 · The reading"
+          >
+            <p className="font-sans text-[1rem] leading-[1.7] text-body">
               Read the explanation, expand the deeper sections where you want
               detail, then move straight into the practice block. The concepts
-              on the right are the vocabulary you should be able to use
+              in the margin are the vocabulary you should be able to use
               unprompted by the end.
             </p>
-            <div className="mt-5 space-y-3">
-              <Expandable summary="Core explanation" defaultOpen>
+            <div className="mt-7 space-y-4">
+              <Expandable
+                summary="Core explanation"
+                hint="The main reading for this lesson"
+                defaultOpen
+              >
                 <LessonBodySlot>{body}</LessonBodySlot>
               </Expandable>
-              <Expandable summary="Going deeper (optional)">
+              <Expandable
+                summary="Going deeper"
+                hint="Optional — worked examples and edge cases"
+              >
                 <p>
                   Optional depth, worked examples, and edge cases are authored
                   in the MDX body above; expand the core explanation for the
@@ -175,6 +215,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
           <LessonSection
             title="Practise & prove understanding"
             id="lesson-practice"
+            eyebrow="Steps 4 & 5 · Apply, then prove"
           >
             <PracticeBlock
               activities={lesson.activities}
@@ -183,36 +224,49 @@ export default async function LessonPage({ params }: LessonPageProps) {
           </LessonSection>
         </div>
 
-        {/* Sticky aside: concepts, completion, resources */}
+        {/* Editorial margin: concepts, completion, resources, tutor */}
         <aside
           aria-label="Lesson tools"
-          className="space-y-8 lg:sticky lg:top-24 lg:self-start"
+          className="flex flex-col gap-10 lg:sticky lg:top-24 lg:self-start"
         >
-          <div>
-            <h2 className="text-[1.125rem] font-medium text-ink">
+          <section aria-labelledby="aside-concepts">
+            <h2
+              id="aside-concepts"
+              className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted"
+            >
               Key concepts
             </h2>
             <div className="mt-4">
               <ConceptList concepts={lesson.keyConcepts} />
             </div>
-          </div>
+          </section>
 
           <CompletionForm
             lessonCode={lesson.code}
             initialState={completionState}
-            criteria="Work through the lesson and its activities, then mark it complete to unlock what follows."
+            criteria="Work through the reading and its activities, then mark it complete to unlock what follows."
           />
 
-          <div>
-            <h2 className="text-[1.125rem] font-medium text-ink">Resources</h2>
+          <section aria-labelledby="aside-resources">
+            <h2
+              id="aside-resources"
+              className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted"
+            >
+              Resources
+            </h2>
             <div className="mt-4">
               <ResourcePanel resources={lesson.resources} />
             </div>
-          </div>
+          </section>
 
-          <TutorPanelLazy lessonId={lesson.code} />
+          <section
+            aria-label="AI tutor"
+            className="rounded-lg border border-hairline bg-surface-card p-1.5"
+          >
+            <TutorPanelLazy lessonId={lesson.code} />
+          </section>
         </aside>
       </div>
-    </div>
+    </article>
   );
 }

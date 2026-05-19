@@ -103,25 +103,48 @@ export function ResourceFilterBar({
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <label
-          htmlFor={searchId}
-          className="mb-2 block font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted"
-        >
-          Search resources
-        </label>
-        <input
-          id={searchId}
-          type="search"
-          inputMode="search"
-          maxLength={120}
-          value={draftQ}
-          onChange={(e) => setDraftQ(e.target.value)}
-          placeholder="Search by title or topic…"
-          className="h-10 w-full max-w-md rounded-md border border-hairline bg-canvas px-3.5 font-sans text-[0.9375rem] text-ink placeholder:text-muted-soft"
-        />
-      </div>
+    <div className="rounded-xl border border-hairline bg-surface-card p-6">
+      <div className="space-y-7">
+        <div>
+          <label
+            htmlFor={searchId}
+            className="mb-2.5 block font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted"
+          >
+            Search resources
+          </label>
+          <div className="relative">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-soft"
+            >
+              <circle
+                cx="11"
+                cy="11"
+                r="7"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+              <path
+                d="m20 20-3.5-3.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+            <input
+              id={searchId}
+              type="search"
+              inputMode="search"
+              maxLength={120}
+              value={draftQ}
+              onChange={(e) => setDraftQ(e.target.value)}
+              placeholder="Search by title or topic…"
+              className="h-10 w-full rounded-md border border-hairline bg-canvas pl-10 pr-3.5 font-sans text-[0.9375rem] text-ink transition-colors placeholder:text-muted-soft focus:border-primary"
+            />
+          </div>
+        </div>
 
       <FacetRow
         legend="Type"
@@ -152,22 +175,24 @@ export function ResourceFilterBar({
         onSelect={setParam}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline-soft pt-5">
-        <p
-          className="font-sans text-[0.8125rem] text-muted"
-          aria-live="polite"
-        >
-          Showing {resultCount} of {totalCount} resources
-        </p>
-        {hasActiveFilter ? (
-          <button
-            type="button"
-            onClick={clearAll}
-            className="rounded-md border border-hairline bg-canvas px-4 py-2 font-sans text-[0.8125rem] font-medium text-ink transition-colors hover:bg-surface-soft"
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-5">
+          <p
+            className="font-sans text-[0.8125rem] text-muted"
+            aria-live="polite"
           >
-            Clear all filters
-          </button>
-        ) : null}
+            <span className="font-medium text-body-strong">{resultCount}</span>{" "}
+            of {totalCount} resources
+          </p>
+          {hasActiveFilter ? (
+            <button
+              type="button"
+              onClick={clearAll}
+              className="rounded-md border border-hairline bg-canvas px-4 py-2 font-sans text-[0.8125rem] font-medium text-ink transition-colors hover:bg-surface-soft"
+            >
+              Clear all
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -192,10 +217,10 @@ function FacetRow({
 
   return (
     <fieldset>
-      <legend className="mb-3 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
+      <legend className="mb-2.5 font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
         {legend}
       </legend>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         <FacetPill
           label="All"
           active={current === ""}
@@ -230,10 +255,10 @@ function FacetPill({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`rounded-md px-3.5 py-2 font-sans text-sm font-medium transition-colors ${
+      className={`rounded-md px-3 py-1.5 font-sans text-[0.8125rem] font-medium transition-colors ${
         active
-          ? "bg-surface-card text-ink"
-          : "text-muted hover:text-ink"
+          ? "bg-canvas text-ink shadow-[0_1px_3px_rgba(20,20,19,0.08)]"
+          : "text-muted hover:bg-canvas/60 hover:text-ink"
       }`}
     >
       {label}
