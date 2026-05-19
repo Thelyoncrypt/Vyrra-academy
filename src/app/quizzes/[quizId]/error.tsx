@@ -12,6 +12,7 @@
  * handle, shown small and muted. Client component per Next.js contract.
  */
 import { Button } from "@/components/ui/button";
+import { PageShell } from "@/components/ui/page-shell";
 
 interface QuizErrorProps {
   error: Error & { digest?: string };
@@ -20,7 +21,7 @@ interface QuizErrorProps {
 
 export default function QuizError({ error, reset }: QuizErrorProps) {
   return (
-    <div className="mx-auto max-w-[900px] px-6 py-24">
+    <PageShell size="narrow">
       <div className="mx-auto max-w-md rounded-lg border border-hairline bg-surface-card px-8 py-14 text-center">
         <p className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
           Staged quiz
@@ -50,6 +51,6 @@ export default function QuizError({ error, reset }: QuizErrorProps) {
           </p>
         ) : null}
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -15,6 +15,14 @@
  * scroll rule (the page's only persistent coral); ReadingAffordances is the
  * tail-end back-to-top + time-remaining companion. All islands are
  * decorative/navigational chrome and add no document-outline headings.
+ *
+ * Pillar B3 fix: the measure is FLUID below the reading width and only
+ * caps at `--container-reading` (640px) once the viewport can afford it
+ * (`min(100%, var(--container-reading))`). A hard `max-w-[640px]` made the
+ * column overflow / clip at 320–375 inside the single-column mobile layout;
+ * `min(100%, …)` keeps the long-form magazine measure on desktop while
+ * never exceeding the available width on small screens (no horizontal
+ * overflow 320→1440).
  */
 import type { ReactNode } from "react";
 import { ReadingProgress } from "@/components/learn/reading-progress";
@@ -42,7 +50,10 @@ export function LessonBodySlot({
   return (
     <>
       <ReadingProgress targetId={LESSON_BODY_ID} />
-      <div id={LESSON_BODY_ID} className="lesson-body max-w-[640px]">
+      <div
+        id={LESSON_BODY_ID}
+        className="lesson-body w-full max-w-[min(100%,var(--container-reading))]"
+      >
         {children}
       </div>
       <ReadingAffordances

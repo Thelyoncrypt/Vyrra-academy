@@ -17,6 +17,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { ToolFilterGrid } from "@/components/tools/tool-filter-grid";
 import { listTools, TOOL_CATEGORIES } from "@/lib/tools/registry";
@@ -45,7 +46,7 @@ export default async function ToolsPage({ searchParams }: ToolsPageProps) {
   const compact = one(params.density) === "compact";
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Tools" }]} />
 
       <div className="mt-8">
@@ -112,6 +113,6 @@ export default async function ToolsPage({ searchParams }: ToolsPageProps) {
           compact={compact}
         />
       </div>
-    </div>
+    </PageShell>
   );
 }

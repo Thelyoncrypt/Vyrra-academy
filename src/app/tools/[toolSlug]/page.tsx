@@ -14,6 +14,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
@@ -39,7 +40,7 @@ export default async function ToolPage({ params }: ToolPageProps) {
   if (!tool) notFound();
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb
         items={[
           { label: "Tools", href: "/tools" },
@@ -75,7 +76,7 @@ export default async function ToolPage({ params }: ToolPageProps) {
           </Section>
 
           <Section title="Inputs & outputs" id="tool-io">
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div>
                 <h3 className="font-sans text-[0.875rem] font-medium text-body-strong">
                   Inputs
@@ -154,7 +155,7 @@ export default async function ToolPage({ params }: ToolPageProps) {
 
         <aside
           aria-label="Tool reference"
-          className="space-y-8 lg:sticky lg:top-24 lg:self-start"
+          className="space-y-8 lg:sticky lg:top-[var(--sticky-offset)] lg:self-start"
         >
           <div className="rounded-lg border border-hairline bg-surface-card p-6">
             <h2 className="text-[1.125rem] font-medium text-ink">
@@ -208,6 +209,6 @@ export default async function ToolPage({ params }: ToolPageProps) {
           ) : null}
         </aside>
       </div>
-    </div>
+    </PageShell>
   );
 }

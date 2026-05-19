@@ -15,6 +15,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Section } from "@/components/ui/section";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,7 @@ export default function AgentTrainingPage() {
   const patterns = listWorkflowPatterns();
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb
         items={[
           { label: "Tools", href: "/tools" },
@@ -95,7 +96,7 @@ export default function AgentTrainingPage() {
           </div>
         </Section>
       ))}
-    </div>
+    </PageShell>
   );
 }
 

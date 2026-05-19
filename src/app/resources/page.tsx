@@ -17,6 +17,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -157,7 +158,7 @@ export default async function ResourcesPage({
   };
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb
         items={[{ label: "Home", href: "/" }, { label: "Resources" }]}
       />
@@ -174,7 +175,7 @@ export default async function ResourcesPage({
       <div className="mt-12 grid gap-12 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside
           aria-label="Filter resources"
-          className="lg:sticky lg:top-24 lg:self-start"
+          className="lg:sticky lg:top-[var(--sticky-offset)] lg:self-start"
         >
           <ResourceFilterBar
             facets={facets}
@@ -218,6 +219,6 @@ export default async function ResourcesPage({
           )}
         </section>
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -18,6 +18,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
@@ -58,7 +59,7 @@ export default async function QuizPage({ params }: QuizPageProps) {
   const stageCount = new Set(quiz.questions.map((q) => q.stage)).size;
 
   return (
-    <div className="mx-auto max-w-[900px] px-6 py-16">
+    <PageShell size="narrow" as="main">
       <Breadcrumb
         items={[
           { label: "Tracks", href: "/tracks" },
@@ -115,6 +116,6 @@ export default async function QuizPage({ params }: QuizPageProps) {
       <div className="mt-12">
         <QuizRunner quiz={quiz} canSubmit={canSubmit} />
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SpikeMark } from "@/components/brand/spike-mark";
+import { Container } from "@/components/ui/container";
 
 /**
  * Dark navy footer per DESIGN.md `footer`: surface-dark background,
@@ -45,8 +46,8 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-surface-dark text-on-dark-soft">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-6 py-16 md:grid-cols-12">
-        <div className="md:col-span-5">
+      <Container className="grid grid-cols-1 gap-12 py-16 lg:grid-cols-[5fr_7fr]">
+        <div>
           <div className="flex items-center gap-2.5 text-on-dark">
             <SpikeMark size={18} />
             <span className="font-display text-[1.25rem] leading-none tracking-[-0.3px]">
@@ -62,7 +63,7 @@ export function SiteFooter() {
 
         <nav
           aria-label="Footer"
-          className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:col-span-7"
+          className="grid grid-cols-2 gap-8 sm:grid-cols-3"
         >
           {FOOTER_COLUMNS.map((column) => (
             <div key={column.heading}>
@@ -84,14 +85,14 @@ export function SiteFooter() {
             </div>
           ))}
         </nav>
-      </div>
+      </Container>
 
       <div className="border-t border-white/[0.06]">
-        <div className="mx-auto max-w-[1200px] px-6 py-6">
+        <Container className="py-6">
           <p className="font-sans text-[0.8125rem] text-on-dark-soft">
             © {year} AI Course App. Built as an interactive learning platform.
           </p>
-        </div>
+        </Container>
       </div>
     </footer>
   );

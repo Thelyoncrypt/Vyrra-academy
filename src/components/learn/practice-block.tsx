@@ -23,16 +23,24 @@
  * CTA is the lesson's single coral mark (DESIGN.md: coral stays scarce — one
  * primary action). Defense in depth is unchanged: the quiz route re-evaluates
  * gating server-side and the submit Server Action re-authorizes, so the CTA
- * is an affordance, never the access boundary. The activities sub-block stays
- * a placeholder (Pillar V Wave 2 owns the exercise UI).
+ * is an affordance, never the access boundary.
+ *
+ * Pillar V6 (Wave 2): the "activity runner arrives later" placeholder is
+ * replaced by the real authored `exercises` rendered through `ExerciseBlock`
+ * (the existing simulated code-window chrome — render-only, no server
+ * execution). Agent J's quiz CTA below is kept intact. Any contract
+ * `activities` (a separate, legacy concept) still list their metadata; the
+ * curated hands-on work now lives in `exercises`.
  */
-import type { Activity, Quiz } from "@/content/contract";
+import type { Activity, Exercise, Quiz } from "@/content/contract";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PanelHeading } from "@/components/ui/panel-heading";
+import { ExerciseBlock } from "./exercise-block";
 
 interface PracticeBlockProps {
   activities: readonly Activity[];
+  exercises?: readonly Exercise[];
   quiz?: Quiz;
 }
 
@@ -43,42 +51,41 @@ const STAGE_LABEL: Record<number, string> = {
   4: "Mastery Challenge",
 };
 
-export function PracticeBlock({ activities, quiz }: PracticeBlockProps) {
+export function PracticeBlock({
+  activities,
+  exercises = [],
+  quiz,
+}: PracticeBlockProps) {
   return (
     <div className="space-y-10">
       <div>
         <PanelHeading as="h3" eyebrow="Step 4 · Practise" title="Apply it" />
+
+        {/* Authored hands-on exercises (Pillar V6) — the real practice
+            surface. Render-only via the existing simulated code-window
+            chrome; no server execution (CLAUDE.md §7). */}
+        <ExerciseBlock exercises={exercises} />
+
+        {/* Legacy contract `activities` (a distinct, older concept) still
+            surface their metadata so nothing authored is hidden — no dead
+            "runner arrives later" placeholder. */}
         {activities.length > 0 ? (
-          <ul className="mt-5 space-y-3">
+          <ul className="mt-6 space-y-3">
             {activities.map((a) => (
               <li
                 key={a.id}
-                className="rounded-lg border border-hairline bg-surface-card p-6"
+                className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-surface-card px-6 py-4"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-sans text-[1rem] font-medium leading-snug text-ink">
-                    {a.title}
-                  </span>
-                  <Badge tone="outline" uppercase>
-                    {a.type}
-                  </Badge>
-                </div>
-                {/* Activity runner mounts here in a later wave. */}
-                <p
-                  className="mt-3 font-sans text-[0.875rem] leading-relaxed text-muted"
-                  data-slot="activity-runner"
-                >
-                  Interactive activity — runner arrives in the Learning
-                  Experience wave.
-                </p>
+                <span className="font-sans text-[0.9375rem] font-medium leading-snug text-ink">
+                  {a.title}
+                </span>
+                <Badge tone="outline" uppercase>
+                  {a.type}
+                </Badge>
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="mt-4 font-sans text-[0.9375rem] leading-relaxed text-muted">
-            No hands-on activity for this lesson.
-          </p>
-        )}
+        ) : null}
       </div>
 
       <div>

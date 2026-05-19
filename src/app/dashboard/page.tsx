@@ -17,6 +17,8 @@
  */
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
+import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { StatTile } from "@/components/learn/stat-tile";
@@ -62,7 +64,7 @@ export default async function DashboardPage() {
   const tracks = listTracks();
 
   return (
-    <div className="mx-auto max-w-[1200px] px-6 py-16">
+    <PageShell as="main">
       <PageHeader
         eyebrow="Learner dashboard"
         title="Pick up where the work is."
@@ -151,7 +153,7 @@ export default async function DashboardPage() {
         }
       >
         {tracks.length > 0 ? (
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <ResponsiveGrid cols={3}>
             {tracks.map((track, i) => {
               const total = countLessonsForTrack(track.slug);
               const tp = progressBySlug.get(track.slug);
@@ -176,7 +178,7 @@ export default async function DashboardPage() {
                 </li>
               );
             })}
-          </ul>
+          </ResponsiveGrid>
         ) : (
           <EmptyState
             title="No tracks available yet"
@@ -219,7 +221,7 @@ export default async function DashboardPage() {
           </div>
         </Section>
       ) : null}
-    </div>
+    </PageShell>
   );
 }
 

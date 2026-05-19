@@ -12,6 +12,7 @@
  * Next.js error-boundary contract.
  */
 import { Button } from "@/components/ui/button";
+import { PageShell } from "@/components/ui/page-shell";
 
 interface CapstoneErrorProps {
   error: Error & { digest?: string };
@@ -20,7 +21,7 @@ interface CapstoneErrorProps {
 
 export default function CapstoneError({ error, reset }: CapstoneErrorProps) {
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-24">
+    <PageShell>
       <div className="mx-auto max-w-md rounded-lg border border-hairline bg-surface-card px-8 py-14 text-center">
         <p className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
           Capstone
@@ -50,6 +51,6 @@ export default function CapstoneError({ error, reset }: CapstoneErrorProps) {
           </p>
         ) : null}
       </div>
-    </div>
+    </PageShell>
   );
 }

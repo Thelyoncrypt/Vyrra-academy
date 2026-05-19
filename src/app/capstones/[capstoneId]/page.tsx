@@ -18,6 +18,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
@@ -80,7 +81,7 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
   const brief = await renderLessonBody(contract.briefPath);
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb
         items={[
           { label: "Capstones", href: "/capstones" },
@@ -117,7 +118,7 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
           </Section>
 
           <Section id="capstone-reqs" title="Requirements & deliverables">
-            <div className="grid gap-8 md:grid-cols-2">
+            <div className="grid gap-8 sm:grid-cols-2">
               <div>
                 <p className="font-sans text-xs font-medium uppercase tracking-[1.5px] text-muted">
                   Requirements
@@ -169,7 +170,7 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
 
         <aside
           aria-label="Capstone submission"
-          className="lg:sticky lg:top-24 lg:self-start"
+          className="lg:sticky lg:top-[var(--sticky-offset)] lg:self-start"
         >
           {resolved ? (
             <CapstoneSubmitForm
@@ -184,6 +185,6 @@ export default async function CapstonePage({ params }: CapstonePageProps) {
           )}
         </aside>
       </div>
-    </div>
+    </PageShell>
   );
 }

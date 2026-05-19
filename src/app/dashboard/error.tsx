@@ -14,6 +14,7 @@
  * the Next.js error-boundary contract.
  */
 import Link from "next/link";
+import { PageShell } from "@/components/ui/page-shell";
 
 interface DashboardErrorProps {
   error: Error & { digest?: string };
@@ -25,7 +26,7 @@ export default function DashboardError({
   reset,
 }: DashboardErrorProps) {
   return (
-    <div className="mx-auto max-w-[1200px] px-6 py-24">
+    <PageShell>
       <div className="mx-auto max-w-md rounded-lg border border-hairline bg-surface-card px-8 py-14 text-center">
         <p className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
           Dashboard
@@ -59,6 +60,6 @@ export default function DashboardError({
           </p>
         ) : null}
       </div>
-    </div>
+    </PageShell>
   );
 }

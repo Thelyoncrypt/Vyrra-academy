@@ -9,16 +9,28 @@
  * Wave 3a backbone: data comes from `@/lib/content/queries` (Prisma-seeded,
  * contract-shaped), the MDX body is rendered server-side via
  * `renderLessonBody` into <LessonBodySlot/>, access is the real gating
- * decision, and completion is a live Server Action. Visual structure /
- * DESIGN.md treatment is unchanged — only the data source + body + affordance
- * are wired. Next.js 16: `params` is a Promise.
+ * decision, and completion is a live Server Action. Next.js 16: `params`
+ * is a Promise.
+ *
+ * Pillar V (Wave 2) integration: the lesson now surfaces the source's
+ * explicit Learning `objectives` as the "What you'll learn" arc, a curated
+ * "Watch" section (`VideoList` — link-out, no embed), and real authored
+ * `exercises` inside PracticeBlock (render-only, no server exec). The
+ * Pillar-V contract fields are `.optional()` so they are coalesced `?? []`.
+ *
+ * Pillar B3 fix (this file owns it): the page adopts the shared `PageShell`
+ * (page width + section rhythm) replacing the ad-hoc
+ * `mx-auto max-w-[1180px] px-6 py-…`; the reading column is `max-w-full`
+ * and the sticky aside uses `--sticky-offset` so the lesson is
+ * responsive-correct 320→1440 with no horizontal overflow.
  *
  * Heading order: one page H1 (lesson title via PageHeader) → H2 per
- * LessonSection → H3 inside PracticeBlock. WCAG 2.1 AA preserved.
+ * LessonSection → H3/H4 inside PracticeBlock. WCAG 2.1 AA preserved.
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
@@ -26,6 +38,7 @@ import { LessonSection } from "@/components/learn/lesson-section";
 import { ConceptList } from "@/components/learn/concept-list";
 import { ResourcePanel } from "@/components/learn/resource-panel";
 import { PracticeBlock } from "@/components/learn/practice-block";
+import { VideoList } from "@/components/learn/video-list";
 import { CompletionForm } from "@/components/learn/completion-form";
 import { LessonBodySlot, LESSON_BODY_ID } from "@/components/learn/lesson-body-slot";
 import { LessonToc } from "@/components/learn/lesson-toc";
@@ -103,8 +116,19 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   const completionState = toCompletionState(progress?.status);
 
+  // Pillar-V additions are `.optional()` on the contract (backward-compat) —
+  // coalesce so an older manifest without them still renders cleanly. The
+  // parser always emits these arrays for live data.
+  const objectives = lesson.objectives ?? [];
+  const videos = lesson.videos ?? [];
+  const exercises = lesson.exercises ?? [];
+  // "What you'll learn" is the pedagogical arc: prefer the source's explicit
+  // Learning Objectives; fall back to the legacy `outcomes` so no lesson
+  // loses its outcomes list.
+  const whatYoullLearn = objectives.length > 0 ? objectives : lesson.outcomes;
+
   return (
-    <article className="mx-auto max-w-[1180px] px-6 py-16 md:py-24">
+    <PageShell as="article">
       <Breadcrumb
         items={[
           { label: "Tracks", href: "/tracks" },
@@ -133,6 +157,16 @@ export default async function LessonPage({ params }: LessonPageProps) {
           {lesson.keyConcepts.length} key concept
           {lesson.keyConcepts.length === 1 ? "" : "s"}
         </Badge>
+        {videos.length > 0 ? (
+          <Badge tone="outline">
+            {videos.length} video{videos.length === 1 ? "" : "s"}
+          </Badge>
+        ) : null}
+        {exercises.length > 0 ? (
+          <Badge tone="outline">
+            {exercises.length} exercise{exercises.length === 1 ? "" : "s"}
+          </Badge>
+        ) : null}
       </div>
 
       {!access.allowed ? (
@@ -152,19 +186,22 @@ export default async function LessonPage({ params }: LessonPageProps) {
       ) : null}
 
       <div className="mt-16 grid gap-y-16 lg:grid-cols-[minmax(0,640px)_minmax(0,1fr)] lg:items-start lg:gap-x-16">
-        {/* Reading column — magazine measure (~640px). Below lg the layout
-            is single-column, so the measure is capped here; at lg+ the
-            640px grid track governs and the cap releases. Keeps the
-            long-form magazine measure at 320/375/768 (DESIGN.md). */}
-        <div className="min-w-0 max-w-[680px] space-y-20 lg:max-w-none lg:space-y-24">
+        {/* Reading column. Pillar B3: the column is `max-w-full` — the
+            single-column mobile layout must never exceed the viewport
+            (the prior hard `max-w-[680px]` overflowed at 320–375). At lg+
+            the 640px grid track governs the measure; the long-form reading
+            measure itself is owned by LessonBodySlot
+            (`min(100%, --container-reading)`), so the magazine column is
+            preserved 320→1440 with no horizontal overflow. */}
+        <div className="min-w-0 max-w-full space-y-20 lg:space-y-24">
           <LessonSection
             title="What you'll learn"
             id="lesson-outcomes"
-            eyebrow="Step 1 · Outcomes"
+            eyebrow="Step 1 · Objectives"
           >
-            {lesson.outcomes.length > 0 ? (
+            {whatYoullLearn.length > 0 ? (
               <ul className="space-y-3 font-sans text-[1rem] leading-[1.7] text-body">
-                {lesson.outcomes.map((o) => (
+                {whatYoullLearn.map((o) => (
                   <li key={o} className="flex gap-3">
                     <span
                       aria-hidden="true"
@@ -176,8 +213,8 @@ export default async function LessonPage({ params }: LessonPageProps) {
               </ul>
             ) : (
               <p className="font-sans text-[1rem] leading-[1.7] text-muted">
-                Learning outcomes are authored with the lesson body — read the
-                explanation below to see what this lesson builds toward.
+                Learning objectives are authored with the lesson body — read
+                the explanation below to see what this lesson builds toward.
               </p>
             )}
           </LessonSection>
@@ -222,12 +259,28 @@ export default async function LessonPage({ params }: LessonPageProps) {
           </LessonSection>
 
           <LessonSection
+            title="Watch"
+            id="lesson-watch"
+            eyebrow="Curated video"
+          >
+            <p className="font-sans text-[1rem] leading-[1.7] text-body">
+              Hand-picked videos for this lesson. Each is graded for
+              freshness and source so you know what you&rsquo;re getting —
+              they open in a new tab; nothing autoplays or is embedded here.
+            </p>
+            <div className="mt-9">
+              <VideoList videos={videos} />
+            </div>
+          </LessonSection>
+
+          <LessonSection
             title="Practise & prove understanding"
             id="lesson-practice"
             eyebrow="Steps 4 & 5 · Apply, then prove"
           >
             <PracticeBlock
               activities={lesson.activities}
+              exercises={exercises}
               quiz={lesson.quiz}
             />
           </LessonSection>
@@ -236,7 +289,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
         {/* Editorial margin: concepts, completion, resources, tutor */}
         <aside
           aria-label="Lesson tools"
-          className="flex flex-col gap-10 lg:sticky lg:top-24 lg:self-start"
+          className="flex flex-col gap-10 lg:sticky lg:top-[var(--sticky-offset)] lg:self-start"
         >
           <section aria-labelledby="aside-concepts">
             <h2
@@ -284,6 +337,6 @@ export default async function LessonPage({ params }: LessonPageProps) {
           </section>
         </aside>
       </div>
-    </article>
+    </PageShell>
   );
 }

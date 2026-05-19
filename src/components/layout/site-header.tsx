@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SpikeMark } from "@/components/brand/spike-mark";
 import { MobileNav } from "./mobile-nav";
 import { NavLinksDesktop } from "./nav-links-desktop";
+import { SECONDARY_NAV_LINKS } from "./nav-links";
 
 /**
  * Top navigation per DESIGN.md `top-nav`: 64px tall, cream canvas background,
@@ -18,7 +19,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-hairline bg-canvas/85 backdrop-blur-md">
       <nav
         aria-label="Primary"
-        className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6"
+        className="mx-auto flex h-16 w-full max-w-[var(--container-page)] items-center justify-between px-[var(--spacing-gutter)] sm:px-[var(--spacing-gutter-sm)] lg:px-[var(--spacing-gutter-lg)]"
       >
         <Link
           href="/"
@@ -36,9 +37,21 @@ export function SiteHeader() {
 
         <NavLinksDesktop />
 
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
+          {/* Demoted catalogue entry — quiet text-link, never competes with
+              the course CTA (DESIGN.md: coral scarce; product decision:
+              the guided course is the primary path). */}
+          {SECONDARY_NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="font-sans text-sm font-medium text-muted transition-colors duration-fast ease-standard hover:text-ink"
+            >
+              {link.label}
+            </Link>
+          ))}
           <Link
-            href="/dashboard"
+            href="/course"
             className="inline-flex h-9 items-center rounded-md bg-primary px-4 font-sans text-sm font-medium text-on-primary transition-colors duration-fast ease-standard hover:bg-primary-active active:bg-primary-active"
           >
             Start learning

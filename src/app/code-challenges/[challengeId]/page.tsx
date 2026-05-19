@@ -13,6 +13,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
@@ -44,7 +45,7 @@ export default async function ChallengePage({
   if (!challenge) notFound();
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb
         items={[
           { label: "Code Challenges", href: "/code-challenges" },
@@ -92,7 +93,7 @@ export default async function ChallengePage({
 
         <aside
           aria-label="Challenge reference"
-          className="space-y-8 lg:sticky lg:top-24 lg:self-start"
+          className="space-y-8 lg:sticky lg:top-[var(--sticky-offset)] lg:self-start"
         >
           <ReferenceCodeBlock
             content={challenge.expectedResult}
@@ -164,6 +165,6 @@ export default async function ChallengePage({
           ) : null}
         </aside>
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -31,7 +31,7 @@ export function Section({
   children,
 }: SectionProps) {
   return (
-    <section aria-labelledby={id} className="mt-16">
+    <section aria-labelledby={id} className="mt-16 lg:mt-24">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           {eyebrow ? (

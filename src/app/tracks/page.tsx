@@ -6,6 +6,7 @@
  * gives the page hierarchy before the uniform grid (anti dashboard-template).
  */
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   TrackFilterGrid,
@@ -66,12 +67,29 @@ export default async function TracksPage() {
   );
 
   return (
-    <div className="mx-auto max-w-[1200px] px-6 py-16">
+    <div className="mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-gutter)] py-16 sm:px-[var(--spacing-gutter-sm)] lg:px-[var(--spacing-gutter-lg)]">
+      {/* Relegation banner — /tracks is the secondary "browse by topic"
+          view; the guided course is the primary path. Quiet hairline strip,
+          one quiet link back to the spine (DESIGN.md: coral scarce). */}
+      <div className="mb-10 flex flex-col gap-2 rounded-lg border border-hairline bg-surface-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="font-sans text-[0.9375rem] leading-[1.5] text-body">
+          This is the topic catalogue. The recommended way through is the
+          guided course — fifteen modules, always in order.
+        </p>
+        <Link
+          href="/course"
+          className="inline-flex shrink-0 items-center gap-1.5 font-sans text-[0.9375rem] font-medium text-primary transition-colors duration-fast ease-standard hover:text-primary-active"
+        >
+          Go to the course
+          <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+
       <PageHeader
-        eyebrow="Learning tracks"
-        title="Choose the ecosystem you want to master."
+        eyebrow="Browse by topic"
+        title="Or explore a specific ecosystem."
         titleId="tracks-heading"
-        lead="Specialised tracks across four skill levels. Each one is capability-led — the patterns outlast the tools they're taught on."
+        lead="The full catalogue across four skill levels. Use this to dip into one ecosystem — the guided course is still the recommended path through everything."
       />
 
       <dl className="mt-10 flex flex-wrap gap-x-12 gap-y-4 border-t border-hairline pt-7">

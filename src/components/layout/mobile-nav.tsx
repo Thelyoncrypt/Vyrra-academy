@@ -27,7 +27,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { SpikeMark } from "@/components/brand/spike-mark";
-import { PRIMARY_NAV_LINKS, isNavLinkActive } from "./nav-links";
+import {
+  PRIMARY_NAV_LINKS,
+  SECONDARY_NAV_LINKS,
+  isNavLinkActive,
+} from "./nav-links";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -159,8 +163,28 @@ export function MobileNav() {
                 </Link>
               );
             })}
+            {/* Demoted catalogue entry — quiet link under the primary nav,
+                kept reachable but visually subordinate to the course. */}
+            {SECONDARY_NAV_LINKS.map((link) => {
+              const active = isNavLinkActive(link.href, pathname);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={close}
+                  aria-current={active ? "page" : undefined}
+                  className={`mt-2 flex items-center rounded-md px-3 py-2.5 font-sans text-base font-medium transition-colors duration-fast ease-standard ${
+                    active
+                      ? "text-ink"
+                      : "text-muted hover:bg-surface-card hover:text-ink"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <Link
-              href="/dashboard"
+              href="/course"
               onClick={close}
               className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-primary px-5 font-sans text-base font-medium text-on-primary transition-colors duration-fast ease-standard hover:bg-primary-active active:bg-primary-active"
             >

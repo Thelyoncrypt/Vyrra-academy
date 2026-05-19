@@ -26,7 +26,7 @@ interface LessonErrorProps {
 
 export default function LessonError({ error, reset }: LessonErrorProps) {
   return (
-    <div className="mx-auto max-w-[1180px] px-6 py-24">
+    <div className="mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-gutter)] py-24 sm:px-[var(--spacing-gutter-sm)] lg:px-[var(--spacing-gutter-lg)]">
       <div className="mx-auto max-w-md rounded-lg border border-hairline bg-surface-card px-8 py-14 text-center">
         <p className="font-sans text-[0.75rem] font-medium uppercase tracking-[1.5px] text-muted">
           Lesson

@@ -10,6 +10,8 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
+import { ResponsiveGrid } from "@/components/ui/responsive-grid";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ChallengeCard } from "@/components/code/challenge-card";
@@ -25,7 +27,7 @@ export default function CodeChallengesPage() {
   const challenges = listChallenges();
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb
         items={[
           { label: "Home", href: "/" },
@@ -43,13 +45,13 @@ export default function CodeChallengesPage() {
       </div>
 
       {challenges.length > 0 ? (
-        <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ResponsiveGrid cols={3} className="mt-12">
           {challenges.map((c) => (
             <li key={c.id}>
               <ChallengeCard challenge={c} />
             </li>
           ))}
-        </ul>
+        </ResponsiveGrid>
       ) : (
         <div className="mt-12">
           <EmptyState
@@ -58,6 +60,6 @@ export default function CodeChallengesPage() {
           />
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

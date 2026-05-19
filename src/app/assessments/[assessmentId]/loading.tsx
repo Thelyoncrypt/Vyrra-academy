@@ -8,6 +8,8 @@
  * CSS animation so the global prefers-reduced-motion rule freezes it.
  * Decorative only: aria-hidden + an sr-only status line.
  */
+import { PageShell } from "@/components/ui/page-shell";
+
 function Bar({ className }: { className: string }) {
   return (
     <div className={`animate-pulse rounded-sm bg-surface-card ${className}`} />
@@ -16,7 +18,7 @@ function Bar({ className }: { className: string }) {
 
 export default function AssessmentLoading() {
   return (
-    <div className="mx-auto max-w-[1000px] px-6 py-16">
+    <PageShell as="main">
       <p className="sr-only" role="status">
         Loading assessment…
       </p>
@@ -73,6 +75,6 @@ export default function AssessmentLoading() {
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

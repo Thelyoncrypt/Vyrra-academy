@@ -18,6 +18,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/page-shell";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
@@ -101,7 +102,7 @@ export default async function AssessmentPage({
   }));
 
   return (
-    <div className="mx-auto max-w-[1000px] px-6 py-16">
+    <PageShell as="main">
       <Breadcrumb
         items={[
           { label: "Capstones", href: "/capstones" },
@@ -256,6 +257,6 @@ export default async function AssessmentPage({
           </Alert>
         )}
       </Section>
-    </div>
+    </PageShell>
   );
 }

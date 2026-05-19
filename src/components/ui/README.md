@@ -52,7 +52,8 @@ config exists (v4 CSS-first `@theme`) — arbitrary values are the contract.
 
 The single content-width + responsive-gutter wrapper. Always emits
 `mx-auto w-full px-[var(--spacing-gutter)] sm:px-[var(--spacing-gutter-sm)]
-lg:px-[var(--spacing-gutter-lg)]` plus the size → `max-w-[var(--container-*)]`.
+lg:px-[var(--spacing-gutter-lg)]` plus the size-mapped max-width token
+(`--container-page` / `--container-narrow` / `--container-reading`).
 `className` is **additive** (appended after the base, never overrides the
 width contract).
 

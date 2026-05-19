@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { SpikeMark } from "@/components/brand/spike-mark";
 import { Button } from "@/components/ui/button";
+import { getCurrentPrincipal } from "@/lib/auth/session";
+import { recommendNextAction } from "@/lib/journey";
 
 /**
  * Landing page — DESIGN.md `hero-band` (cream canvas, 6/6 split: serif display
@@ -10,8 +12,15 @@ import { Button } from "@/components/ui/button";
  * mockup → cream feature cards → coral callout (the brand's documented rhythm,
  * never two consecutive same-surface bands).
  *
- * Server component — no client JS. Motion is CSS-only (rise-in: transform +
- * opacity, easeOut), neutralised under prefers-reduced-motion via globals.css.
+ * The hero primary CTA leads into the GUIDED COURSE (the product's spine), not
+ * the track catalogue: it reads "Continue the course" when the learner has a
+ * real next action (resolved from `lib/journey` recommendNextAction — the same
+ * recommend-next loop, reused, never re-derived) and "Start the course"
+ * otherwise. "Explore tracks" is demoted to a quiet secondary text-link.
+ *
+ * Async server component — reads the principal + journey recommendation. No
+ * client JS. Motion is CSS-only (rise-in: transform + opacity, easeOut),
+ * neutralised under prefers-reduced-motion via globals.css.
  */
 
 interface Pillar {
@@ -22,8 +31,8 @@ interface Pillar {
 
 const PILLARS: readonly Pillar[] = [
   {
-    title: "Structured pathways",
-    body: "Twelve tracks across four skill levels — beginner to expert — with prerequisite gating and per-level capstones.",
+    title: "One guided path",
+    body: "Fifteen modules in order, Module 0 to 14 — beginner to expert — with prerequisite gating so you always know exactly what's next.",
     marker: "01",
   },
   {
@@ -40,12 +49,23 @@ const PILLARS: readonly Pillar[] = [
 
 /** Curriculum scale — concrete numbers read as a real product, not a template. */
 const STATS: readonly { value: string; label: string }[] = [
-  { value: "12", label: "Learning tracks" },
-  { value: "4", label: "Skill levels" },
+  { value: "15", label: "Guided modules" },
+  { value: "Module 0→14", label: "One linear path" },
   { value: "Beginner→Expert", label: "Progression" },
 ] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const principal = await getCurrentPrincipal();
+  const nextAction = await recommendNextAction(principal);
+  const hasNext = nextAction !== null;
+  const primaryHref =
+    nextAction?.kind === "lesson"
+      ? `/lessons/${nextAction.lessonCode}`
+      : nextAction?.kind === "capstone"
+        ? `/capstones/${nextAction.capstoneId}`
+        : "/course";
+  const primaryLabel = hasNext ? "Continue the course" : "Start the course";
+
   return (
     <>
       {/* Hero band — cream canvas, 6/6 grid (DESIGN.md hero-band, 96px rhythm) */}
@@ -70,11 +90,18 @@ export default function HomePage() {
             curriculum inside the platform — capability-based learning from
             first principles to multi-agent enterprise architecture.
           </p>
-          <div className="animate-rise-in delay-3 mt-9 flex flex-wrap items-center gap-3">
-            <Button href="/dashboard">Start learning</Button>
-            <Button href="/tracks" variant="secondary">
-              Explore tracks
+          <div className="animate-rise-in delay-3 mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <Button href={primaryHref} withArrow>
+              {primaryLabel}
             </Button>
+            {/* Demoted: the track catalogue is reachable but never competes
+                with the guided course as the primary path. */}
+            <Link
+              href="/tracks"
+              className="font-sans text-sm font-medium text-muted transition-colors duration-fast ease-standard hover:text-ink"
+            >
+              Browse topics instead
+            </Link>
           </div>
 
           {/* Curriculum scale — a designed stat row, hairline-separated rhythm */}
@@ -145,14 +172,15 @@ export default function HomePage() {
             Start where you are. Progress until you can prove it.
           </h2>
           <p className="mt-4 max-w-xl font-sans text-base leading-relaxed text-on-primary/85">
-            Open enrollment. Every track tracks your progress, surfaces weak
-            areas, and gates the next level on demonstrated mastery.
+            One guided path of fifteen modules. It tracks your progress,
+            surfaces weak areas, and always tells you exactly what&rsquo;s
+            next.
           </p>
           <Link
-            href="/dashboard"
+            href="/course"
             className="mt-8 inline-flex h-10 items-center rounded-md bg-canvas px-5 font-sans text-sm font-medium text-ink transition-colors duration-fast ease-standard hover:bg-surface-soft active:bg-surface-card"
           >
-            Open your dashboard
+            {primaryLabel}
           </Link>
         </div>
       </section>

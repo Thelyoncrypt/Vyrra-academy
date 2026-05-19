@@ -9,6 +9,8 @@
  * the global prefers-reduced-motion rule freezes it. Decorative only:
  * aria-hidden + an sr-only status line carries the loading state.
  */
+import { PageShell } from "@/components/ui/page-shell";
+
 function Bar({ className }: { className: string }) {
   return (
     <div className={`animate-pulse rounded-sm bg-surface-card ${className}`} />
@@ -17,7 +19,7 @@ function Bar({ className }: { className: string }) {
 
 export default function QuizLoading() {
   return (
-    <div className="mx-auto max-w-[900px] px-6 py-16">
+    <PageShell size="narrow" as="main">
       <p className="sr-only" role="status">
         Loading quiz…
       </p>
@@ -89,6 +91,6 @@ export default function QuizLoading() {
           ))}
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

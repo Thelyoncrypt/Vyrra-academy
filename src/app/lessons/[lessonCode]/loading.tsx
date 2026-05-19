@@ -9,6 +9,10 @@
  * is a CSS animation, so the global prefers-reduced-motion rule in
  * globals.css freezes it for users who ask for less motion. Decorative
  * only: aria-hidden + an sr-only status line carries the loading state.
+ *
+ * Pillar B3: the outer width/gutter/rhythm mirrors the page's `PageShell`
+ * (`--container-page` + the B0 gutter ladder + `py-16 lg:py-24`) so the
+ * skeleton → content swap produces no layout shift.
  */
 function Bar({ className }: { className: string }) {
   return (
@@ -18,7 +22,7 @@ function Bar({ className }: { className: string }) {
 
 export default function LessonLoading() {
   return (
-    <div className="mx-auto max-w-[1180px] px-6 py-16 md:py-24">
+    <div className="mx-auto w-full max-w-[var(--container-page)] px-[var(--spacing-gutter)] py-16 sm:px-[var(--spacing-gutter-sm)] lg:px-[var(--spacing-gutter-lg)] lg:py-24">
       <p className="sr-only" role="status">
         Loading lesson…
       </p>

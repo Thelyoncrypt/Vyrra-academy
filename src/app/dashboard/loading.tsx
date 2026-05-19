@@ -12,6 +12,8 @@
  * globals.css freezes it. Decorative only: aria-hidden + an sr-only status
  * line carries the loading state for assistive tech.
  */
+import { PageShell } from "@/components/ui/page-shell";
+
 function Bar({ className }: { className: string }) {
   return (
     <div className={`animate-pulse rounded-sm bg-surface-card ${className}`} />
@@ -28,7 +30,7 @@ function DarkBar({ className }: { className: string }) {
 
 export default function DashboardLoading() {
   return (
-    <div className="mx-auto max-w-[1200px] px-6 py-16">
+    <PageShell as="main">
       <p className="sr-only" role="status">
         Loading your dashboard…
       </p>
@@ -85,7 +87,7 @@ export default function DashboardLoading() {
         <div className="mt-16">
           <Bar className="h-7 w-32" />
           <Bar className="mt-3 h-4 w-64 max-w-full" />
-          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -139,6 +141,6 @@ export default function DashboardLoading() {
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
